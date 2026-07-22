@@ -15,6 +15,8 @@ video: "",
 
 buy: "https://your-affiliate-link",
 
+page: "product1.html",
+
 featured: true,
 
 tags: [
