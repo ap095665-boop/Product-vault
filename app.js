@@ -6,19 +6,13 @@ let visibleProducts = 4;
 let filteredProducts = [...PRODUCTS];
 
 function createCard(product) {
-  const media = product.video
-    ? `
-      <video class="media" controls playsinline preload="none">
-        <source src="${product.video}" type="video/mp4">
-      </video>
-    `
-    : `
-      <img
-        class="media"
-        loading="lazy"
-        src="${product.image}"
-        alt="${product.name}">
-    `;
+  const media = `
+  <img
+    class="media"
+    loading="lazy"
+    src="${product.image}"
+    alt="${product.name}">
+`;
 
   return `
     <div class="card">
