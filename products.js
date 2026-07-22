@@ -9,7 +9,7 @@ rating: 4.8,
 
 description: "High-fiber healthier noodle alternative.",
 
-image: "images/noodles.webp",
+image: "file_00000000fe3871faa15ef572edd8f222.png",
 
 video: "20260720_211701.mp4",
 
