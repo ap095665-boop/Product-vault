@@ -118,6 +118,36 @@ tags: [
 
 ]
 
+},
+  {
+id: "bra",
+
+name: "Brain Chunk",
+
+rating: 4.9,
+
+description: "Create and brain games.",
+
+image: "images/book.webp",
+
+video: "",
+
+buy: "https://your-affiliate-link",
+
+featured: true,
+
+tags: [
+
+"bran",
+
+"bok",
+
+"crtive",
+
+"kiss"
+
+]
+
 }
 
 ];
