@@ -29,7 +29,7 @@ function createCard(product) {
           Buy Now
         </a>
 
-        <a class="details" href="product.html?id=${product.id}">
+        <a class="details" href="${product.page}">
           View Details
         </a>
       </div>
