@@ -1,0 +1,1 @@
+document.body.insertAdjacentHTML('beforeend','<p style="padding:16px">Starter project: replace with your product rendering logic and products.json.</p>');
