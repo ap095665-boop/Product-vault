@@ -11,7 +11,7 @@ description: "High-fiber healthier noodle alternative.",
 
 image: "images/noodles.webp",
 
-video: "",
+video: "20260720_211701.mp4",
 
 buy: "https://your-affiliate-link",
 
