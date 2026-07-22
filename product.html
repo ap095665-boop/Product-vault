@@ -38,17 +38,17 @@ const media = product.video
 `;
 
 container.innerHTML = `
-<div class="card">
+<div class="product-page">
 
 ${media}
 
-<div class="content">
+<div class="product-content">
 
 <h2>${product.name}</h2>
 
-<p>⭐ ${product.rating}</p>
-
-<p>${product.description}</p>
+<div class="rating">
+⭐ ${product.rating}
+</div>
 
 <a class="buy"
 href="${product.buy}"
@@ -56,9 +56,7 @@ target="_blank">
 Buy Now
 </a>
 
-<br><br>
-
-<a class="details"
+<a class="back"
 href="index.html">
 ← Back
 </a>
