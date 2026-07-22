@@ -2,36 +2,23 @@ const productContainer = document.getElementById("cards");
 const search = document.getElementById("search");
 const loadMoreBtn = document.getElementById("loadMore");
 
-let visibleProducts = 4;
+const cardsPerPage = 4;
+let currentPage = 0;
 let filteredProducts = [...PRODUCTS];
 
 function createCard(product) {
-  const media = `
-  <img
-    class="media"
-    loading="lazy"
-    src="${product.image}"
-    alt="${product.name}">
-`;
-
   return `
     <div class="card">
-      ${media}
+      <img class="media" loading="lazy" src="${product.image}" alt="${product.name}">
 
       <div class="content">
         <div class="name">${product.name}</div>
-
         <div class="rating">⭐ ${product.rating}</div>
-
         <div class="desc">${product.description}</div>
 
-        <a class="buy" href="${product.buy}" target="_blank">
-          Buy Now
-        </a>
+        <a class="buy" href="${product.buy}" target="_blank">Buy Now</a>
 
-        <a class="details" href="${product.page}">
-          View Details
-        </a>
+        <a class="details" href="${product.page}">View Details</a>
       </div>
     </div>
   `;
@@ -40,17 +27,16 @@ function createCard(product) {
 function renderProducts() {
   productContainer.innerHTML = "";
 
-  filteredProducts
-    .slice(0, visibleProducts)
-    .forEach(product => {
-      productContainer.innerHTML += createCard(product);
-    });
+  const start = currentPage * cardsPerPage;
+  const end = start + cardsPerPage;
+
+  filteredProducts.slice(start, end).forEach(product => {
+    productContainer.innerHTML += createCard(product);
+  });
 
   if (loadMoreBtn) {
-    loadMoreBtn.style.display =
-      visibleProducts >= filteredProducts.length
-        ? "none"
-        : "block";
+    loadMoreBtn.textContent =
+      end >= filteredProducts.length ? "Start Again" : "Next";
   }
 }
 
@@ -62,15 +48,18 @@ search.addEventListener("input", () => {
     product.description.toLowerCase().includes(text)
   );
 
-  visibleProducts = 4;
+  currentPage = 0;
   renderProducts();
 });
 
-if (loadMoreBtn) {
-  loadMoreBtn.addEventListener("click", () => {
-    visibleProducts += 4;
-    renderProducts();
-  });
-}
+loadMoreBtn.addEventListener("click", () => {
+  currentPage++;
+
+  if (currentPage * cardsPerPage >= filteredProducts.length) {
+    currentPage = 0;
+  }
+
+  renderProducts();
+});
 
 renderProducts();
