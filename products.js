@@ -1,19 +1,19 @@
 const PRODUCTS = [
 
 {
-id: "healthy-noodles",
+id: "Wooden Money Box",
 
-name: "Healthy Wheat Noodles",
+name: "wooden money box",
 
 rating: 4.8,
 
-description: "High-fiber healthier noodle alternative.",
+description: "build wealth save for future",
 
-image: "file_00000000fe3871faa15ef572edd8f222.png",
+image: "file_000000003ed0820896cf9b26cf307b48.png",
 
-video: "20260720_211701.mp4",
+video: "",
 
-buy: "https://your-affiliate-link",
+buy: "https://amzn.to/45iNRx8",
 
 page: "product1.html",
 
@@ -21,13 +21,13 @@ featured: true,
 
 tags: [
 
-"healthy",
+"money box",
 
-"food",
+"savings",
 
-"noodles",
+"investing",
 
-"kids"
+"wealth"
 
 ]
 
