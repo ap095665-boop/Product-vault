@@ -234,14 +234,15 @@ font-size:26px;
 margin-bottom:15px;
 }
 
-.rating{
+.product-content .rating{
 font-size:20px;
 font-weight:bold;
+color:#FFD700;
 margin-bottom:20px;
 }
 
-.buy,
-.back{
+.product-content .buy,
+.product-content .back{
 display:block;
 width:100%;
 padding:16px;
