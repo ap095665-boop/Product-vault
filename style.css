@@ -198,3 +198,24 @@ background:#000;
 }
 
 }
+.details{
+
+display:block;
+
+margin-top:12px;
+
+padding:14px;
+
+border-radius:14px;
+
+text-align:center;
+
+background:#2c2c2c;
+
+color:white;
+
+text-decoration:none;
+
+font-weight:bold;
+
+}
