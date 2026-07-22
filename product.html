@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Details</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="products.js"></script>
+</head>
+
+<body>
+
+<div id="products"></div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
+
+const product = PRODUCTS.find(p => p.id === id);
+
+const container = document.getElementById("products");
+
+if(!product){
+    container.innerHTML = "<h2>Product not found.</h2>";
+}
+else{
+
+const media = product.video
+? `
+<video class="media" controls playsinline>
+<source src="${product.video}" type="video/mp4">
+</video>
+`
+: `
+<img class="media" src="${product.image}" alt="${product.name}">
+`;
+
+container.innerHTML = `
+<div class="card">
+
+${media}
+
+<div class="content">
+
+<h2>${product.name}</h2>
+
+<p>⭐ ${product.rating}</p>
+
+<p>${product.description}</p>
+
+<a class="buy"
+href="${product.buy}"
+target="_blank">
+Buy Now
+</a>
+
+<br><br>
+
+<a class="details"
+href="index.html">
+← Back
+</a>
+
+</div>
+
+</div>
+`;
+
+}
+</script>
+
+</body>
+</html>
