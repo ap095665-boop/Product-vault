@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sindora — Websites, Digital Tools &amp; Business Automation</title>
+<meta name="description" content="Sindora builds business websites, digital tools, QR restaurant automation and progressive web apps for practical, modern businesses in Chennai and beyond.">
+<meta name="theme-color" content="#0A0D14">
+<link rel="icon" href="data:,">
+<style>
+  /* ============================================================
+     TOKENS
+  ============================================================ */
+  :root{
+    --bg:            #0A0D14;
+    --bg-alt:        #0D111A;
+    --panel:         #12161F;
+    --panel-2:       #161B26;
+    --border:        rgba(158,170,204,0.14);
+    --border-strong: rgba(158,170,204,0.26);
+
+    --text:          #ECEFF6;
+    --text-muted:    #9AA3B8;
+    --text-dim:      #626B80;
+
+    --accent-1:      #5B6EF5;
+    --accent-2:      #2FD9C8;
+    --accent-grad:   linear-gradient(120deg, var(--accent-1), var(--accent-2));
+    --accent-soft:   rgba(91,110,245,0.14);
+    --live:          #2FD9C8;
+    --warn:          #F5A623;
+
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
+
+    --header-h: 64px;
+    --container: 1180px;
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --radius-sm: 9px;
+
+    --ease: cubic-bezier(.22,.85,.32,1);
+    scroll-padding-top: var(--header-h);
+  }
+  @media (min-width: 768px){
+    :root{ --header-h: 72px; }
+  }
+
+  /* ============================================================
+     RESET
+  ============================================================ */
+  *,*::before,*::after{ box-sizing: border-box; }
+  html{
+    background: var(--bg);
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  html, body{ max-width: 100%; }
+  img,svg{ max-width:100%; display:block; }
+  a{ color: inherit; text-decoration: none; }
+  ul{ margin:0; padding:0; list-style:none; }
+  h1,h2,h3,h4,p{ margin:0; }
+  button{ font: inherit; color: inherit; background:none; border:0; cursor:pointer; }
+  input{ font: inherit; }
+
+  ::selection{ background: var(--accent-1); color:#fff; }
+
+  :focus-visible{
+    outline: 2px solid var(--accent-2);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  .container{
+    width: 100%;
+    max-width: var(--container);
+    margin-inline: auto;
+    padding-inline: 20px;
+  }
+  @media (min-width: 768px){ .container{ padding-inline: 32px; } }
+  @media (min-width: 1024px){ .container{ padding-inline: 40px; } }
+
+  .visually-hidden{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+
+  .skip-link{
+    position:absolute;
+    left: 12px; top: -60px;
+    background: var(--accent-2);
+    color:#052024;
+    font-weight:700;
+    padding: 10px 16px;
+    border-radius: var(--radius-sm);
+    z-index: 200;
+    transition: top .2s var(--ease);
+  }
+  .skip-link:focus{ top: 12px; }
+
+  section{ scroll-margin-top: var(--header-h); }
+
+  /* ============================================================
+     BACKDROP
+  ============================================================ */
+  .backdrop{
+    position: fixed;
+    inset:0;
+    z-index:-1;
+    background:
+      radial-gradient(60% 45% at 82% -8%, rgba(91,110,245,0.22), transparent 60%),
+      radial-gradient(50% 40% at 10% 8%, rgba(47,217,200,0.10), transparent 60%),
+      var(--bg);
+  }
+  .backdrop::after{
+    content:"";
+    position:absolute; inset:0;
+    background-image: radial-gradient(rgba(255,255,255,0.045) 1px, transparent 1px);
+    background-size: 22px 22px;
+    opacity:.5;
+  }
+
+  /* ============================================================
+     EYEBROW / MONO LABEL
+  ============================================================ */
+  .eyebrow{
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent-2);
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom: 14px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:7px; height:7px;
+    border-radius:50%;
+    background: var(--accent-2);
+    box-shadow: 0 0 0 3px rgba(47,217,200,0.18);
+  }
+
+  .section-head{ max-width: 640px; margin-bottom: 40px; }
+  .section-head h2{
+    font-size: clamp(1.7rem, 4.5vw, 2.5rem);
+    line-height:1.15;
+    letter-spacing:-.01em;
+    font-weight: 700;
+  }
+  .section-head p{
+    margin-top: 14px;
+    color: var(--text-muted);
+    font-size: 1.02rem;
+  }
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding: 13px 24px;
+    border-radius: 999px;
+    font-weight:600;
+    font-size: .96rem;
+    white-space: nowrap;
+    transition: transform .18s var(--ease), box-shadow .18s var(--ease), background-color .18s var(--ease), border-color .18s var(--ease);
+  }
+  .btn:active{ transform: translateY(1px); }
+  .btn-primary{
+    background: var(--accent-grad);
+    color:#04121A;
+  }
+  .btn-primary:hover{ box-shadow: 0 10px 30px -8px rgba(91,110,245,0.55); }
+  .btn-ghost{
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+    background: rgba(255,255,255,0.02);
+  }
+  .btn-ghost:hover{ border-color: var(--accent-2); background: rgba(47,217,200,0.06); }
+  .btn-wa{
+    background:#17352E;
+    color:#7CF2D9;
+    border:1px solid rgba(124,242,217,0.28);
+  }
+  .btn-wa:hover{ background:#1B4038; }
+
+  /* ============================================================
+     REVEAL ANIMATION
+  ============================================================ */
+  .reveal{
+    opacity:0;
+    transform: translateY(18px);
+    transition: opacity .7s var(--ease), transform .7s var(--ease);
+    will-change: opacity, transform;
+  }
+  .reveal.is-visible{ opacity:1; transform:none; }
+  .reveal-group > *{ transition-delay: calc(var(--i,0) * 70ms); }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    *,*::before,*::after{
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior:auto !important;
+    }
+    .reveal{ opacity:1 !important; transform:none !important; }
+  }
+
+  noscript .reveal, html.no-js .reveal{ opacity:1; transform:none; }
+
+  /* ============================================================
+     HEADER / NAV
+  ============================================================ */
+  .site-header{
+    position: fixed;
+    top:0; left:0; right:0;
+    z-index: 100;
+    height: var(--header-h);
+    display:flex;
+    align-items:center;
+    background: rgba(10,13,20,0.72);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .nav__logo{
+    font-family: var(--font-mono);
+    font-weight:700;
+    font-size: 1.05rem;
+    letter-spacing: -.01em;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .nav__logo .dot{
+    width:8px; height:8px; border-radius:50%;
+    background: var(--accent-grad);
+    flex:none;
+  }
+  .nav__links{
+    display:none;
+    align-items:center;
+    gap: 4px;
+  }
+  .nav__links a{
+    padding: 9px 14px;
+    border-radius: 999px;
+    font-size: .93rem;
+    color: var(--text-muted);
+    transition: color .16s var(--ease), background-color .16s var(--ease);
+  }
+  .nav__links a:hover{ color: var(--text); background: rgba(255,255,255,0.05); }
+  .nav__cta{ display:none; }
+
+  .nav__toggle{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    border: 1px solid var(--border-strong);
+    background: rgba(255,255,255,0.02);
+  }
+  .nav__toggle-box{
+    position:relative;
+    width:18px; height:12px;
+  }
+  .nav__toggle-box span{
+    position:absolute; left:0; right:0; height:2px;
+    background: var(--text);
+    border-radius: 2px;
+    transition: transform .25s var(--ease), opacity .2s var(--ease), top .25s var(--ease);
+  }
+  .nav__toggle-box span:nth-child(1){ top:0; }
+  .nav__toggle-box span:nth-child(2){ top:5px; }
+  .nav__toggle-box span:nth-child(3){ top:10px; }
+  .nav__toggle[aria-expanded="true"] .nav__toggle-box span:nth-child(1){ top:5px; transform: rotate(45deg); }
+  .nav__toggle[aria-expanded="true"] .nav__toggle-box span:nth-child(2){ opacity:0; }
+  .nav__toggle[aria-expanded="true"] .nav__toggle-box span:nth-child(3){ top:5px; transform: rotate(-45deg); }
+
+  .nav__mobile{
+    position: fixed;
+    top: var(--header-h);
+    left:0; right:0;
+    bottom:0;
+    background: rgba(9,11,17,0.98);
+    backdrop-filter: blur(10px);
+    display:flex;
+    flex-direction:column;
+    padding: 28px 24px;
+    gap: 6px;
+    transform: translateX(100%);
+    transition: transform .32s var(--ease);
+    overflow-y:auto;
+  }
+  .nav__mobile[data-open="true"]{ transform: translateX(0); }
+  .nav__mobile a{
+    padding: 16px 6px;
+    font-size: 1.25rem;
+    font-weight:600;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .nav__mobile .btn{ margin-top: 20px; width:100%; }
+  body[data-menu-open="true"]{ overflow:hidden; }
+
+  noscript .nav__toggle{ display:none; }
+
+  @media (min-width: 900px){
+    .nav__links{ display:flex; }
+    .nav__cta{ display:inline-flex; }
+    .nav__toggle{ display:none; }
+    .nav__mobile{ display:none !important; }
+  }
+
+  /* ============================================================
+     HERO
+  ============================================================ */
+  .hero{
+    padding-top: calc(var(--header-h) + 56px);
+    padding-bottom: 64px;
+  }
+  .hero__grid{
+    display:grid;
+    gap: 40px;
+  }
+  @media (min-width: 1024px){
+    .hero__grid{
+      grid-template-columns: 1.05fr .95fr;
+      align-items:center;
+      gap: 56px;
+    }
+  }
+  .hero__title{
+    font-size: clamp(2.4rem, 7.5vw, 4rem);
+    line-height: 1.05;
+    letter-spacing: -.02em;
+    font-weight: 800;
+  }
+  .hero__title em{
+    font-style:normal;
+    background: var(--accent-grad);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .hero__lede{
+    margin-top: 22px;
+    max-width: 520px;
+    font-size: 1.1rem;
+    color: var(--text-muted);
+  }
+  .hero__actions{
+    margin-top: 32px;
+    display:flex;
+    flex-wrap:wrap;
+    gap: 14px;
+  }
+  .hero__meta{
+    margin-top: 34px;
+    display:flex;
+    flex-wrap:wrap;
+    gap: 22px;
+    font-family: var(--font-mono);
+    font-size: .78rem;
+    color: var(--text-dim);
+    letter-spacing:.03em;
+  }
+  .hero__meta strong{ color: var(--text-muted); font-weight:600; }
+
+  /* ---- dashboard signature panel ---- */
+  .tracker{
+    position: relative;
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    box-shadow: 0 30px 70px -30px rgba(0,0,0,0.6);
+  }
+  .tracker__top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom: 18px;
+  }
+  .tracker__title{
+    font-family: var(--font-mono);
+    font-size: .74rem;
+    letter-spacing:.12em;
+    color: var(--text-dim);
+    text-transform:uppercase;
+  }
+  .tracker__live{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family: var(--font-mono);
+    font-size: .7rem;
+    letter-spacing:.1em;
+    color: var(--live);
+    background: rgba(47,217,200,0.1);
+    border: 1px solid rgba(47,217,200,0.25);
+    padding: 5px 10px;
+    border-radius: 999px;
+  }
+  .tracker__live .pulse{
+    width:6px; height:6px; border-radius:50%;
+    background: var(--live);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{ opacity:1; }
+    50%{ opacity:.35; }
+  }
+  .tracker__row{
+    padding: 14px 0;
+    border-top: 1px solid var(--border);
+  }
+  .tracker__row:first-of-type{ border-top:0; }
+  .tracker__row-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .tracker__name{ font-size: .92rem; font-weight:600; }
+  .tracker__status{
+    font-family: var(--font-mono);
+    font-size: .68rem;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    padding: 4px 9px;
+    border-radius: 999px;
+    flex:none;
+  }
+  .tracker__status.is-progress{ color:#FFD79A; background: rgba(245,166,35,0.12); border:1px solid rgba(245,166,35,0.3); }
+  .tracker__status.is-review{ color:#B7C2FF; background: rgba(91,110,245,0.12); border:1px solid rgba(91,110,245,0.3); }
+  .tracker__status.is-done{ color:#7CF2D9; background: rgba(47,217,200,0.12); border:1px solid rgba(47,217,200,0.3); }
+  .tracker__bar{
+    height:6px;
+    border-radius:999px;
+    background: rgba(255,255,255,0.06);
+    overflow:hidden;
+  }
+  .tracker__bar span{
+    display:block;
+    height:100%;
+    border-radius:999px;
+    background: var(--accent-grad);
+  }
+  .tracker__foot{
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    font-size: .78rem;
+    color: var(--text-dim);
+  }
+
+  /* ---- ticker ---- */
+  .ticker{
+    margin-top: 56px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    overflow:hidden;
+    padding: 14px 0;
+  }
+  .ticker__track{
+    display:flex;
+    width: max-content;
+    gap: 40px;
+    animation: ticker 26s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .ticker__track{ animation:none; flex-wrap:wrap; }
+  }
+  .ticker__track span{
+    font-family: var(--font-mono);
+    font-size: .78rem;
+    letter-spacing:.12em;
+    color: var(--text-dim);
+    text-transform:uppercase;
+    white-space:nowrap;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .ticker__track span::before{ content:"◆"; color: var(--accent-2); font-size:.6rem; }
+  @keyframes ticker{
+    from{ transform: translateX(0); }
+    to{ transform: translateX(-50%); }
+  }
+
+  /* ============================================================
+     SERVICES
+  ============================================================ */
+  .services{ padding-block: 88px; }
+  .card-grid{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  @media (min-width: 640px){
+    .card-grid{ grid-template-columns: 1fr 1fr; }
+  }
+  @media (min-width: 1024px){
+    .card-grid{ grid-template-columns: repeat(3, 1fr); }
+  }
+  .card{
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 26px;
+    display:flex;
+    flex-direction:column;
+    gap: 14px;
+    transition: border-color .2s var(--ease), transform .2s var(--ease), background-color .2s var(--ease);
+    height:100%;
+  }
+  .card:hover{ border-color: var(--border-strong); transform: translateY(-3px); background: var(--panel-2); }
+  .card__icon{
+    width: 42px; height:42px;
+    border-radius: 11px;
+    background: var(--accent-soft);
+    display:flex; align-items:center; justify-content:center;
+    color: var(--accent-2);
+    flex:none;
+  }
+  .card__icon svg{ width:20px; height:20px; }
+  .card h3{ font-size: 1.12rem; font-weight:700; }
+  .card p{ color: var(--text-muted); font-size: .94rem; flex:1; }
+  .card__link{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size: .88rem;
+    font-weight:600;
+    color: var(--accent-2);
+    margin-top:4px;
+  }
+  .card__link svg{ width:14px; height:14px; transition: transform .18s var(--ease); }
+  .card__link:hover svg{ transform: translate(2px,-2px); }
+
+  /* ============================================================
+     TOOLS PORTAL
+  ============================================================ */
+  .tools{ padding-block: 88px; }
+  .tools__panel{
+    display:grid;
+    gap: 28px;
+    background: linear-gradient(135deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-lg);
+    padding: 36px 28px;
+  }
+  @media (min-width: 900px){
+    .tools__panel{
+      grid-template-columns: 1.1fr .9fr;
+      padding: 48px;
+      align-items:center;
+    }
+  }
+  .tools__panel h2{ font-size: clamp(1.5rem, 3.6vw, 2.1rem); font-weight:700; letter-spacing:-.01em; }
+  .tools__panel p{ margin-top:14px; color: var(--text-muted); max-width: 46ch; }
+  .tools__links{
+    display:grid;
+    gap: 12px;
+  }
+  .tools__linkcard{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding: 16px 18px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+    transition: border-color .18s var(--ease), background-color .18s var(--ease);
+  }
+  .tools__linkcard:hover{ border-color: var(--accent-2); background: rgba(47,217,200,0.06); }
+  .tools__linkcard .name{ font-weight:600; font-size:.95rem; }
+  .tools__linkcard .url{ font-family: var(--font-mono); font-size: .74rem; color: var(--text-dim); }
+  .tools__linkcard svg{ width:16px; height:16px; color: var(--accent-2); flex:none; }
+
+  /* ============================================================
+     ABOUT
+  ============================================================ */
+  .about{ padding-block: 88px; }
+  .about__grid{
+    display:grid;
+    gap: 32px;
+  }
+  @media (min-width: 900px){
+    .about__grid{ grid-template-columns: .9fr 1.1fr; gap: 56px; }
+  }
+  .about__copy p{ color: var(--text-muted); font-size: 1.02rem; }
+  .about__copy p + p{ margin-top: 14px; }
+  .stat-grid{
+    display:grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 14px;
+  }
+  .stat{
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--panel);
+  }
+  .stat b{
+    display:block;
+    font-family: var(--font-mono);
+    font-size: 1.6rem;
+    background: var(--accent-grad);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .stat span{ font-size: .82rem; color: var(--text-dim); }
+
+  /* ============================================================
+     POLICIES (accordion)
+  ============================================================ */
+  .policies{ padding-block: 88px; }
+  .policy-list{ display:flex; flex-direction:column; gap: 12px; }
+  .policy{
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--panel);
+    overflow:hidden;
+  }
+  .policy summary{
+    list-style:none;
+    cursor:pointer;
+    padding: 20px 22px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 16px;
+    font-weight:600;
+    font-size: 1rem;
+  }
+  .policy summary::-webkit-details-marker{ display:none; }
+  .policy summary .chev{
+    flex:none;
+    width:20px; height:20px;
+    transition: transform .22s var(--ease);
+    color: var(--text-dim);
+  }
+  .policy[open] summary .chev{ transform: rotate(180deg); }
+  .policy__body{
+    padding: 0 22px 24px;
+    color: var(--text-muted);
+    font-size: .95rem;
+  }
+  .policy__body h4{
+    color: var(--text);
+    font-size: .86rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin: 18px 0 8px;
+    font-family: var(--font-mono);
+  }
+  .policy__body h4:first-child{ margin-top:0; }
+  .policy__body ul{ margin-top: 8px; display:grid; gap:6px; }
+  .policy__body ul li{ padding-left: 18px; position:relative; }
+  .policy__body ul li::before{
+    content:"—";
+    position:absolute; left:0; color: var(--text-dim);
+  }
+  .policy__body p + p{ margin-top:10px; }
+  .callout{
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(245,166,35,0.3);
+    background: rgba(245,166,35,0.08);
+    color: #FFE1B0;
+    font-size: .88rem;
+  }
+  .callout.is-teal{
+    border-color: rgba(47,217,200,0.3);
+    background: rgba(47,217,200,0.08);
+    color: #BFF6EB;
+  }
+
+  /* ============================================================
+     CONTACT
+  ============================================================ */
+  .contact{ padding-block: 88px; }
+  .contact__panel{
+    display:grid;
+    gap: 30px;
+    background: linear-gradient(160deg, rgba(91,110,245,0.14), rgba(47,217,200,0.06));
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-lg);
+    padding: 34px 26px;
+  }
+  @media (min-width: 900px){
+    .contact__panel{ grid-template-columns: 1.1fr .9fr; padding: 48px; align-items:center; }
+  }
+  .contact__panel h2{ font-size: clamp(1.5rem,3.6vw,2.1rem); font-weight:700; }
+  .contact__panel > div > p{ margin-top:12px; color: var(--text-muted); max-width: 44ch; }
+  .contact__tags{ display:flex; flex-wrap:wrap; gap:8px; margin-top:18px; }
+  .contact__tags span{
+    font-family: var(--font-mono);
+    font-size: .72rem;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    padding: 6px 11px;
+    border-radius:999px;
+    border:1px solid var(--border-strong);
+    color: var(--text-muted);
+  }
+  .contact__card{
+    background: var(--bg-alt);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    padding: 26px;
+  }
+  .contact__card .row{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    padding: 12px 0;
+    border-top: 1px solid var(--border);
+  }
+  .contact__card .row:first-child{ border-top:0; padding-top:0; }
+  .contact__card .row svg{ width:18px; height:18px; color:var(--accent-2); flex:none; margin-top:2px; }
+  .contact__card .row .label{ font-size:.72rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.06em; font-family:var(--font-mono); }
+  .contact__card .row .value{ font-size:.94rem; font-weight:600; margin-top:2px; }
+  .contact__card .btn{ width:100%; margin-top:20px; }
+
+  /* ============================================================
+     FOOTER
+  ============================================================ */
+  .site-footer{
+    border-top: 1px solid var(--border);
+    padding-block: 40px;
+  }
+  .footer__grid{
+    display:flex;
+    flex-direction:column;
+    gap: 20px;
+  }
+  @media (min-width: 768px){
+    .footer__grid{ flex-direction:row; align-items:center; justify-content:space-between; }
+  }
+  .footer__brand{
+    font-family: var(--font-mono);
+    font-size: .82rem;
+    color: var(--text-dim);
+  }
+  .footer__links{
+    display:flex;
+    flex-wrap:wrap;
+    gap: 8px 18px;
+  }
+  .footer__links a{
+    font-size: .84rem;
+    color: var(--text-muted);
+  }
+  .footer__links a:hover{ color: var(--text); }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="backdrop" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="container nav">
+    <a href="#home" class="nav__logo" aria-label="Sindora, home">
+      <span class="dot" aria-hidden="true"></span> SINDORA
+    </a>
+
+    <nav class="nav__links" aria-label="Primary">
+      <a href="#services">Services</a>
+      <a href="#tools">Digital Tools</a>
+      <a href="#about">About</a>
+      <a href="#policies">Policies</a>
+      <a href="#contact">Contact</a>
+    </nav>
+
+    <a href="#contact" class="btn btn-primary nav__cta">Talk to Sindora</a>
+
+    <button class="nav__toggle" type="button" id="menuToggle" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+      <span class="nav__toggle-box" aria-hidden="true"><span></span><span></span><span></span></span>
+    </button>
+  </div>
+
+  <nav class="nav__mobile" id="mobileMenu" data-open="false" aria-label="Mobile" hidden>
+    <a href="#services">Services</a>
+    <a href="#tools">Digital Tools</a>
+    <a href="#about">About</a>
+    <a href="#policies">Policies</a>
+    <a href="#contact">Contact</a>
+    <a href="#contact" class="btn btn-primary">Talk to Sindora</a>
+  </nav>
+</header>
+
+<noscript>
+  <style>
+    .nav__mobile{ display:block !important; position:static !important; transform:none !important; background:none !important; backdrop-filter:none !important; padding: 10px 20px !important; }
+    .nav__toggle{ display:none !important; }
+    .reveal{ opacity:1 !important; transform:none !important; }
+    .ticker__track{ animation:none !important; flex-wrap:wrap !important; }
+  </style>
+</noscript>
+
+<main id="main">
+
+  <!-- ============================================================ HERO -->
+  <section id="home" class="hero">
+    <div class="container hero__grid">
+      <div>
+        <p class="eyebrow">Digital studio · Chennai, India</p>
+        <h1 class="hero__title">Build digital.<br><em>Grow smarter.</em></h1>
+        <p class="hero__lede">Sindora designs and builds business websites, custom digital tools, apps and automation systems — practical technology that gets real businesses more customers and fewer headaches.</p>
+        <div class="hero__actions">
+          <a href="#services" class="btn btn-primary">Explore Services</a>
+          <a href="#contact" class="btn btn-ghost">Talk to Sindora</a>
+        </div>
+        <div class="hero__meta">
+          <span><strong>Websites</strong> — websites.sindora.site</span>
+          <span><strong>Tools</strong> — tools.sindora.site</span>
+        </div>
+      </div>
+
+      <div class="tracker reveal" aria-hidden="true">
+        <div class="tracker__top">
+          <span class="tracker__title">Project tracker</span>
+          <span class="tracker__live"><span class="pulse"></span>Live</span>
+        </div>
+
+        <div class="tracker__row">
+          <div class="tracker__row-top">
+            <span class="tracker__name">Business Website</span>
+            <span class="tracker__status is-progress">In progress</span>
+          </div>
+          <div class="tracker__bar"><span style="width:72%"></span></div>
+        </div>
+
+        <div class="tracker__row">
+          <div class="tracker__row-top">
+            <span class="tracker__name">QR Menu System</span>
+            <span class="tracker__status is-done">Delivered</span>
+          </div>
+          <div class="tracker__bar"><span style="width:100%"></span></div>
+        </div>
+
+        <div class="tracker__row">
+          <div class="tracker__row-top">
+            <span class="tracker__name">Booking Tool (PWA)</span>
+            <span class="tracker__status is-review">In review</span>
+          </div>
+          <div class="tracker__bar"><span style="width:40%"></span></div>
+        </div>
+
+        <div class="tracker__foot">Every custom project ships with real-time access to a dashboard like this.</div>
+      </div>
+    </div>
+
+    <div class="ticker" role="presentation">
+      <div class="ticker__track" aria-hidden="true">
+        <span>Business Websites</span><span>Digital Tools</span><span>QR Restaurant Automation</span><span>Custom Web Solutions</span><span>Progressive Web Apps</span><span>Business Automation</span>
+        <span>Business Websites</span><span>Digital Tools</span><span>QR Restaurant Automation</span><span>Custom Web Solutions</span><span>Progressive Web Apps</span><span>Business Automation</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ SERVICES -->
+  <section id="services" class="services">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow">What we build</p>
+        <h2>Six ways Sindora moves your business online</h2>
+        <p>Every engagement is scoped around one goal: a system that's genuinely useful on day one, not a showpiece that sits unused.</p>
+      </div>
+
+      <div class="card-grid reveal-group">
+        <article class="card reveal" style="--i:0">
+          <div class="card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><circle cx="6.5" cy="6.5" r=".6" fill="currentColor" stroke="none"/></svg></div>
+          <h3>Business Websites</h3>
+          <p>Fast, professional websites built to explain what you do and turn visitors into customers.</p>
+          <a class="card__link" href="https://websites.sindora.site" target="_blank" rel="noopener">Visit websites.sindora.site <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M7 7h10v10"/></svg></a>
+        </article>
+
+        <article class="card reveal" style="--i:1">
+          <div class="card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.4 5.4L20 9l-4.6 3.4L17 18l-5-3.2L7 18l1.6-5.6L4 9l5.6-1.6z"/></svg></div>
+          <h3>Digital Tools</h3>
+          <p>Purpose-built software for billing, tracking, inventory and the day-to-day running of your business.</p>
+          <a class="card__link" href="https://tools.sindora.site" target="_blank" rel="noopener">Visit tools.sindora.site <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M7 7h10v10"/></svg></a>
+        </article>
+
+        <article class="card reveal" style="--i:2">
+          <div class="card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M15 15h5M17.5 14v6"/></svg></div>
+          <h3>QR Restaurant Automation</h3>
+          <p>QR-based menus and ordering that cut wait times and let your staff focus on service, not order-taking.</p>
+        </article>
+
+        <article class="card reveal" style="--i:3">
+          <div class="card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 17l6-6-6-6M12 19h8"/></svg></div>
+          <h3>Custom Web Solutions</h3>
+          <p>Bespoke web applications built around how your business actually works, not a generic template.</p>
+        </article>
+
+        <article class="card reveal" style="--i:4">
+          <div class="card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18 14 14 0 010-18z"/></svg></div>
+          <h3>Digital Business Presence</h3>
+          <p>Website, tools and automation working together as one coherent, findable online presence.</p>
+        </article>
+
+        <article class="card reveal" style="--i:5">
+          <div class="card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 18h4"/></svg></div>
+          <h3>Progressive Web Apps</h3>
+          <p>Installable, app-like experiences that work offline and load instantly — no app store required.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ TOOLS PORTAL -->
+  <section id="tools" class="tools">
+    <div class="container">
+      <div class="tools__panel reveal">
+        <div>
+          <p class="eyebrow">Dedicated portal</p>
+          <h2>A home for ready-made digital tools</h2>
+          <p>Beyond custom projects, Sindora maintains a growing portal of digital tools and products businesses can pick up directly — built once, used by many, priced fairly.</p>
+        </div>
+        <div class="tools__links">
+          <a class="tools__linkcard" href="https://tools.sindora.site" target="_blank" rel="noopener">
+            <span><span class="name">Digital Tools Portal</span><br><span class="url">tools.sindora.site</span></span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </a>
+          <a class="tools__linkcard" href="https://websites.sindora.site" target="_blank" rel="noopener">
+            <span><span class="name">Website Services</span><br><span class="url">websites.sindora.site</span></span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ ABOUT -->
+  <section id="about" class="about">
+    <div class="container about__grid">
+      <div class="about__copy reveal">
+        <p class="eyebrow">About Sindora</p>
+        <h2 style="font-size:clamp(1.6rem,4vw,2.2rem);font-weight:700;letter-spacing:-.01em;">A practical digital studio, not a vanity tech shop</h2>
+        <p>Sindora is a Chennai-based digital studio building useful, affordable and modern digital solutions for small and growing businesses across India.</p>
+        <p>We don't chase trends for their own sake. Every website, tool or automation we build is judged by one question: does this make running the business easier, or get it more customers? If it doesn't, we don't build it.</p>
+      </div>
+      <div class="stat-grid reveal">
+        <div class="stat"><b>2 days</b><span>Cooling-off window on custom projects</span></div>
+        <div class="stat"><b>Live</b><span>Project tracking on every custom build</span></div>
+        <div class="stat"><b>2</b><span>Dedicated portals — websites &amp; tools</span></div>
+        <div class="stat"><b>Chennai</b><span>Based in Tamil Nadu, India</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ POLICIES -->
+  <section id="policies" class="policies">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow">Policies</p>
+        <h2>Clear terms, no fine-print surprises</h2>
+        <p>The short version of every policy that matters, written in plain language.</p>
+      </div>
+
+      <div class="policy-list reveal">
+
+        <details class="policy">
+          <summary>Terms &amp; Conditions
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </summary>
+          <div class="policy__body">
+            <p>By engaging Sindora for any product or service, you agree to the description, scope, pricing and delivery terms shared and agreed at the time of order.</p>
+            <ul>
+              <li>You agree to provide accurate information and content needed to complete the work.</li>
+              <li>Custom work is scoped and priced based on what is agreed before the project begins.</li>
+              <li>Requests outside the agreed scope may require additional time and payment.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="policy">
+          <summary>Privacy Policy
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </summary>
+          <div class="policy__body">
+            <p>Sindora collects information such as your name, contact details and project requirements to communicate with you, process orders and deliver services and support.</p>
+            <ul>
+              <li>Information is used only for legitimate business purposes related to your order or enquiry.</li>
+              <li>Reasonable technical and organisational security measures are used to protect your information.</li>
+              <li>Payment information, where applicable, is handled by third-party payment providers and is not stored by Sindora directly.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="policy">
+          <summary>Payment Policy
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </summary>
+          <div class="policy__body">
+            <p>Payment is required according to the price displayed or otherwise agreed with Sindora for your product or service.</p>
+            <ul>
+              <li>Custom development begins once the agreed advance, or full payment, has been received.</li>
+              <li>Work outside the originally agreed scope may require a separate, additional payment before it begins.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="policy">
+          <summary>Refund &amp; Cancellation Policy
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </summary>
+          <div class="policy__body">
+            <h4>Custom projects</h4>
+            <p>This applies to websites, custom digital tools, apps and QR restaurant automation. You may cancel <strong>within 2 days of payment</strong>, while the project is still ongoing, and receive a full refund, subject to applicable terms and law.</p>
+            <div class="callout is-teal">Custom project? You have a 2-day window to cancel for a full refund, as long as the project hasn't been completed.</div>
+
+            <h4>Direct digital products</h4>
+            <p>Downloadable digital products, direct-access tools and similar resources are <strong>non-refundable once payment is made</strong>, because access or delivery may be immediate.</p>
+            <div class="callout">Direct digital products and instant-access tools cannot be refunded after payment — please review before purchasing.</div>
+          </div>
+        </details>
+
+        <details class="policy">
+          <summary>Delivery &amp; Project Tracking
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </summary>
+          <div class="policy__body">
+            <p>For custom websites, digital tools, apps and QR restaurant automation, you get access to a live project tracking dashboard after payment, showing:</p>
+            <ul>
+              <li>Current project status</li>
+              <li>Estimated delivery time</li>
+              <li>Final delivery time, once confirmed</li>
+            </ul>
+            <p>Delivery estimates can shift due to project complexity, content you provide, approval turnaround, requested changes or changes to scope. Reasonable revisions within the agreed scope are included where applicable; major changes outside that scope may require additional payment.</p>
+          </div>
+        </details>
+
+        <details class="policy">
+          <summary>Third-Party Services
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </summary>
+          <div class="policy__body">
+            <p>Projects may depend on third-party providers such as hosting, domain registrars, payment gateways, messaging platforms and other cloud services. Their availability, pricing and policies are controlled by those providers, not Sindora.</p>
+          </div>
+        </details>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ CONTACT -->
+  <section id="contact" class="contact">
+    <div class="container">
+      <div class="contact__panel reveal">
+        <div>
+          <p class="eyebrow">Get in touch</p>
+          <h2>Let's build something your customers actually use</h2>
+          <p>Tell us what you're running today and where it's slowing you down. We'll suggest the smallest thing that fixes it.</p>
+          <div class="contact__tags">
+            <span>Websites</span><span>Digital Tools</span><span>Business Automation</span>
+          </div>
+        </div>
+
+        <div class="contact__card">
+          <div class="row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.5 8.5 0 01-12.3 7.6L3 20l1-5.4A8.5 8.5 0 1121 11.5z"/></svg>
+            <div><div class="label">WhatsApp</div><div class="value">+91 XXXXXXXXXX <span style="color:var(--text-dim);font-weight:400;">(placeholder — replace with your number)</span></div></div>
+          </div>
+          <div class="row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-6.3-7-11.5A7 7 0 0112 2a7 7 0 017 7.5C19 14.7 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.3"/></svg>
+            <div><div class="label">Service area</div><div class="value">Chennai, Tamil Nadu, India</div></div>
+          </div>
+          <div class="row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>
+            <div><div class="label">Services</div><div class="value">Websites · Digital Tools · Automation</div></div>
+          </div>
+          <a class="btn btn-wa" id="waButton" href="#" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.5 8.5 0 01-12.3 7.6L3 20l1-5.4A8.5 8.5 0 1121 11.5z"/></svg>
+            Message on WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container footer__grid">
+    <p class="footer__brand">© <span id="year">2026</span> Sindora. All rights reserved.</p>
+    <nav class="footer__links" aria-label="Footer">
+      <a href="#policies">Terms &amp; Conditions</a>
+      <a href="#policies">Privacy Policy</a>
+      <a href="#policies">Refund &amp; Cancellation</a>
+      <a href="#policies">Payment Policy</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  document.documentElement.classList.remove("no-js");
+
+  /* -------- WhatsApp link (placeholder number, easy to edit) -------- */
+  var WHATSAPP_NUMBER = "91XXXXXXXXXX"; // PLACEHOLDER — replace with real number, digits only, country code first
+  var waLink = document.getElementById("waButton");
+  if (waLink) {
+    var msg = encodeURIComponent("Hi Sindora, I'd like to know more about your services.");
+    waLink.setAttribute("href", "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + msg);
+  }
+
+  /* -------- Footer year -------- */
+  var yearEl = document.getElementById("year");
+  if (yearEl) { yearEl.textContent = new Date().getFullYear(); }
+
+  /* -------- Mobile menu -------- */
+  var toggle = document.getElementById("menuToggle");
+  var menu = document.getElementById("mobileMenu");
+  var body = document.body;
+  var lastFocused = null;
+
+  function openMenu(){
+    lastFocused = document.activeElement;
+    menu.hidden = false;
+    requestAnimationFrame(function(){ menu.setAttribute("data-open", "true"); });
+    toggle.setAttribute("aria-expanded", "true");
+    toggle.setAttribute("aria-label", "Close menu");
+    body.setAttribute("data-menu-open", "true");
+    var firstLink = menu.querySelector("a");
+    if (firstLink) firstLink.focus();
+    document.addEventListener("keydown", onKeydown);
+    document.addEventListener("click", onOutsideClick, true);
+  }
+
+  function closeMenu(skipFocusReturn){
+    menu.setAttribute("data-open", "false");
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-label", "Open menu");
+    body.removeAttribute("data-menu-open");
+    document.removeEventListener("keydown", onKeydown);
+    document.removeEventListener("click", onOutsideClick, true);
+    window.setTimeout(function(){
+      if (toggle.getAttribute("aria-expanded") === "false") menu.hidden = true;
+    }, 340);
+    if (!skipFocusReturn && lastFocused) lastFocused.focus();
+  }
+
+  function onKeydown(e){
+    if (e.key === "Escape") closeMenu();
+  }
+
+  function onOutsideClick(e){
+    if (!menu.contains(e.target) && !toggle.contains(e.target)) closeMenu(true);
+  }
+
+  if (toggle && menu) {
+    toggle.addEventListener("click", function(){
+      var isOpen = toggle.getAttribute("aria-expanded") === "true";
+      isOpen ? closeMenu() : openMenu();
+    });
+
+    menu.querySelectorAll("a").forEach(function(a){
+      a.addEventListener("click", function(){ closeMenu(true); });
+    });
+
+    var mq = window.matchMedia("(min-width: 900px)");
+    function handleResize(e){
+      if (e.matches && toggle.getAttribute("aria-expanded") === "true") {
+        closeMenu(true);
+      }
+      if (e.matches) { menu.hidden = true; }
+    }
+    mq.addEventListener ? mq.addEventListener("change", handleResize) : mq.addListener(handleResize);
+  }
+
+  /* -------- Scroll reveal -------- */
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var revealEls = document.querySelectorAll(".reveal");
+
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    revealEls.forEach(function(el){ el.classList.add("is-visible"); });
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+
+    revealEls.forEach(function(el){ io.observe(el); });
+  }
+
+  /* -------- Stagger index for grouped reveals -------- */
+  document.querySelectorAll(".reveal-group").forEach(function(group){
+    var items = group.querySelectorAll(".reveal");
+    items.forEach(function(el, i){ el.style.setProperty("--i", i); });
+  });
+
+})();
+</script>
+</body>
+</html>
