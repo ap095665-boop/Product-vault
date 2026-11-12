@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0A0D14">
+<meta name="description" content="Explore Sindora products. Premium Bio Site — a polished digital profile for your business, ₹799.">
+<title>Our Products — Sindora</title>
+<style>
+:root{--bg:#0A0D14;--panel:#12161F;--panel2:#171D29;--line:rgba(158,170,204,.17);--text:#ECEFF6;--muted:#9AA3B8;--dim:#68738B;--a:#5B6EF5;--b:#2FD9C8;--grad:linear-gradient(120deg,var(--a),var(--b));--radius:22px}
+*{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}body{margin:0;background:radial-gradient(60% 40% at 85% 0%,rgba(91,110,245,.2),transparent 65%),radial-gradient(50% 40% at 0% 10%,rgba(47,217,200,.09),transparent 65%),var(--bg);color:var(--text);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;overflow-x:hidden}a{color:inherit;text-decoration:none}button{font:inherit}.wrap{width:min(1120px,calc(100% - 40px));margin:auto}
+header{height:68px;display:flex;align-items:center;border-bottom:1px solid var(--line);background:rgba(10,13,20,.8);backdrop-filter:blur(14px);position:sticky;top:0;z-index:5}.nav{display:flex;align-items:center;justify-content:space-between}.brand{font:700 17px ui-monospace,monospace;letter-spacing:.04em}.brand i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--grad);margin-right:9px}.back{color:var(--muted);font-size:14px}.back:hover{color:var(--b)}
+.hero{padding:70px 0 38px;text-align:center}.eyebrow{font:12px ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--b)}h1{font-size:clamp(2.3rem,6vw,4rem);line-height:1.08;letter-spacing:-.04em;margin:14px auto;max-width:800px}.gradient{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}.intro{max-width:650px;margin:0 auto;color:var(--muted);font-size:1.08rem}
+.product{display:grid;grid-template-columns:1.05fr .95fr;gap:30px;align-items:center;padding:34px;border:1px solid var(--line);border-radius:28px;background:linear-gradient(145deg,rgba(23,29,41,.96),rgba(15,19,29,.96));box-shadow:0 28px 80px rgba(0,0,0,.28)}
+.preview{min-height:430px;border-radius:20px;background:linear-gradient(145deg,#e9e8e4,#d6dce4);padding:22px;display:grid;place-items:center;overflow:hidden}
+.phone{width:230px;min-height:385px;border:7px solid #151923;border-radius:34px;background:#fff;color:#202431;box-shadow:0 22px 50px rgba(0,0,0,.28);padding:16px 14px;text-align:center;position:relative}
+.phone:before{content:"";position:absolute;top:5px;left:50%;transform:translateX(-50%);width:55px;height:5px;border-radius:8px;background:#151923}
+.avatar{width:68px;height:68px;border-radius:50%;margin:16px auto 10px;background:linear-gradient(135deg,#5b6ef5,#2fd9c8);display:grid;place-items:center;color:white;font-size:23px;font-weight:700}
+.phone h3{font-size:18px;margin:4px 0}.phone p{font-size:10px;color:#6e7480;margin:0 0 13px}.mock-link{display:block;border:1px solid #e4e7ed;border-radius:9px;padding:9px;margin:8px 0;font-size:10px;font-weight:650;background:#fafbfc}.mock-social{display:flex;justify-content:center;gap:8px;margin-top:12px}.mock-social span{width:22px;height:22px;border-radius:50%;background:#e9edf4}
+.preview-note{font-size:12px;color:#5d6572;text-align:center;margin-top:12px;max-width:270px}
+.details .tag{display:inline-flex;border:1px solid rgba(47,217,200,.28);background:rgba(47,217,200,.08);color:#8af0df;border-radius:999px;padding:6px 11px;font:11px ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase}
+.details h2{font-size:clamp(1.8rem,4vw,2.55rem);line-height:1.13;margin:16px 0 8px}.price{font-size:2.5rem;font-weight:800;letter-spacing:-.04em;margin:8px 0}.price small{font-size:14px;color:var(--muted);font-weight:500;letter-spacing:0}.desc{color:var(--muted);margin:0 0 22px}
+.features{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:20px 0 25px}.feature{display:flex;gap:9px;align-items:flex-start;color:#d8deeb;font-size:13px}.check{color:var(--b);font-weight:800}
+.actions{display:flex;gap:12px;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:13px 23px;font-weight:700;border:1px solid var(--line);min-height:48px}.primary{background:var(--grad);color:#07131b;border:0;box-shadow:0 10px 28px rgba(91,110,245,.22)}.secondary{color:var(--text);background:rgba(255,255,255,.03)}.fine{font-size:12px;color:var(--dim);margin-top:13px}
+.steps{padding:76px 0}.section-title{text-align:center;margin-bottom:30px}.section-title h2{font-size:clamp(1.7rem,4vw,2.4rem);margin:8px 0}.section-title p{color:var(--muted);max-width:600px;margin:auto}.step-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.step{padding:24px;border:1px solid var(--line);border-radius:18px;background:rgba(18,22,31,.8)}.num{font:12px ui-monospace,monospace;color:var(--b)}.step h3{font-size:17px;margin:9px 0}.step p{color:var(--muted);font-size:14px;margin:0}
+.note{border:1px solid var(--line);border-radius:18px;padding:22px;background:rgba(255,255,255,.025);color:var(--muted);font-size:14px;margin:0 0 70px}.note strong{color:var(--text)}
+footer{border-top:1px solid var(--line);padding:26px 0;color:var(--dim);font-size:13px}.foot{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+#payNotice{display:none;margin-top:13px;padding:12px 14px;border:1px solid rgba(245,166,35,.35);border-radius:12px;background:rgba(245,166,35,.08);color:#ffe0a8;font-size:13px}
+.buyer-form{display:grid;gap:8px;margin-top:18px;max-width:520px}.buyer-form label{font-size:12px;color:var(--muted);margin-top:5px}.buyer-form input{width:100%;border:1px solid var(--line);border-radius:11px;background:#0c111b;color:var(--text);padding:12px 13px;outline:none}.buyer-form input:focus{border-color:var(--b);box-shadow:0 0 0 3px rgba(47,217,200,.1)}.buyer-form .actions{margin-top:10px}.buyer-form button:disabled{opacity:.6;cursor:wait}
+@media(max-width:800px){.product{grid-template-columns:1fr;padding:18px}.preview{min-height:390px}.details{padding:8px 3px 4px}.step-grid{grid-template-columns:1fr}.hero{padding-top:52px}.features{grid-template-columns:1fr 1fr}}
+@media(max-width:420px){.wrap{width:min(100% - 28px,1120px)}.features{grid-template-columns:1fr}.actions .btn{width:100%}.preview{padding:15px}}
+</style>
+</head>
+<body>
+<header><div class="wrap nav"><a class="brand" href="index.html"><i></i>SINDORA</a><a class="back" href="index.html">← Back to Sindora</a></div></header>
+<main>
+<section class="hero wrap"><div class="eyebrow">Sindora product collection</div><h1>Useful digital products.<br><span class="gradient">Clearly priced.</span></h1><p class="intro">Explore ready-to-order digital products from Sindora. Start with a premium bio site designed to give your business a polished home online.</p></section>
+<section class="wrap">
+<article class="product">
+<div>
+<div class="preview" role="img" aria-label="Illustrative preview of a premium mobile bio website with a business profile, introduction, contact links and social buttons.">
+<div>
+<div class="phone"><div class="avatar">A</div><h3>Your Business</h3><p>Welcome to our digital space</p><div class="mock-link">About our business</div><div class="mock-link">Explore products & services</div><div class="mock-link">Call / WhatsApp us</div><div class="mock-link">Find our location</div><div class="mock-social"><span></span><span></span><span></span></div></div>
+<p class="preview-note">Illustrative layout preview. Your site is personalised with your business details, images and links.</p>
+</div>
+</div>
+<div class="details">
+<span class="tag">Ready-made website product</span>
+<h2>Premium <span class="gradient">Bio Site</span></h2>
+<div class="price">₹799 <small>one-time</small></div>
+<p class="desc">A professional, mobile-friendly bio website that brings your business information, photos and important customer links together in one easy-to-share page.</p>
+<div class="features">
+<div class="feature"><span class="check">✓</span><span>Custom business name and profile</span></div>
+<div class="feature"><span class="check">✓</span><span>About and business description</span></div>
+<div class="feature"><span class="check">✓</span><span>Photo and product presentation</span></div>
+<div class="feature"><span class="check">✓</span><span>WhatsApp and contact links</span></div>
+<div class="feature"><span class="check">✓</span><span>Mobile-friendly design</span></div>
+<div class="feature"><span class="check">✓</span><span>Shareable website link</span></div>
+</div>
+<form id="buyerForm" class="buyer-form">
+<label for="buyerName">Your name</label>
+<input id="buyerName" name="name" autocomplete="name" required maxlength="100" placeholder="Enter your full name">
+<label for="buyerEmail">Email address</label>
+<input id="buyerEmail" name="email" type="email" autocomplete="email" required maxlength="200" placeholder="you@example.com">
+<label for="buyerPhone">Mobile number</label>
+<input id="buyerPhone" name="phone" type="tel" inputmode="numeric" autocomplete="tel" required pattern="[0-9+() -]{8,20}" placeholder="+91 98765 43210">
+<div class="actions"><button class="btn primary" id="payNowBtn" type="submit">Pay now · ₹799</button><a class="btn secondary" href="https://wa.me/916384300784?text=Hi%20Sindora%2C%20I%27m%20interested%20in%20the%20Premium%20Bio%20Site%20for%20%E2%82%B9799.">Ask a question</a></div>
+<p class="fine">You’ll be taken to Razorpay’s secure checkout. Your order is marked paid only after server-side verification.</p>
+</form>
+<div id="payNotice" role="status" aria-live="polite"></div>
+</div>
+</article>
+</section>
+<section class="steps wrap">
+<div class="section-title"><div class="eyebrow">Simple setup process</div><h2>From payment to published website</h2><p>A straightforward process. Share your business information once, and Sindora uses it to prepare your bio site.</p></div>
+<div class="step-grid">
+<article class="step"><div class="num">STEP 01</div><h3>Place your order</h3><p>Choose the Premium Bio Site and complete the ₹799 payment when secure checkout is enabled.</p></article>
+<article class="step"><div class="num">STEP 02</div><h3>Submit your details</h3><p>Provide your business name, description, contact details, social links and the photos you want displayed.</p></article>
+<article class="step"><div class="num">STEP 03</div><h3>Review and publish</h3><p>Sindora prepares your page, shares it for review and publishes the final website after the required details are confirmed.</p></article>
+</div>
+</section>
+<section class="wrap"><div class="note"><strong>Before ordering:</strong> Keep your business logo or profile photo, a short description, contact number, address (if relevant), social links and product/service photos ready. Final content and delivery details will be confirmed during setup.</div></section>
+</main>
+<footer><div class="wrap foot"><span>© <span id="year"></span> Sindora. All rights reserved.</span><a href="index.html">Sindora home</a></div></footer>
+<!-- Razorpay Checkout: load the official checkout library -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<!-- Supabase JS client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+document.getElementById("year").textContent = new Date().getFullYear();
+
+/*
+  REQUIRED SETUP:
+  Replace these two public project values with your Supabase project URL
+  and anon/public key. Never put the service_role key or Razorpay secret here.
+*/
+const SUPABASE_URL = "https://bslelkeatmwdmfmoockm.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzbGVsa2VhdG13ZG1mbW9vY2ttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3OTI0MjksImV4cCI6MjA5MDM2ODQyOX0.8PoBfDz9uYXqy1NTtODRSxSfHdVK3CG4QEvAzVYhodk";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const form = document.getElementById("buyerForm");
+const payButton = document.getElementById("payNowBtn");
+const notice = document.getElementById("payNotice");
+
+function showNotice(message, isError) {
+  notice.textContent = message;
+  notice.style.display = "block";
+  notice.style.borderColor = isError ? "rgba(255,100,100,.4)" : "rgba(47,217,200,.35)";
+  notice.style.background = isError ? "rgba(255,80,80,.08)" : "rgba(47,217,200,.08)";
+  notice.style.color = isError ? "#ffb5b5" : "#a8f5e8";
+}
+function cleanPhone(value) { return value.replace(/[^0-9]/g, "").slice(-15); }
+
+form.addEventListener("submit", async function(event) {
+  event.preventDefault();
+  if (!form.reportValidity()) return;
+
+  if (SUPABASE_URL.includes("YOUR_PROJECT_REF") || SUPABASE_ANON_KEY.includes("YOUR_SUPABASE")) {
+    showNotice("Supabase is not configured yet. Add your project URL and anon key after deploying the Edge Functions.", true);
+    return;
+  }
+  if (!window.Razorpay) {
+    showNotice("Razorpay Checkout could not load. Check your internet connection and try again.", true);
+    return;
+  }
+
+  const buyer = {
+    name: document.getElementById("buyerName").value.trim(),
+    email: document.getElementById("buyerEmail").value.trim(),
+    phone: cleanPhone(document.getElementById("buyerPhone").value)
+  };
+  if (buyer.phone.length < 8) {
+    showNotice("Please enter a valid mobile number.", true);
+    return;
+  }
+
+  payButton.disabled = true;
+  payButton.textContent = "Preparing secure checkout…";
+  notice.style.display = "none";
+
+  try {
+    // The server fixes the product and amount; the browser cannot choose the price.
+    const { data: orderData, error: orderError } = await supabaseClient.functions.invoke("create-bio-site-order", {
+      body: { customer: buyer }
+    });
+    if (orderError) throw orderError;
+    if (!orderData || !orderData.order_id || !orderData.key_id) {
+      throw new Error((orderData && orderData.error) || "Could not create the payment order.");
+    }
+
+    const checkout = new Razorpay({
+      key: orderData.key_id,
+      amount: orderData.amount,
+      currency: orderData.currency || "INR",
+      name: "Sindora",
+      description: "Premium Bio Site",
+      order_id: orderData.order_id,
+      prefill: { name: buyer.name, email: buyer.email, contact: buyer.phone },
+      notes: { product: "premium-bio-site", customer_name: buyer.name },
+      theme: { color: "#5B6EF5" },
+      modal: {
+        ondismiss: function() {
+          payButton.disabled = false;
+          payButton.textContent = "Pay now · ₹799";
+          showNotice("Checkout was closed before completion. No payment confirmation was received.", true);
+        }
+      },
+      handler: async function(response) {
+        payButton.textContent = "Verifying payment…";
+        try {
+          const { data: verifyData, error: verifyError } = await supabaseClient.functions.invoke("verify-bio-site-payment", {
+            body: {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              customer: buyer
+            }
+          });
+          if (verifyError) throw verifyError;
+          if (!verifyData || verifyData.status !== "paid") {
+            throw new Error((verifyData && verifyData.error) || "Payment verification is pending.");
+          }
+          const params = new URLSearchParams({
+            payment_id: response.razorpay_payment_id,
+            order_id: response.razorpay_order_id
+          });
+          window.location.href = "thank-you.html?" + params.toString();
+        } catch (verificationError) {
+          showNotice("Payment was submitted, but confirmation is still being checked. Please contact Sindora with payment ID: " + response.razorpay_payment_id, true);
+          payButton.disabled = false;
+          payButton.textContent = "Try verification again";
+        }
+      }
+    });
+    checkout.on("payment.failed", function(response) {
+      const reason = response.error && response.error.description ? response.error.description : "Payment was not completed.";
+      showNotice(reason, true);
+      payButton.disabled = false;
+      payButton.textContent = "Pay now · ₹799";
+    });
+    checkout.open();
+  } catch (error) {
+    showNotice(error.message || "Unable to start checkout. Please try again.", true);
+    payButton.disabled = false;
+    payButton.textContent = "Pay now · ₹799";
+  }
+});
+</script>
+</body>
+</html>
