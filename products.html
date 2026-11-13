@@ -317,6 +317,20 @@ function hideRecoveryScreen() {
 }
 function redirectToThankYou(paymentId, orderId, productCode) {
   sessionStorage.removeItem("sindora_pending_payment");
+  try {
+    const raw = sessionStorage.getItem("sindora_receipt_data") ||
+                localStorage.getItem("sindora_receipt_data");
+    const receipt = raw ? JSON.parse(raw) : null;
+    if (receipt) {
+      receipt.order_id = orderId;
+      receipt.paid_at = new Date().toISOString();
+      const updated = JSON.stringify(receipt);
+      sessionStorage.setItem("sindora_receipt_data", updated);
+      localStorage.setItem("sindora_receipt_data", updated);
+    }
+  } catch (storageError) {
+    console.warn("Could not update local receipt metadata:", storageError);
+  }
   const params = new URLSearchParams({ order_id: orderId, product: productCode });
   if (paymentId) params.set("payment_id", paymentId);
   window.location.replace("thank-you.html?" + params.toString());
@@ -459,6 +473,21 @@ async function startCheckout(planCode, buyer, button, targetNotice, restoreLabel
   if (Number(orderData.amount) !== plan.amount * 100) {
     throw new Error("The checkout amount did not match the selected plan. Please contact Sindora before paying.");
   }
+
+  // Save receipt display details before opening Razorpay. Both stores are used
+  // so the thank-you page can recover them after same-origin navigation.
+  const receiptData = {
+    customer_name: buyer.name,
+    product_name: plan.name,
+    amount: Number(orderData.amount) / 100,
+    currency: orderData.currency || "INR",
+    order_id: orderData.order_id,
+    created_at: new Date().toISOString(),
+    paid_at: null
+  };
+  const receiptJson = JSON.stringify(receiptData);
+  sessionStorage.setItem("sindora_receipt_data", receiptJson);
+  localStorage.setItem("sindora_receipt_data", receiptJson);
 
   // Keep a recovery reference in this tab before opening Razorpay. This lets us
   // recover if Android Chrome resumes from a UPI app without firing the handler.

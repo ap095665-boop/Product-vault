@@ -37,8 +37,11 @@ const productCode = params.get("product") || "";
 if (paymentId) document.getElementById("paymentRef").textContent = "Payment reference: " + paymentId;
 
 const saved = (() => {
-  try { return JSON.parse(sessionStorage.getItem("sindora_receipt_data") || "null"); }
-  catch (_) { return null; }
+  try {
+    const raw = sessionStorage.getItem("sindora_receipt_data") ||
+                localStorage.getItem("sindora_receipt_data");
+    return raw ? JSON.parse(raw) : null;
+  } catch (_) { return null; }
 })();
 
 function esc(value) {
