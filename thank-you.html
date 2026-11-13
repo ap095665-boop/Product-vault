@@ -1,7 +1,132 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0A0D14"><title>Thank you — Sindora</title>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#B5122B">
+<title>Thank you — Sindora</title>
 <style>
-*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(60% 45% at 80% 0%,rgba(91,110,245,.22),transparent 60%),#0A0D14;color:#ECEFF6;font:16px/1.6 system-ui,sans-serif}.card{width:min(520px,100%);padding:36px 28px;text-align:center;border:1px solid rgba(158,170,204,.2);border-radius:24px;background:#12161F}.check{width:68px;height:68px;margin:0 auto 20px;border-radius:50%;display:grid;place-items:center;background:rgba(47,217,200,.12);color:#2FD9C8;font-size:34px}.muted{color:#9AA3B8}.id{overflow-wrap:anywhere;font-size:12px;color:#9AA3B8;margin:18px 0}.btn{display:inline-block;margin-top:14px;padding:12px 22px;border-radius:30px;background:linear-gradient(120deg,#5B6EF5,#2FD9C8);color:#07131b;font-weight:700;text-decoration:none}
-</style></head><body><main class="card"><div class="check">✓</div><h1>Thank you for trusting Sindora.</h1><p>Your payment verification was successful.</p><p class="muted">Your Premium Bio Site order has been recorded. Sindora will contact you about the setup details.</p><p class="id" id="paymentRef"></p><a class="btn" href="https://shoppy.sindora.site/799">What's Next Click Here</a></main><script>
-const p=new URLSearchParams(location.search);const id=p.get("payment_id");if(id)document.getElementById("paymentRef").textContent="Payment reference: "+id;
-</script></body></html>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(60% 45% at 80% 0%,rgba(181,18,43,.25),transparent 60%),#0A0D14;color:#ECEFF6;font:16px/1.6 system-ui,sans-serif}
+.card{width:min(520px,100%);padding:36px 28px;text-align:center;border:1px solid rgba(158,170,204,.2);border-radius:24px;background:#12161F}
+.check{width:68px;height:68px;margin:0 auto 20px;border-radius:50%;display:grid;place-items:center;background:rgba(47,217,200,.12);color:#2FD9C8;font-size:34px}
+.muted{color:#9AA3B8}.id{overflow-wrap:anywhere;font-size:12px;color:#9AA3B8;margin:18px 0}
+.btn{display:inline-flex;align-items:center;justify-content:center;margin:8px 5px 0;padding:12px 22px;border-radius:30px;color:#fff;font-weight:750;text-decoration:none;border:0;cursor:pointer;font:inherit}
+.receipt-btn{background:#B5122B;box-shadow:0 8px 25px rgba(181,18,43,.28)}
+.next-btn{background:linear-gradient(120deg,#5B6EF5,#2FD9C8);color:#07131b}
+.status{font-size:13px;color:#9AA3B8;margin-top:14px}
+@media(max-width:480px){.card{padding:30px 20px}.btn{width:100%;margin:7px 0 0}}
+</style>
+</head>
+<body>
+<main class="card">
+  <div class="check">✓</div>
+  <h1>Thank you for trusting Sindora.</h1>
+  <p>Your payment verification was successful.</p>
+  <p class="muted">Your order has been recorded. Sindora will contact you about the setup details.</p>
+  <p class="id" id="paymentRef"></p>
+  <button class="btn receipt-btn" id="receiptButton" type="button">Collect Receipt</button>
+  <a class="btn next-btn" href="https://shoppy.sindora.site/799">What's Next Click Here</a>
+  <p class="status" id="receiptStatus" aria-live="polite"></p>
+</main>
+<script>
+const params = new URLSearchParams(location.search);
+const paymentId = params.get("payment_id") || "";
+const orderId = params.get("order_id") || "";
+const productCode = params.get("product") || "";
+if (paymentId) document.getElementById("paymentRef").textContent = "Payment reference: " + paymentId;
+
+const saved = (() => {
+  try { return JSON.parse(sessionStorage.getItem("sindora_receipt_data") || "null"); }
+  catch (_) { return null; }
+})();
+
+function esc(value) {
+  return String(value == null ? "" : value).replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+function formatDate(value) {
+  const d = value ? new Date(value) : new Date();
+  if (Number.isNaN(d.getTime())) return "Not available";
+  return new Intl.DateTimeFormat("en-IN", {
+    day:"2-digit", month:"short", year:"numeric",
+    hour:"2-digit", minute:"2-digit", hour12:true, timeZone:"Asia/Kolkata"
+  }).format(d) + " IST";
+}
+function receiptNumber(id) {
+  const compact = String(id || "").replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+  return "SIN-" + (compact.length > 8 ? compact.slice(-8) : compact.padStart(8, "0"));
+}
+function collectReceipt() {
+  if (!saved || !saved.customer_name || !saved.product_name || !saved.amount || !orderId || !paymentId) {
+    document.getElementById("receiptStatus").textContent =
+      "Receipt details are unavailable in this browser session. Please contact Sindora with your payment reference: " + (paymentId || "not available");
+    return;
+  }
+  const receipt = {
+    brand: "SINDORA",
+    address: "3/1076A Kammathi, Srimadurai, Gudalur - 643212",
+    customer: saved.customer_name,
+    product: saved.product_name,
+    amount: Number(saved.amount),
+    currency: "INR",
+    date: formatDate(saved.paid_at || new Date().toISOString()),
+    paymentId,
+    orderId,
+    receiptNo: receiptNumber(orderId)
+  };
+  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Sindora Payment Receipt ${esc(receipt.receiptNo)}</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif}
+body{background:#B5122B;padding:34px 18px;color:#202020}
+.sheet{width:min(720px,100%);margin:0 auto;background:#fff;border-radius:14px;padding:38px 42px;box-shadow:0 18px 55px rgba(0,0,0,.2)}
+.brand{font-size:29px;font-weight:900;letter-spacing:3px;color:#B5122B;margin:0}
+.address{font-size:12px;line-height:1.55;color:#666;margin:7px 0 24px}
+.heading{display:flex;justify-content:space-between;align-items:flex-end;gap:15px;border-bottom:2px solid #B5122B;padding-bottom:17px}
+.heading h1{font-size:25px;margin:0;color:#222}.paid{color:#16834b;font-weight:800;font-size:12px;letter-spacing:1px}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:23px 0}
+.meta div{background:#f6f6f6;border-radius:8px;padding:12px}
+.label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#777;margin-bottom:4px}
+.value{font-size:13px;font-weight:700;overflow-wrap:anywhere}
+table{width:100%;border-collapse:collapse;margin-top:18px}
+th{text-align:left;background:#f4e9eb;color:#6f1726;font-size:11px;text-transform:uppercase;padding:12px}
+td{padding:15px 12px;border-bottom:1px solid #eee;font-size:13px}
+.amount{text-align:right;font-weight:800;white-space:nowrap}
+.total{display:flex;justify-content:space-between;align-items:center;margin:20px 0 0;padding:16px 12px;background:#fff4f5;border-radius:8px;color:#9f1027;font-size:16px;font-weight:800}
+.footer{border-top:1px solid #eee;margin-top:28px;padding-top:17px;color:#777;font-size:11px;line-height:1.6;text-align:center}
+.print{display:block;margin:22px auto 0;border:0;border-radius:24px;padding:12px 24px;background:#fff;color:#B5122B;font-weight:800;cursor:pointer}
+@media(max-width:520px){body{padding:16px 10px}.sheet{padding:26px 19px}.heading{align-items:flex-start;flex-direction:column}.meta{grid-template-columns:1fr}.brand{font-size:25px}}
+@media print{html,body{background:#B5122B!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.sheet{box-shadow:none;border-radius:0}.print{display:none}body{padding:12mm}}
+</style></head><body><main class="sheet">
+<h2 class="brand">${esc(receipt.brand)}</h2>
+<p class="address">${esc(receipt.address)}</p>
+<div class="heading"><h1>PAYMENT RECEIPT</h1><span class="paid">✓ PAYMENT RECEIVED</span></div>
+<div class="meta">
+<div><span class="label">Receipt number</span><span class="value">${esc(receipt.receiptNo)}</span></div>
+<div><span class="label">Payment date</span><span class="value">${esc(receipt.date)}</span></div>
+<div><span class="label">Customer name</span><span class="value">${esc(receipt.customer)}</span></div>
+<div><span class="label">Order ID</span><span class="value">${esc(receipt.orderId)}</span></div>
+</div>
+<table><thead><tr><th>Product / service</th><th class="amount">Amount</th></tr></thead>
+<tbody><tr><td>${esc(receipt.product)}</td><td class="amount">₹${receipt.amount.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2})}</td></tr></tbody></table>
+<div class="total"><span>Total paid</span><span>₹${receipt.amount.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>
+<div class="meta"><div style="grid-column:1/-1"><span class="label">Razorpay payment ID</span><span class="value">${esc(receipt.paymentId)}</span></div></div>
+<div class="footer">Thank you for choosing Sindora.<br>This receipt confirms payment recorded for the order shown above.</div>
+<button class="print" onclick="window.print()">Print / Save as PDF</button>
+</main><script>window.addEventListener("load",()=>setTimeout(()=>window.print(),350));<\/script>
+</body></html>`;
+  const win = window.open("", "_blank");
+  if (!win) {
+    document.getElementById("receiptStatus").textContent = "Please allow pop-ups to open your receipt.";
+    return;
+  }
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+}
+document.getElementById("receiptButton").addEventListener("click", collectReceipt);
+</script>
+</body>
+</html>
