@@ -231,6 +231,34 @@ footer{border-top:1px solid var(--line);padding:26px 0;color:var(--dim);font-siz
 #planPayNotice{display:none;margin-top:13px;padding:12px 14px;border:1px solid rgba(245,166,35,.35);border-radius:12px;background:rgba(245,166,35,.08);color:#ffe0a8;font-size:13px}
 </style>
 
+<!-- Payment recovery lock: shown when the customer returns from a UPI app and normal checkout completion did not finish -->
+<div id="paymentRecovery" class="payment-recovery" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="recoveryTitle">
+  <div class="recovery-card">
+    <div class="recovery-spinner" id="recoverySpinner" aria-hidden="true"></div>
+    <div class="eyebrow">SINDORA SECURE PAYMENT CHECK</div>
+    <h2 id="recoveryTitle">Verifying your payment</h2>
+    <p id="recoveryMessage">Please keep this page open. We're checking your payment securely with Razorpay.</p>
+    <div class="recovery-status" id="recoveryStatus">Checking payment status…</div>
+    <button class="btn primary" id="checkPaymentNow" type="button">Check payment status</button>
+    <p class="recovery-help">Please don't pay again while we check. If your payment is still processing, wait a moment and check again.</p>
+  </div>
+</div>
+<style>
+.payment-recovery{display:none;position:fixed;inset:0;z-index:99999;background:rgba(5,8,15,.97);backdrop-filter:blur(16px);align-items:center;justify-content:center;padding:22px;overflow:auto}
+.payment-recovery.open{display:flex}
+.recovery-card{width:min(460px,100%);text-align:center;padding:34px 26px;border:1px solid rgba(47,217,200,.28);border-radius:25px;background:linear-gradient(150deg,#171e2c,#0d121d);box-shadow:0 25px 90px rgba(0,0,0,.55)}
+.recovery-card h2{font-size:clamp(25px,6vw,34px);line-height:1.15;margin:14px 0 10px}
+.recovery-card p{color:var(--muted);font-size:14px}
+.recovery-status{margin:20px 0;padding:13px;border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.035);color:#a8f5e8;font-size:13px}
+.recovery-card .btn{width:100%;cursor:pointer}
+.recovery-card .btn:disabled{opacity:.55;cursor:wait}
+.recovery-help{font-size:12px!important;margin:16px 0 0}
+.recovery-spinner{width:35px;height:35px;border:3px solid rgba(47,217,200,.2);border-top-color:var(--b);border-radius:50%;margin:0 auto 18px;animation:recoverySpin .8s linear infinite}
+.recovery-spinner.done{display:none}
+@keyframes recoverySpin{to{transform:rotate(360deg)}}
+body.payment-locked{overflow:hidden}
+</style>
+
 <footer><div class="wrap foot"><span>© <span id="year"></span> Sindora. All rights reserved.</span><a href="index.html">Sindora home</a></div></footer>
 <!-- Razorpay Checkout: load the official checkout library -->
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -263,6 +291,111 @@ const planNames = {
   "premium-shop-plan": { name: "Premium Shop Plan", amount: 3499, label: "₹3,499" }
 };
 let selectedPlan = "starter-shop-plan";
+let handlerStarted = false;
+let checkoutStartedAt = 0;
+let recoveryTimer = null;
+let recoveryBusy = false;
+const recoveryLayer = document.getElementById("paymentRecovery");
+const recoveryMessage = document.getElementById("recoveryMessage");
+const recoveryStatus = document.getElementById("recoveryStatus");
+const recoveryButton = document.getElementById("checkPaymentNow");
+const recoverySpinner = document.getElementById("recoverySpinner");
+
+function showRecoveryScreen(message) {
+  if (!recoveryLayer) return;
+  if (message) recoveryMessage.textContent = message;
+  recoveryLayer.classList.add("open");
+  recoveryLayer.setAttribute("aria-hidden", "false");
+  document.body.classList.add("payment-locked");
+}
+function hideRecoveryScreen() {
+  if (!recoveryLayer) return;
+  recoveryLayer.classList.remove("open");
+  recoveryLayer.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("payment-locked");
+  if (recoveryTimer) { clearTimeout(recoveryTimer); recoveryTimer = null; }
+}
+function redirectToThankYou(paymentId, orderId, productCode) {
+  sessionStorage.removeItem("sindora_pending_payment");
+  const params = new URLSearchParams({ order_id: orderId, product: productCode });
+  if (paymentId) params.set("payment_id", paymentId);
+  window.location.replace("thank-you.html?" + params.toString());
+}
+async function checkPaymentOnce(orderId, productCode, knownPaymentId) {
+  const { data, error } = await supabaseClient.functions.invoke("check-bio-site-payment", {
+    body: { razorpay_order_id: orderId }
+  });
+  if (error) throw error;
+  if (data && data.status === "paid") {
+    redirectToThankYou(data.payment_id || knownPaymentId || "", orderId, productCode);
+    return "paid";
+  }
+  if (data && data.status === "failed") {
+    recoverySpinner.classList.add("done");
+    recoveryMessage.textContent = "Razorpay reports that this payment failed. If money was debited, please contact Sindora with your transaction reference before trying again.";
+    recoveryStatus.textContent = "Payment not captured — do not retry if your bank shows a debit.";
+    recoveryButton.disabled = false;
+    recoveryButton.textContent = "Check payment status again";
+    return "failed";
+  }
+  recoverySpinner.classList.remove("done");
+  recoveryStatus.textContent = data && data.status === "authorized"
+    ? "Payment authorized. Waiting for capture confirmation…"
+    : "No captured payment found yet. Checking again shortly…";
+  return (data && data.status) || "pending";
+}
+async function checkPaymentUntilResolved(orderId, productCode, knownPaymentId) {
+  if (!orderId || recoveryBusy) return;
+  recoveryBusy = true;
+  showRecoveryScreen();
+  recoveryButton.disabled = true;
+  recoveryButton.textContent = "Checking…";
+  try {
+    const status = await checkPaymentOnce(orderId, productCode, knownPaymentId);
+    if (status === "paid" || status === "failed") return;
+  } catch (error) {
+    console.error("Payment status check failed:", error);
+    recoveryStatus.textContent = "Unable to reach the payment verification service. Please try the button again.";
+  } finally {
+    recoveryBusy = false;
+    if (recoveryLayer.classList.contains("open")) {
+      recoveryButton.disabled = false;
+      recoveryButton.textContent = "Check payment status";
+      recoveryTimer = setTimeout(() => checkPaymentUntilResolved(orderId, productCode, knownPaymentId), 5000);
+    }
+  }
+}
+recoveryButton.addEventListener("click", () => {
+  const pending = JSON.parse(sessionStorage.getItem("sindora_pending_payment") || "null");
+  if (pending && pending.order_id) checkPaymentUntilResolved(pending.order_id, pending.product_code, "");
+});
+
+// When Android Chrome returns from PhonePe/GPay, give Razorpay's handler a
+// moment to run. If it did not, lock the page and verify the saved order.
+function recoverOnReturn() {
+  if (document.visibilityState === "hidden" || handlerStarted) return;
+  const pending = JSON.parse(sessionStorage.getItem("sindora_pending_payment") || "null");
+  if (!pending || !pending.order_id || Date.now() - (pending.created_at || checkoutStartedAt) > 30 * 60 * 1000) return;
+  setTimeout(() => {
+    if (handlerStarted) return;
+    showRecoveryScreen("Welcome back. We're checking your UPI payment before you continue.");
+    checkPaymentUntilResolved(pending.order_id, pending.product_code, "");
+  }, 1400);
+}
+document.addEventListener("visibilitychange", recoverOnReturn);
+window.addEventListener("pageshow", recoverOnReturn);
+window.addEventListener("focus", recoverOnReturn);
+
+// Recover after accidental reload/navigation in the same tab.
+try {
+  const savedPayment = JSON.parse(sessionStorage.getItem("sindora_pending_payment") || "null");
+  if (savedPayment && savedPayment.order_id && Date.now() - (savedPayment.created_at || 0) < 30 * 60 * 1000) {
+    setTimeout(() => {
+      showRecoveryScreen("We found an unfinished checkout. Checking its payment status securely.");
+      checkPaymentUntilResolved(savedPayment.order_id, savedPayment.product_code, "");
+    }, 500);
+  }
+} catch (_) {}
 
 function showNotice(target, message, isError) {
   target.textContent = message;
@@ -327,6 +460,16 @@ async function startCheckout(planCode, buyer, button, targetNotice, restoreLabel
     throw new Error("The checkout amount did not match the selected plan. Please contact Sindora before paying.");
   }
 
+  // Keep a recovery reference in this tab before opening Razorpay. This lets us
+  // recover if Android Chrome resumes from a UPI app without firing the handler.
+  sessionStorage.setItem("sindora_pending_payment", JSON.stringify({
+    order_id: orderData.order_id,
+    product_code: planCode,
+    created_at: Date.now()
+  }));
+  handlerStarted = false;
+  checkoutStartedAt = Date.now();
+
   const checkout = new Razorpay({
     key: orderData.key_id,
     amount: orderData.amount,
@@ -339,11 +482,21 @@ async function startCheckout(planCode, buyer, button, targetNotice, restoreLabel
     theme: { color: "#5B6EF5" },
     modal: {
       ondismiss: function() {
-        setBusy(button, false, restoreLabel);
-        showNotice(targetNotice, "Checkout was closed before completion. No payment confirmation was received. You can safely try again.", true);
+        // The success handler owns the flow once it has started verification.
+        if (handlerStarted) return;
+        // Razorpay may dismiss after returning from an external UPI app. Check the
+        // order before allowing another payment attempt.
+        if (sessionStorage.getItem("sindora_pending_payment")) {
+          showRecoveryScreen("Checking whether your UPI payment was completed. Please wait before trying again.");
+          checkPaymentUntilResolved(orderData.order_id, planCode, "");
+        } else {
+          setBusy(button, false, restoreLabel);
+        }
       }
     },
     handler: async function(response) {
+      handlerStarted = true;
+      hideRecoveryScreen();
       setBusy(button, true, "Verifying payment…");
       try {
         const { data: verifyData, error: verifyError } = await supabaseClient.functions.invoke("verify-bio-site-payment", {
@@ -354,23 +507,24 @@ async function startCheckout(planCode, buyer, button, targetNotice, restoreLabel
           }
         });
         if (verifyError) throw verifyError;
-        if (!verifyData || verifyData.status !== "paid") {
-          throw new Error((verifyData && verifyData.error) || "Payment verification is pending.");
+        if (verifyData && verifyData.status === "paid") {
+          redirectToThankYou(response.razorpay_payment_id, response.razorpay_order_id, planCode);
+          return;
         }
-        const params = new URLSearchParams({
-          payment_id: response.razorpay_payment_id,
-          order_id: response.razorpay_order_id,
-          product: planCode
-        });
-        window.location.href = "thank-you.html?" + params.toString();
+        // A valid but not-yet-captured payment stays on the locked recovery screen.
+        showRecoveryScreen("Your payment was received. We're waiting for capture confirmation.");
+        await checkPaymentUntilResolved(orderData.order_id, planCode, response.razorpay_payment_id);
       } catch (verificationError) {
-        showNotice(targetNotice, "Payment was submitted, but confirmation is still being checked. Contact Sindora with payment ID: " + response.razorpay_payment_id, true);
-        setBusy(button, false, "Retry verification");
+        console.error("Payment verification callback error:", verificationError);
+        showRecoveryScreen("We couldn't complete the first confirmation check. Your payment is not being charged again. Please check its status below.");
+        await checkPaymentUntilResolved(orderData.order_id, planCode, response.razorpay_payment_id);
       }
     }
   });
   checkout.on("payment.failed", function(response) {
+    sessionStorage.removeItem("sindora_pending_payment");
     const reason = response.error && response.error.description ? response.error.description : "Payment was not completed.";
+    hideRecoveryScreen();
     showNotice(targetNotice, "Payment failed: " + reason + " If money was debited, check with your bank before retrying.", true);
     setBusy(button, false, restoreLabel);
   });
