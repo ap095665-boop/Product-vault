@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0A0D14">
+<title>Secure Checkout — Sindora</title>
+<style>
+:root{--bg:#0A0D14;--panel:#12161F;--line:rgba(158,170,204,.18);--text:#ECEFF6;--muted:#9AA3B8;--a:#5B6EF5;--b:#2FD9C8}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(60% 40% at 85% 0%,rgba(91,110,245,.2),transparent 65%),#0A0D14;color:var(--text);font:16px/1.6 system-ui,-apple-system,Segoe UI,Arial,sans-serif}
+.wrap{width:min(560px,calc(100% - 32px));margin:0 auto;padding:28px 0 50px}.brand{font:800 17px ui-monospace,monospace;letter-spacing:.08em;text-decoration:none;color:var(--text)}.brand i{display:inline-block;width:8px;height:8px;border-radius:50%;background:linear-gradient(120deg,var(--a),var(--b));margin-right:9px}
+.card{margin-top:24px;padding:28px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(150deg,#171e2c,#0d121d);box-shadow:0 24px 70px rgba(0,0,0,.35)}
+.eyebrow{font:11px ui-monospace,monospace;letter-spacing:.15em;text-transform:uppercase;color:var(--b)}h1{font-size:30px;line-height:1.15;margin:9px 0}.muted{color:var(--muted);font-size:14px}
+.plan{padding:16px;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.035);margin:20px 0}.plan-name{font-weight:750}.price{font-size:28px;font-weight:850}.field{display:grid;gap:6px;margin:14px 0}.field label{font-size:12px;color:var(--muted)}input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:12px;background:#0b111b;color:var(--text);font:inherit;outline:none}input:focus{border-color:var(--b);box-shadow:0 0 0 3px rgba(47,217,200,.1)}
+.btn{width:100%;border:0;border-radius:999px;padding:14px 20px;margin-top:12px;background:linear-gradient(120deg,var(--a),var(--b));color:#07131b;font-weight:800;font:inherit;cursor:pointer}.btn:disabled{opacity:.55;cursor:wait}.back{display:inline-block;color:var(--muted);font-size:13px;margin-top:18px;text-decoration:none}
+#notice{display:none;margin-top:14px;padding:13px;border:1px solid rgba(245,166,35,.35);border-radius:12px;background:rgba(245,166,35,.08);color:#ffe0a8;font-size:13px}
+#verification{display:none;min-height:calc(100vh - 56px);align-items:center;justify-content:center;text-align:center}.verify-card{width:100%;padding:34px 25px;border:1px solid rgba(47,217,200,.28);border-radius:25px;background:linear-gradient(150deg,#171e2c,#0d121d);box-shadow:0 25px 90px rgba(0,0,0,.55)}
+.spinner{width:38px;height:38px;border:3px solid rgba(47,217,200,.2);border-top-color:var(--b);border-radius:50%;margin:0 auto 20px;animation:spin .8s linear infinite}.spinner.done{display:none}@keyframes spin{to{transform:rotate(360deg)}}
+.status{margin:20px 0;padding:13px;border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.035);color:#a8f5e8;font-size:13px}
+.help{font-size:12px;color:var(--muted)}.error{color:#ffb5b5!important;border-color:rgba(255,100,100,.35)!important}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <a class="brand" href="products.html"><i></i>SINDORA</a>
+  <section class="card" id="checkoutCard">
+    <div class="eyebrow">Secure checkout</div>
+    <h1>Complete your order</h1>
+    <p class="muted">Enter your details below. You will remain on this checkout page while Sindora confirms your payment.</p>
+    <div class="plan"><div class="eyebrow">Selected plan</div><div class="plan-name" id="planName">Loading plan…</div><div class="price" id="planPrice"></div></div>
+    <form id="buyerForm">
+      <div class="field"><label for="buyerName">Your name</label><input id="buyerName" autocomplete="name" maxlength="100" required placeholder="Enter your full name"></div>
+      <div class="field"><label for="buyerEmail">Email address</label><input id="buyerEmail" type="email" autocomplete="email" maxlength="200" required placeholder="you@example.com"></div>
+      <div class="field"><label for="buyerPhone">Mobile number</label><input id="buyerPhone" type="tel" inputmode="numeric" autocomplete="tel" pattern="[0-9+() -]{8,20}" required placeholder="+91 98765 43210"></div>
+      <button class="btn" id="payButton" type="submit">Continue to Razorpay</button>
+    </form>
+    <div id="notice" role="status" aria-live="polite"></div>
+    <a class="back" href="products.html">← Back to products</a>
+    <p class="help">Your order is marked paid only after server-side verification and confirmation from the existing payment-status service.</p>
+  </section>
+
+  <section id="verification">
+    <div class="verify-card">
+      <div class="spinner" id="spinner"></div>
+      <div class="eyebrow">Sindora payment verification</div>
+      <h1 id="verifyTitle">Checking your payment</h1>
+      <p class="muted" id="verifyMessage">Please keep this page open. Do not close it or pay again while we check.</p>
+      <div class="status" id="verifyStatus" aria-live="polite">Connecting to the payment verification service…</div>
+      <button class="btn" id="checkNow" type="button">Check payment status</button>
+      <p class="help">UPI apps may take a little time to return confirmation. This page will keep checking your order.</p>
+    </div>
+  </section>
+</main>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+ "use strict";
+const SUPABASE_URL = "https://bslelkeatmwdmfmoockm.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6ImJzbGVsa2VhdG13ZG1mbW9vY2ttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3OTI0MjksImV4cCI6MjA5MDM2ODQyOX0.8PoBfDz9uYXqy1NTtODRSxSfHdVK3CG4QEvAzVYhodk";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const plans = {
+  "starter-shop-plan": {name:"Starter Shop Plan",amount:799,label:"₹799"},
+  "standard-shop-plan": {name:"Standard Shop Plan",amount:999,label:"₹999"},
+  "pro-shop-plan": {name:"Pro Shop Plan",amount:2499,label:"₹2,499"},
+  "premium-shop-plan": {name:"Premium Shop Plan",amount:3499,label:"₹3,499"}
+};
+const params = new URLSearchParams(location.search);
+const planCode = params.get("plan") || "";
+const plan = plans[planCode];
+const form = document.getElementById("buyerForm");
+const payButton = document.getElementById("payButton");
+const notice = document.getElementById("notice");
+const checkoutCard = document.getElementById("checkoutCard");
+const verification = document.getElementById("verification");
+const spinner = document.getElementById("spinner");
+const verifyTitle = document.getElementById("verifyTitle");
+const verifyMessage = document.getElementById("verifyMessage");
+const verifyStatus = document.getElementById("verifyStatus");
+const checkNow = document.getElementById("checkNow");
+
+let pending = null;
+let busy = false;
+let pollTimer = null;
+let pollCount = 0;
+let knownPaymentId = "";
+let terminalFailure = false;
+
+const PENDING_KEY = "sindora_pending_payment";
+const RECEIPT_KEY = "sindora_receipt_data";
+const MAX_RECOVERY_AGE = 24 * 60 * 60 * 1000;
+const POLL_DELAYS = [2000, 3000, 5000, 8000, 13000, 20000, 30000, 45000, 60000];
+
+function readPending() {
+  for (const store of [sessionStorage, localStorage]) {
+    try {
+      const value = JSON.parse(store.getItem(PENDING_KEY) || "null");
+      if (value && typeof value.order_id === "string" && value.order_id) return value;
+    } catch (_) {}
+  }
+  return null;
+}
+function savePending(value) {
+  pending = value;
+  const raw = JSON.stringify(value);
+  try { sessionStorage.setItem(PENDING_KEY, raw); } catch (_) {}
+  try { localStorage.setItem(PENDING_KEY, raw); } catch (_) {}
+}
+function clearPending() {
+  try { sessionStorage.removeItem(PENDING_KEY); } catch (_) {}
+  try { localStorage.removeItem(PENDING_KEY); } catch (_) {}
+  clearTimeout(pollTimer);
+}
+function cleanPhone(value) { return value.replace(/[^0-9]/g, "").slice(-15); }
+function showNotice(message, isError) {
+  notice.textContent = message;
+  notice.style.display = "block";
+  notice.classList.toggle("error", !!isError);
+}
+function setBusy(value, label) {
+  payButton.disabled = value;
+  payButton.textContent = label;
+}
+function showVerification(message) {
+  checkoutCard.style.display = "none";
+  verification.style.display = "flex";
+  if (message) verifyMessage.textContent = message;
+  document.body.style.overflow = "hidden";
+}
+function showCheckoutAgain() {
+  verification.style.display = "none";
+  checkoutCard.style.display = "block";
+  document.body.style.overflow = "";
+}
+function goThankYou(paymentId, orderId) {
+  // Only called after the existing server-side status function returns status=paid.
+  clearPending();
+  try {
+    const raw = sessionStorage.getItem(RECEIPT_KEY) || localStorage.getItem(RECEIPT_KEY);
+    const receipt = raw ? JSON.parse(raw) : null;
+    if (receipt) {
+      receipt.order_id = orderId;
+      receipt.payment_id = paymentId || receipt.payment_id || "";
+      receipt.paid_at = new Date().toISOString();
+      const value = JSON.stringify(receipt);
+      sessionStorage.setItem(RECEIPT_KEY, value);
+      localStorage.setItem(RECEIPT_KEY, value);
+    }
+  } catch (e) { console.warn("Receipt metadata update failed", e); }
+  const q = new URLSearchParams({order_id: orderId, product: planCode});
+  if (paymentId) q.set("payment_id", paymentId);
+  location.replace("thank-you.html?" + q.toString());
+}
+function scheduleNextCheck() {
+  clearTimeout(pollTimer);
+  if (!pending || document.visibilityState === "hidden") return;
+  const delay = POLL_DELAYS[Math.min(pollCount, POLL_DELAYS.length - 1)];
+  pollCount++;
+  pollTimer = setTimeout(checkUntilResolved, delay);
+}
+async function checkOnce() {
+  if (!pending || !pending.order_id) return "unknown";
+  const {data, error} = await supabaseClient.functions.invoke(
+    "check-bio-site-payment",
+    {body: {razorpay_order_id: pending.order_id}}
+  );
+  if (error) throw error;
+
+  const status = String(data && data.status || "pending").toLowerCase();
+  if (status === "paid") {
+    const confirmedPaymentId = (data && (data.payment_id || data.razorpay_payment_id)) || knownPaymentId || pending.payment_id || "";
+    goThankYou(confirmedPaymentId, pending.order_id);
+    return "paid";
+  }
+
+  if (status === "failed") {
+    terminalFailure = true;
+    spinner.classList.add("done");
+    verifyTitle.textContent = "Payment not confirmed";
+    verifyMessage.textContent = "The server currently reports this order as failed. If your bank or UPI app shows money deducted, do not pay again. Contact Sindora with your UPI/bank reference.";
+    verifyStatus.textContent = "Server status: failed. You can check again in case a later payment update arrives.";
+    checkNow.disabled = false;
+    checkNow.textContent = "Check status again";
+    return "failed";
+  }
+
+  terminalFailure = false;
+  spinner.classList.remove("done");
+  verifyTitle.textContent = "Verifying your payment";
+  verifyMessage.textContent = "Please keep this page open. We are waiting for the server to confirm the payment.";
+  verifyStatus.textContent = status === "authorized"
+    ? "Payment authorised. Waiting for capture and server confirmation…"
+    : "Payment is not yet confirmed. We will check again automatically.";
+  return status;
+}
+async function checkUntilResolved() {
+  if (!pending || busy) return;
+  if (document.visibilityState === "hidden") return;
+  busy = true;
+  showVerification();
+  checkNow.disabled = true;
+  checkNow.textContent = "Checking…";
+  let result = "error";
+  try {
+    result = await checkOnce();
+  } catch (e) {
+    console.error("Payment status check failed", e);
+    verifyTitle.textContent = "Still checking your payment";
+    verifyMessage.textContent = "We could not reach the verification service just now. Your saved order has not been discarded. Please do not pay again until its status is confirmed.";
+    verifyStatus.textContent = "Connection issue. We will retry automatically.";
+  } finally {
+    busy = false;
+    if (pending && verification.style.display !== "none") {
+      checkNow.disabled = false;
+      checkNow.textContent = "Check payment status";
+      // Continue with back-off polling. Even after 24h the customer can manually check.
+      if (result !== "paid") scheduleNextCheck();
+    }
+  }
+}
+checkNow.addEventListener("click", () => {
+  pollCount = 0;
+  checkUntilResolved();
+});
+
+function recoverPending(reason) {
+  const saved = readPending();
+  if (!saved || !saved.order_id) return;
+  pending = saved;
+  knownPaymentId = saved.payment_id || knownPaymentId;
+  const age = Date.now() - Number(saved.created_at || 0);
+  const message = age > MAX_RECOVERY_AGE
+    ? "We found an older unfinished order. We will check its current server status before allowing another payment."
+    : (reason || "Welcome back. We are checking your existing order before you continue.");
+  showVerification(message);
+  pollCount = 0;
+  checkUntilResolved();
+}
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") recoverPending("Welcome back. Checking your payment status…");
+});
+window.addEventListener("pageshow", () => recoverPending("Your checkout has reopened. Checking the saved order…"));
+window.addEventListener("focus", () => recoverPending("Welcome back. Checking your payment status…"));
+
+if (!plan) {
+  document.getElementById("planName").textContent = "Plan not found";
+  document.getElementById("planPrice").textContent = "";
+  form.querySelector("button").disabled = true;
+  showNotice("This checkout link is invalid. Please return to the products page and select a plan.", true);
+} else {
+  document.getElementById("planName").textContent = plan.name;
+  document.getElementById("planPrice").textContent = plan.label;
+}
+
+// Never create a second order while an earlier one is unresolved.
+const restored = readPending();
+if (restored && restored.order_id) {
+  pending = restored;
+  knownPaymentId = restored.payment_id || "";
+  showVerification("We found an unfinished checkout. We will verify that order before allowing another payment.");
+  setTimeout(checkUntilResolved, 250);
+}
+
+form.addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!plan || !form.reportValidity()) return;
+  if (pending && pending.order_id) {
+    recoverPending("An earlier order is still being checked. Please wait for its final status before starting another payment.");
+    return;
+  }
+  if (!window.Razorpay) {
+    showNotice("Razorpay Checkout could not load. Check your internet connection and try again.", true);
+    return;
+  }
+  const buyer = {
+    name: document.getElementById("buyerName").value.trim(),
+    email: document.getElementById("buyerEmail").value.trim(),
+    phone: cleanPhone(document.getElementById("buyerPhone").value)
+  };
+  if (buyer.phone.length < 8) {
+    showNotice("Please enter a valid mobile number.", true);
+    return;
+  }
+
+  try {
+    setBusy(true, "Preparing secure checkout…");
+    notice.style.display = "none";
+    const {data: orderData, error} = await supabaseClient.functions.invoke(
+      "create-bio-site-order",
+      {body: {product_code: planCode, customer: buyer}}
+    );
+    if (error) throw error;
+    if (!orderData || !orderData.order_id || !orderData.key_id) {
+      throw new Error((orderData && orderData.error) || "Could not create the payment order.");
+    }
+    if (Number(orderData.amount) !== plan.amount * 100) {
+      throw new Error("The server order amount does not match " + plan.label + ". No payment was started. Please contact Sindora.");
+    }
+
+    const receipt = {
+      customer_name: buyer.name,
+      product_name: plan.name,
+      amount: Number(orderData.amount) / 100,
+      currency: orderData.currency || "INR",
+      order_id: orderData.order_id,
+      created_at: new Date().toISOString(),
+      paid_at: null
+    };
+    const receiptRaw = JSON.stringify(receipt);
+    sessionStorage.setItem(RECEIPT_KEY, receiptRaw);
+    localStorage.setItem(RECEIPT_KEY, receiptRaw);
+
+    savePending({
+      order_id: orderData.order_id,
+      product_code: planCode,
+      created_at: Date.now(),
+      payment_id: ""
+    });
+    showVerification("Your order is ready. Complete payment in Razorpay. When you return, this page will verify the saved order automatically.");
+
+    const rzp = new Razorpay({
+      key: orderData.key_id,
+      amount: orderData.amount,
+      currency: orderData.currency || "INR",
+      name: "Sindora",
+      description: plan.name,
+      order_id: orderData.order_id,
+      prefill: {name: buyer.name, email: buyer.email, contact: buyer.phone},
+      notes: {product: planCode, customer_name: buyer.name},
+      theme: {color: "#5B6EF5"},
+      modal: {
+        ondismiss: function() {
+          verifyMessage.textContent = "Checkout was closed or you returned from your UPI app. We are checking the saved order; please do not pay again yet.";
+          pollCount = 0;
+          checkUntilResolved();
+        }
+      },
+      handler: async function(response) {
+        knownPaymentId = response.razorpay_payment_id || "";
+        pending.payment_id = knownPaymentId;
+        savePending(pending);
+        verifyTitle.textContent = "Verifying your payment";
+        verifyMessage.textContent = "Razorpay returned a response. We are validating it and checking the server-confirmed order status.";
+        verifyStatus.textContent = "Validating payment signature…";
+        try {
+          const {error: verifyError} = await supabaseClient.functions.invoke(
+            "verify-bio-site-payment",
+            {body: {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            }}
+          );
+          if (verifyError) throw verifyError;
+          verifyStatus.textContent = "Signature verification request completed. Waiting for the server payment record to confirm success…";
+        } catch (verifyError) {
+          console.error("Signature verification request failed", verifyError);
+          verifyStatus.textContent = "The first confirmation request could not finish. We are checking the saved order through the existing status service.";
+        }
+        // Deliberately do not redirect based on the browser callback or its response.
+        // The existing status endpoint must independently return status=paid.
+        pollCount = 0;
+        checkUntilResolved();
+      }
+    });
+    rzp.on("payment.failed", function(response) {
+      const reason = response && response.error && response.error.description
+        ? response.error.description : "Payment attempt was not completed.";
+      verifyTitle.textContent = "Checking payment status";
+      verifyMessage.textContent = "Razorpay reported an unsuccessful attempt. If your UPI app shows a debit, do not pay again while the saved order is checked.";
+      verifyStatus.textContent = reason;
+      pollCount = 0;
+      checkUntilResolved();
+    });
+    rzp.open();
+  } catch (e) {
+    console.error("Checkout start error", e);
+    if (!pending) {
+      showCheckoutAgain();
+      showNotice(e.message || "Unable to start checkout. Please try again.", true);
+      setBusy(false, "Continue to Razorpay");
+    } else {
+      showVerification("An order was created, so we are preserving it and checking its status rather than creating a duplicate.");
+      verifyStatus.textContent = e.message || "Checkout could not be opened. Check the saved order status before trying again.";
+      checkUntilResolved();
+    }
+  }
+});
+</script>
+</body>
+</html>

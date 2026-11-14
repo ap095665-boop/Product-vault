@@ -19,7 +19,14 @@ body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;back
 </style>
 </head>
 <body>
-<main class="card">
+<section id="receiptGate" class="card" style="text-align:center">
+  <div class="check" style="background:rgba(47,217,200,.12);color:#2FD9C8">…</div>
+  <h1 id="gateTitle">Confirming your payment</h1>
+  <p class="muted" id="gateMessage">Please wait while Sindora checks the order status securely.</p>
+  <p class="status" id="gateStatus" aria-live="polite">Connecting to payment verification…</p>
+  <button class="btn next-btn" id="gateRetry" type="button">Check payment status</button>
+</section>
+<main class="card" id="thankYouCard" style="display:none">
   <div class="check">✓</div>
   <h1>Thank you for trusting Sindora.</h1>
   <p>Your payment verification was successful.</p>
@@ -29,11 +36,80 @@ body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;back
   <a class="btn next-btn" href="https://shoppy.sindora.site/799">What's Next Click Here</a>
   <p class="status" id="receiptStatus" aria-live="polite"></p>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPABASE_URL = "https://bslelkeatmwdmfmoockm.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6ImJzbGVsa2VhdG13ZG1mbW9vY2ttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3OTI0MjksImV4cCI6MjA5MDM2ODQyOX0.8PoBfDz9uYXqy1NTtODRSxSfHdVK3CG4QEvAzVYhodk";
+const paymentClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const params = new URLSearchParams(location.search);
-const paymentId = params.get("payment_id") || "";
+let paymentId = params.get("payment_id") || "";
 const orderId = params.get("order_id") || "";
 const productCode = params.get("product") || "";
+const gate = document.getElementById("receiptGate");
+const thankYouCard = document.getElementById("thankYouCard");
+const gateTitle = document.getElementById("gateTitle");
+const gateMessage = document.getElementById("gateMessage");
+const gateStatus = document.getElementById("gateStatus");
+const gateRetry = document.getElementById("gateRetry");
+let gateBusy = false;
+let gateTimer = null;
+let gateAttempts = 0;
+
+async function confirmThankYouAccess() {
+  if (gateBusy) return;
+  if (!orderId) {
+    gateTitle.textContent = "Order reference missing";
+    gateMessage.textContent = "This page can only display a receipt after the order has been verified.";
+    gateStatus.textContent = "Please return to checkout or contact Sindora with your payment reference.";
+    gateRetry.disabled = true;
+    return;
+  }
+  gateBusy = true;
+  gateRetry.disabled = true;
+  gateRetry.textContent = "Checking…";
+  try {
+    const {data, error} = await paymentClient.functions.invoke(
+      "check-bio-site-payment",
+      {body: {razorpay_order_id: orderId}}
+    );
+    if (error) throw error;
+    const status = String(data && data.status || "pending").toLowerCase();
+    if (status === "paid") {
+      paymentId = (data && (data.payment_id || data.razorpay_payment_id)) || paymentId;
+      if (paymentId) document.getElementById("paymentRef").textContent = "Payment reference: " + paymentId;
+      gate.style.display = "none";
+      thankYouCard.style.display = "block";
+      return;
+    }
+    gateTitle.textContent = status === "failed" ? "Payment not confirmed" : "Confirming your payment";
+    gateMessage.textContent = status === "failed"
+      ? "The server currently reports this order as failed. If your bank or UPI app shows a debit, do not pay again; contact Sindora."
+      : "Your payment has not yet been confirmed by the server. This page will keep checking.";
+    gateStatus.textContent = "Current order status: " + status + ". The receipt will appear only after a paid confirmation.";
+  } catch (e) {
+    console.error("Thank-you page verification failed", e);
+    gateTitle.textContent = "Unable to confirm yet";
+    gateMessage.textContent = "The verification service could not be reached. Your order reference is preserved; please retry.";
+    gateStatus.textContent = "Connection error. No receipt has been issued on this page.";
+  } finally {
+    gateBusy = false;
+    if (thankYouCard.style.display === "none") {
+      gateRetry.disabled = false;
+      gateRetry.textContent = "Check payment status";
+      clearTimeout(gateTimer);
+      // Keep checking gently; this is only a confirmation page, not a high-frequency poller.
+      gateTimer = setTimeout(confirmThankYouAccess, Math.min(5000 + gateAttempts * 3000, 30000));
+      gateAttempts++;
+    }
+  }
+}
+gateRetry.addEventListener("click", () => {
+  clearTimeout(gateTimer);
+  gateAttempts = 0;
+  confirmThankYouAccess();
+});
+confirmThankYouAccess();
+
 if (paymentId) document.getElementById("paymentRef").textContent = "Payment reference: " + paymentId;
 
 const saved = (() => {

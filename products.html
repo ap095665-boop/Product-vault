@@ -56,7 +56,7 @@ footer{border-top:1px solid var(--line);padding:26px 0;color:var(--dim);font-siz
 <body>
 <header><div class="wrap nav"><a class="brand" href="index.html"><i></i>SINDORA</a><a class="back" href="index.html">← Back to Sindora</a></div></header>
 <main>
-<section class="hero wrap"><div class="eyebrow">Sindora product collection</div><h1>Useful digital products.<br><span class="gradient">Clearly priced.</span></h1><p class="intro">Explore Sindora shop website plans and digital products. Compare features, prices and delivery timelines, then enquire about the option that fits your business.</p></section>
+<section class="hero wrap"><div class="eyebrow">Sindora product collection</div><h1>Useful digital products.<br><span class="gradient">Clearly priced.</span></h1><p class="intro">Explore Sindora shop website plans and digital products. Compare features, prices and delivery timelines, then continue to a dedicated checkout page for eligible plans.</p></section>
 
 <section class="shop-plans wrap" id="shop-plans">
   <div class="section-title">
@@ -82,7 +82,7 @@ footer{border-top:1px solid var(--line);padding:26px 0;color:var(--dim);font-siz
         <li>Mobile-friendly design</li>
       </ul>
       <p class="server-note"><strong>Server cost:</strong> Not required</p>
-      <a class="btn primary plan-cta" href="#starter-checkout">Order Starter · ₹799</a>
+      <a class="btn primary plan-cta" href="checkout.html?plan=starter-shop-plan">Order Starter · ₹799</a>
     </article>
 
     <article class="shop-plan popular">
@@ -98,7 +98,7 @@ footer{border-top:1px solid var(--line);padding:26px 0;color:var(--dim);font-siz
         <li>Shared domain</li>
       </ul>
       <p class="server-note"><strong>Server cost:</strong> ₹350 every 6 months</p>
-      <button class="btn primary plan-cta" type="button" data-checkout-plan="standard-shop-plan">Order Standard · ₹999</button>
+      <a class="btn primary plan-cta" href="checkout.html?plan=standard-shop-plan">Order Standard · ₹999</a>
     </article>
 
     <article class="shop-plan">
@@ -115,7 +115,7 @@ footer{border-top:1px solid var(--line);padding:26px 0;color:var(--dim);font-siz
         <li>Custom domain integration</li>
       </ul>
       <p class="server-note"><strong>Server cost:</strong> ₹350 every 6 months</p>
-      <button class="btn primary plan-cta" type="button" data-checkout-plan="pro-shop-plan">Order Pro · ₹2,499</button>
+      <a class="btn primary plan-cta" href="checkout.html?plan=pro-shop-plan">Order Pro · ₹2,499</a>
     </article>
 
     <article class="shop-plan">
@@ -132,7 +132,7 @@ footer{border-top:1px solid var(--line);padding:26px 0;color:var(--dim);font-siz
         <li>SEO setup and Google listing</li>
       </ul>
       <p class="server-note"> </p>
-      <button class="btn primary plan-cta" type="button" data-checkout-plan="premium-shop-plan">Order Premium · ₹3,499</button>
+      <a class="btn primary plan-cta" href="checkout.html?plan=premium-shop-plan">Order Premium · ₹3,499</a>
     </article>
 
     <article class="shop-plan">
@@ -156,40 +156,33 @@ footer{border-top:1px solid var(--line);padding:26px 0;color:var(--dim);font-siz
 </section>
 
 <section class="wrap" id="starter-checkout">
-<article class="product">
-<div>
-<div class="preview" role="img" aria-label="Illustrative preview of a premium mobile bio website with a business profile, introduction, contact links and social buttons.">
-<div>
-<div class="phone"><div class="avatar">A</div><h3>Your Business</h3><p>Welcome to our digital space</p><div class="mock-link">About our business</div><div class="mock-link">Explore products & services</div><div class="mock-link">Call / WhatsApp us</div><div class="mock-link">Find our location</div><div class="mock-social"><span></span><span></span><span></span></div></div>
-<p class="preview-note">Illustrative layout preview. Your site is personalised with your business details, images and links.</p>
-</div>
-</div>
-<div class="details">
-<span class="tag">Starter plan · order details</span>
-<h2>Starter <span class="gradient">Shop Plan</span></h2>
-<div class="price">₹799 <small>one-time</small></div>
-<p class="desc">The ₹799 Starter plan combines WhatsApp ordering with a personalised, mobile-friendly business website. Your business profile, photos, products and customer contact links come together in one easy-to-share page.</p>
-<div class="features">
-<div class="feature"><span class="check">✓</span><span>Custom business name and profile</span></div>
-<div class="feature"><span class="check">✓</span><span>About and business description</span></div>
-<div class="feature"><span class="check">✓</span><span>Photo and product presentation</span></div>
-<div class="feature"><span class="check">✓</span><span>WhatsApp and contact links</span></div>
-<div class="feature"><span class="check">✓</span><span>Mobile-friendly design</span></div>
-<div class="feature"><span class="check">✓</span><span>Shareable website link</span></div>
-</div>
-<form id="buyerForm" class="buyer-form">
-<label for="buyerName">Your name</label>
-<input id="buyerName" name="name" autocomplete="name" required maxlength="100" placeholder="Enter your full name">
-<label for="buyerEmail">Email address</label>
-<input id="buyerEmail" name="email" type="email" autocomplete="email" required maxlength="200" placeholder="you@example.com">
-<label for="buyerPhone">Mobile number</label>
-<input id="buyerPhone" name="phone" type="tel" inputmode="numeric" autocomplete="tel" required pattern="[0-9+() -]{8,20}" placeholder="+91 98765 43210">
-<div class="actions"><button class="btn primary" id="payNowBtn" type="submit">Pay now · ₹799</button><a class="btn secondary" href="https://wa.me/916384300784?text=Hi%20Sindora%2C%20I%27m%20interested%20in%20the%20Starter%20Shop%20Plan%20for%20%E2%82%B9799.">Ask a question</a></div>
-<p class="fine">You’ll be taken to Razorpay’s secure checkout. Your order is marked paid only after server-side verification.</p>
-</form>
-<div id="payNotice" role="status" aria-live="polite"></div>
-</div>
-</article>
+  <article class="product">
+    <div class="preview" role="img" aria-label="Illustrative preview of a personalised mobile business website">
+      <div>
+        <div class="phone"><div class="avatar">A</div><h3>Your Business</h3><p>Welcome to our digital space</p><div class="mock-link">About our business</div><div class="mock-link">Explore products & services</div><div class="mock-link">Call / WhatsApp us</div><div class="mock-link">Find our location</div><div class="mock-social"><span></span><span></span><span></span></div></div>
+        <p class="preview-note">Illustrative layout preview. Your site is personalised with your business details, images and links.</p>
+      </div>
+    </div>
+    <div class="details">
+      <span class="tag">Starter plan</span>
+      <h2>Starter <span class="gradient">Shop Plan</span></h2>
+      <div class="price">₹799 <small>one-time</small></div>
+      <p class="desc">The ₹799 Starter plan combines WhatsApp ordering with a personalised, mobile-friendly business website. Your business profile, photos, products and customer contact links come together in one easy-to-share page.</p>
+      <div class="features">
+        <div class="feature"><span class="check">✓</span><span>Custom business name and profile</span></div>
+        <div class="feature"><span class="check">✓</span><span>About and business description</span></div>
+        <div class="feature"><span class="check">✓</span><span>Photo and product presentation</span></div>
+        <div class="feature"><span class="check">✓</span><span>WhatsApp and contact links</span></div>
+        <div class="feature"><span class="check">✓</span><span>Mobile-friendly design</span></div>
+        <div class="feature"><span class="check">✓</span><span>Shareable website link</span></div>
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="checkout.html?plan=starter-shop-plan">Continue to secure checkout · ₹799</a>
+        <a class="btn secondary" href="https://wa.me/916384300784?text=Hi%20Sindora%2C%20I%27m%20interested%20in%20the%20Starter%20Shop%20Plan%20for%20%E2%82%B9799.">Ask a question</a>
+      </div>
+      <p class="fine">Customer details and payment are completed on a separate secure checkout page.</p>
+    </div>
+  </article>
 </section>
 <section class="steps wrap">
 <div class="section-title"><div class="eyebrow">Starter plan setup</div><h2>From payment to published website</h2><p>These are the order steps for the same ₹799 Starter plan shown above, not a separate product.</p></div>
@@ -202,387 +195,7 @@ footer{border-top:1px solid var(--line);padding:26px 0;color:var(--dim);font-siz
 <section class="wrap"><div class="note"><strong>Before ordering:</strong> Keep your business logo or profile photo, a short description, contact number, address (if relevant), social links and product/service photos ready. Final content and delivery details will be confirmed during setup.</div></section>
 </main>
 
-<!-- Shared checkout dialog for Standard, Pro and Premium plans -->
-<div class="checkout-overlay" id="planCheckout" aria-hidden="true">
-  <section class="checkout-dialog" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
-    <button class="checkout-close" type="button" id="closePlanCheckout" aria-label="Close checkout">×</button>
-    <div class="eyebrow">Secure checkout</div>
-    <h2 id="checkoutTitle">Order your plan</h2>
-    <p class="checkout-summary" id="checkoutSummary"></p>
-    <form id="planBuyerForm" class="buyer-form">
-      <label for="planBuyerName">Your name</label>
-      <input id="planBuyerName" name="name" autocomplete="name" required maxlength="100" placeholder="Enter your full name">
-      <label for="planBuyerEmail">Email address</label>
-      <input id="planBuyerEmail" name="email" type="email" autocomplete="email" required maxlength="200" placeholder="you@example.com">
-      <label for="planBuyerPhone">Mobile number</label>
-      <input id="planBuyerPhone" name="phone" type="tel" inputmode="numeric" autocomplete="tel" required pattern="[0-9+() -]{8,20}" placeholder="+91 98765 43210">
-      <div class="actions"><button class="btn primary" id="planPayButton" type="submit">Continue to payment</button></div>
-      <p class="fine">You’ll be taken to Razorpay’s secure checkout. Your order is marked paid only after server-side verification.</p>
-    </form>
-    <div id="planPayNotice" role="status" aria-live="polite"></div>
-  </section>
-</div>
-<style>
-.checkout-overlay{display:none;position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);padding:20px;align-items:center;justify-content:center}
-.checkout-overlay.open{display:flex}
-.checkout-dialog{position:relative;width:min(480px,100%);max-height:90vh;overflow:auto;padding:28px;border:1px solid var(--line);border-radius:24px;background:#12161f;box-shadow:0 25px 80px rgba(0,0,0,.5)}
-.checkout-dialog h2{margin:8px 0;font-size:27px}.checkout-summary{color:var(--muted);margin:0 0 12px}
-.checkout-close{position:absolute;right:16px;top:12px;border:0;background:transparent;color:var(--muted);font-size:28px;cursor:pointer}
-#planPayNotice{display:none;margin-top:13px;padding:12px 14px;border:1px solid rgba(245,166,35,.35);border-radius:12px;background:rgba(245,166,35,.08);color:#ffe0a8;font-size:13px}
-</style>
-
-<!-- Payment recovery lock: shown when the customer returns from a UPI app and normal checkout completion did not finish -->
-<div id="paymentRecovery" class="payment-recovery" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="recoveryTitle">
-  <div class="recovery-card">
-    <div class="recovery-spinner" id="recoverySpinner" aria-hidden="true"></div>
-    <div class="eyebrow">SINDORA SECURE PAYMENT CHECK</div>
-    <h2 id="recoveryTitle">Verifying your payment</h2>
-    <p id="recoveryMessage">Please keep this page open. We're checking your payment securely with Razorpay.</p>
-    <div class="recovery-status" id="recoveryStatus">Checking payment status…</div>
-    <button class="btn primary" id="checkPaymentNow" type="button">Check payment status</button>
-    <p class="recovery-help">Please don't pay again while we check. If your payment is still processing, wait a moment and check again.</p>
-  </div>
-</div>
-<style>
-.payment-recovery{display:none;position:fixed;inset:0;z-index:99999;background:rgba(5,8,15,.97);backdrop-filter:blur(16px);align-items:center;justify-content:center;padding:22px;overflow:auto}
-.payment-recovery.open{display:flex}
-.recovery-card{width:min(460px,100%);text-align:center;padding:34px 26px;border:1px solid rgba(47,217,200,.28);border-radius:25px;background:linear-gradient(150deg,#171e2c,#0d121d);box-shadow:0 25px 90px rgba(0,0,0,.55)}
-.recovery-card h2{font-size:clamp(25px,6vw,34px);line-height:1.15;margin:14px 0 10px}
-.recovery-card p{color:var(--muted);font-size:14px}
-.recovery-status{margin:20px 0;padding:13px;border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.035);color:#a8f5e8;font-size:13px}
-.recovery-card .btn{width:100%;cursor:pointer}
-.recovery-card .btn:disabled{opacity:.55;cursor:wait}
-.recovery-help{font-size:12px!important;margin:16px 0 0}
-.recovery-spinner{width:35px;height:35px;border:3px solid rgba(47,217,200,.2);border-top-color:var(--b);border-radius:50%;margin:0 auto 18px;animation:recoverySpin .8s linear infinite}
-.recovery-spinner.done{display:none}
-@keyframes recoverySpin{to{transform:rotate(360deg)}}
-body.payment-locked{overflow:hidden}
-</style>
-
 <footer><div class="wrap foot"><span>© <span id="year"></span> Sindora. All rights reserved.</span><a href="index.html">Sindora home</a></div></footer>
-<!-- Razorpay Checkout: load the official checkout library -->
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<!-- Supabase JS client -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-document.getElementById("year").textContent = new Date().getFullYear();
-
-/*
-  REQUIRED SETUP:
-  Replace these two public project values with your Supabase project URL
-  and anon/public key. Never put the service_role key or Razorpay secret here.
-*/
-const SUPABASE_URL = "https://bslelkeatmwdmfmoockm.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzbGVsa2VhdG13ZG1mbW9vY2ttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3OTI0MjksImV4cCI6MjA5MDM2ODQyOX0.8PoBfDz9uYXqy1NTtODRSxSfHdVK3CG4QEvAzVYhodk";
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-
-const form = document.getElementById("buyerForm");
-const payButton = document.getElementById("payNowBtn");
-const notice = document.getElementById("payNotice");
-const planForm = document.getElementById("planBuyerForm");
-const planPayButton = document.getElementById("planPayButton");
-const planNotice = document.getElementById("planPayNotice");
-const planModal = document.getElementById("planCheckout");
-const planNames = {
-  "starter-shop-plan": { name: "Starter Shop Plan", amount: 1, label: "₹799" },
-  "standard-shop-plan": { name: "Standard Shop Plan", amount: 999, label: "₹999" },
-  "pro-shop-plan": { name: "Pro Shop Plan", amount: 2499, label: "₹2,499" },
-  "premium-shop-plan": { name: "Premium Shop Plan", amount: 3499, label: "₹3,499" }
-};
-let selectedPlan = "starter-shop-plan";
-let handlerStarted = false;
-let checkoutStartedAt = 0;
-let recoveryTimer = null;
-let recoveryBusy = false;
-const recoveryLayer = document.getElementById("paymentRecovery");
-const recoveryMessage = document.getElementById("recoveryMessage");
-const recoveryStatus = document.getElementById("recoveryStatus");
-const recoveryButton = document.getElementById("checkPaymentNow");
-const recoverySpinner = document.getElementById("recoverySpinner");
-
-function showRecoveryScreen(message) {
-  if (!recoveryLayer) return;
-  if (message) recoveryMessage.textContent = message;
-  recoveryLayer.classList.add("open");
-  recoveryLayer.setAttribute("aria-hidden", "false");
-  document.body.classList.add("payment-locked");
-}
-function hideRecoveryScreen() {
-  if (!recoveryLayer) return;
-  recoveryLayer.classList.remove("open");
-  recoveryLayer.setAttribute("aria-hidden", "true");
-  document.body.classList.remove("payment-locked");
-  if (recoveryTimer) { clearTimeout(recoveryTimer); recoveryTimer = null; }
-}
-function redirectToThankYou(paymentId, orderId, productCode) {
-  sessionStorage.removeItem("sindora_pending_payment");
-  try {
-    const raw = sessionStorage.getItem("sindora_receipt_data") ||
-                localStorage.getItem("sindora_receipt_data");
-    const receipt = raw ? JSON.parse(raw) : null;
-    if (receipt) {
-      receipt.order_id = orderId;
-      receipt.paid_at = new Date().toISOString();
-      const updated = JSON.stringify(receipt);
-      sessionStorage.setItem("sindora_receipt_data", updated);
-      localStorage.setItem("sindora_receipt_data", updated);
-    }
-  } catch (storageError) {
-    console.warn("Could not update local receipt metadata:", storageError);
-  }
-  const params = new URLSearchParams({ order_id: orderId, product: productCode });
-  if (paymentId) params.set("payment_id", paymentId);
-  window.location.replace("thank-you.html?" + params.toString());
-}
-async function checkPaymentOnce(orderId, productCode, knownPaymentId) {
-  const { data, error } = await supabaseClient.functions.invoke("check-bio-site-payment", {
-    body: { razorpay_order_id: orderId }
-  });
-  if (error) throw error;
-  if (data && data.status === "paid") {
-    redirectToThankYou(data.payment_id || knownPaymentId || "", orderId, productCode);
-    return "paid";
-  }
-  if (data && data.status === "failed") {
-    recoverySpinner.classList.add("done");
-    recoveryMessage.textContent = "Razorpay reports that this payment failed. If money was debited, please contact Sindora with your transaction reference before trying again.";
-    recoveryStatus.textContent = "Payment not captured — do not retry if your bank shows a debit.";
-    recoveryButton.disabled = false;
-    recoveryButton.textContent = "Check payment status again";
-    return "failed";
-  }
-  recoverySpinner.classList.remove("done");
-  recoveryStatus.textContent = data && data.status === "authorized"
-    ? "Payment authorized. Waiting for capture confirmation…"
-    : "No captured payment found yet. Checking again shortly…";
-  return (data && data.status) || "pending";
-}
-async function checkPaymentUntilResolved(orderId, productCode, knownPaymentId) {
-  if (!orderId || recoveryBusy) return;
-  recoveryBusy = true;
-  showRecoveryScreen();
-  recoveryButton.disabled = true;
-  recoveryButton.textContent = "Checking…";
-  try {
-    const status = await checkPaymentOnce(orderId, productCode, knownPaymentId);
-    if (status === "paid" || status === "failed") return;
-  } catch (error) {
-    console.error("Payment status check failed:", error);
-    recoveryStatus.textContent = "Unable to reach the payment verification service. Please try the button again.";
-  } finally {
-    recoveryBusy = false;
-    if (recoveryLayer.classList.contains("open")) {
-      recoveryButton.disabled = false;
-      recoveryButton.textContent = "Check payment status";
-      recoveryTimer = setTimeout(() => checkPaymentUntilResolved(orderId, productCode, knownPaymentId), 5000);
-    }
-  }
-}
-recoveryButton.addEventListener("click", () => {
-  const pending = JSON.parse(sessionStorage.getItem("sindora_pending_payment") || "null");
-  if (pending && pending.order_id) checkPaymentUntilResolved(pending.order_id, pending.product_code, "");
-});
-
-// When Android Chrome returns from PhonePe/GPay, give Razorpay's handler a
-// moment to run. If it did not, lock the page and verify the saved order.
-function recoverOnReturn() {
-  if (document.visibilityState === "hidden" || handlerStarted) return;
-  const pending = JSON.parse(sessionStorage.getItem("sindora_pending_payment") || "null");
-  if (!pending || !pending.order_id || Date.now() - (pending.created_at || checkoutStartedAt) > 30 * 60 * 1000) return;
-  setTimeout(() => {
-    if (handlerStarted) return;
-    showRecoveryScreen("Welcome back. We're checking your UPI payment before you continue.");
-    checkPaymentUntilResolved(pending.order_id, pending.product_code, "");
-  }, 1400);
-}
-document.addEventListener("visibilitychange", recoverOnReturn);
-window.addEventListener("pageshow", recoverOnReturn);
-window.addEventListener("focus", recoverOnReturn);
-
-// Recover after accidental reload/navigation in the same tab.
-try {
-  const savedPayment = JSON.parse(sessionStorage.getItem("sindora_pending_payment") || "null");
-  if (savedPayment && savedPayment.order_id && Date.now() - (savedPayment.created_at || 0) < 30 * 60 * 1000) {
-    setTimeout(() => {
-      showRecoveryScreen("We found an unfinished checkout. Checking its payment status securely.");
-      checkPaymentUntilResolved(savedPayment.order_id, savedPayment.product_code, "");
-    }, 500);
-  }
-} catch (_) {}
-
-function showNotice(target, message, isError) {
-  target.textContent = message;
-  target.style.display = "block";
-  target.style.borderColor = isError ? "rgba(255,100,100,.4)" : "rgba(47,217,200,.35)";
-  target.style.background = isError ? "rgba(255,80,80,.08)" : "rgba(47,217,200,.08)";
-  target.style.color = isError ? "#ffb5b5" : "#a8f5e8";
-}
-function cleanPhone(value) { return value.replace(/[^0-9]/g, "").slice(-15); }
-function getBuyer(prefix) {
-  return {
-    name: document.getElementById(prefix + "Name").value.trim(),
-    email: document.getElementById(prefix + "Email").value.trim(),
-    phone: cleanPhone(document.getElementById(prefix + "Phone").value)
-  };
-}
-function setBusy(button, busy, label) {
-  button.disabled = busy;
-  button.textContent = label;
-}
-function openPlanModal(planCode) {
-  selectedPlan = planCode;
-  const plan = planNames[planCode];
-  if (!plan) return;
-  document.getElementById("checkoutTitle").textContent = "Order " + plan.name;
-  document.getElementById("checkoutSummary").textContent = "One-time payment: " + plan.label;
-  planNotice.style.display = "none";
-  planModal.classList.add("open");
-  planModal.setAttribute("aria-hidden", "false");
-  document.getElementById("planBuyerName").focus();
-}
-function closePlanModal() {
-  planModal.classList.remove("open");
-  planModal.setAttribute("aria-hidden", "true");
-}
-document.querySelectorAll("[data-checkout-plan]").forEach(button => {
-  button.addEventListener("click", () => openPlanModal(button.dataset.checkoutPlan));
-});
-document.getElementById("closePlanCheckout").addEventListener("click", closePlanModal);
-planModal.addEventListener("click", event => { if (event.target === planModal) closePlanModal(); });
-document.addEventListener("keydown", event => { if (event.key === "Escape") closePlanModal(); });
-
-async function startCheckout(planCode, buyer, button, targetNotice, restoreLabel) {
-  const plan = planNames[planCode];
-  if (!plan) throw new Error("This plan is not available for online checkout.");
-  if (SUPABASE_URL.includes("YOUR_PROJECT_REF") || SUPABASE_ANON_KEY.includes("YOUR_SUPABASE")) {
-    throw new Error("Supabase is not configured. Update the project URL and anon key.");
-  }
-  if (!window.Razorpay) throw new Error("Razorpay Checkout could not load. Check your internet connection.");
-  if (buyer.phone.length < 8) throw new Error("Please enter a valid mobile number.");
-
-  setBusy(button, true, "Preparing secure checkout…");
-  targetNotice.style.display = "none";
-  const { data: orderData, error: orderError } = await supabaseClient.functions.invoke("create-bio-site-order", {
-    body: { product_code: planCode, customer: buyer }
-  });
-  if (orderError) throw orderError;
-  if (!orderData || !orderData.order_id || !orderData.key_id) {
-    throw new Error((orderData && orderData.error) || "Could not create the payment order.");
-  }
-  if (Number(orderData.amount) !== plan.amount * 100) {
-    throw new Error("The checkout amount did not match the selected plan. Please contact Sindora before paying.");
-  }
-
-  // Save receipt display details before opening Razorpay. Both stores are used
-  // so the thank-you page can recover them after same-origin navigation.
-  const receiptData = {
-    customer_name: buyer.name,
-    product_name: plan.name,
-    amount: Number(orderData.amount) / 100,
-    currency: orderData.currency || "INR",
-    order_id: orderData.order_id,
-    created_at: new Date().toISOString(),
-    paid_at: null
-  };
-  const receiptJson = JSON.stringify(receiptData);
-  sessionStorage.setItem("sindora_receipt_data", receiptJson);
-  localStorage.setItem("sindora_receipt_data", receiptJson);
-
-  // Keep a recovery reference in this tab before opening Razorpay. This lets us
-  // recover if Android Chrome resumes from a UPI app without firing the handler.
-  sessionStorage.setItem("sindora_pending_payment", JSON.stringify({
-    order_id: orderData.order_id,
-    product_code: planCode,
-    created_at: Date.now()
-  }));
-  handlerStarted = false;
-  checkoutStartedAt = Date.now();
-
-  const checkout = new Razorpay({
-    key: orderData.key_id,
-    amount: orderData.amount,
-    currency: orderData.currency || "INR",
-    name: "Sindora",
-    description: plan.name,
-    order_id: orderData.order_id,
-    prefill: { name: buyer.name, email: buyer.email, contact: buyer.phone },
-    notes: { product: planCode, customer_name: buyer.name },
-    theme: { color: "#5B6EF5" },
-    modal: {
-      ondismiss: function() {
-        // The success handler owns the flow once it has started verification.
-        if (handlerStarted) return;
-        // Razorpay may dismiss after returning from an external UPI app. Check the
-        // order before allowing another payment attempt.
-        if (sessionStorage.getItem("sindora_pending_payment")) {
-          showRecoveryScreen("Checking whether your UPI payment was completed. Please wait before trying again.");
-          checkPaymentUntilResolved(orderData.order_id, planCode, "");
-        } else {
-          setBusy(button, false, restoreLabel);
-        }
-      }
-    },
-    handler: async function(response) {
-      handlerStarted = true;
-      hideRecoveryScreen();
-      setBusy(button, true, "Verifying payment…");
-      try {
-        const { data: verifyData, error: verifyError } = await supabaseClient.functions.invoke("verify-bio-site-payment", {
-          body: {
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature
-          }
-        });
-        if (verifyError) throw verifyError;
-        if (verifyData && verifyData.status === "paid") {
-          redirectToThankYou(response.razorpay_payment_id, response.razorpay_order_id, planCode);
-          return;
-        }
-        // A valid but not-yet-captured payment stays on the locked recovery screen.
-        showRecoveryScreen("Your payment was received. We're waiting for capture confirmation.");
-        await checkPaymentUntilResolved(orderData.order_id, planCode, response.razorpay_payment_id);
-      } catch (verificationError) {
-        console.error("Payment verification callback error:", verificationError);
-        showRecoveryScreen("We couldn't complete the first confirmation check. Your payment is not being charged again. Please check its status below.");
-        await checkPaymentUntilResolved(orderData.order_id, planCode, response.razorpay_payment_id);
-      }
-    }
-  });
-  checkout.on("payment.failed", function(response) {
-    sessionStorage.removeItem("sindora_pending_payment");
-    const reason = response.error && response.error.description ? response.error.description : "Payment was not completed.";
-    hideRecoveryScreen();
-    showNotice(targetNotice, "Payment failed: " + reason + " If money was debited, check with your bank before retrying.", true);
-    setBusy(button, false, restoreLabel);
-  });
-  checkout.open();
-}
-
-form.addEventListener("submit", async function(event) {
-  event.preventDefault();
-  if (!form.reportValidity()) return;
-  const buyer = getBuyer("buyer");
-  try {
-    await startCheckout("starter-shop-plan", buyer, payButton, notice, "Pay now · ₹799");
-  } catch (error) {
-    showNotice(notice, error.message || "Unable to start checkout. Please try again.", true);
-    setBusy(payButton, false, "Pay now · ₹799");
-  }
-});
-
-planForm.addEventListener("submit", async function(event) {
-  event.preventDefault();
-  if (!planForm.reportValidity()) return;
-  const buyer = getBuyer("planBuyer");
-  try {
-    await startCheckout(selectedPlan, buyer, planPayButton, planNotice, "Continue to payment");
-  } catch (error) {
-    showNotice(planNotice, error.message || "Unable to start checkout. Please try again.", true);
-    setBusy(planPayButton, false, "Continue to payment");
-  }
-});
-</script>
+<script>document.getElementById("year").textContent = new Date().getFullYear();</script>
 </body>
 </html>
