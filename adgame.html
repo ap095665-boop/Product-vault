@@ -1,0 +1,3009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Apex Horizon 3D — Commercial Advergame Edition</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    body {
+      overflow: hidden;
+      background: #0f172a;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      color: #f8fafc;
+      touch-action: none;
+    }
+    #game-canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* Nitro Screen Vignette */
+    #nitro-vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      background: radial-gradient(circle at center, transparent 52%, rgba(56, 189, 248, 0.28) 88%, rgba(14, 165, 233, 0.52) 100%);
+      transition: opacity 0.14s ease-out;
+      z-index: 4;
+    }
+
+    /* HUD */
+    #hud {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 16px;
+      z-index: 6;
+    }
+    .hud-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .hud-left-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .hud-panel {
+      background: rgba(15, 23, 42, 0.86);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 12px;
+      padding: 9px 15px;
+    }
+    .stat-row {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+    }
+    .stat-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #94a3b8;
+      margin-bottom: 1px;
+    }
+    .stat-value {
+      font-size: 22px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.5px;
+    }
+    .stat-value span {
+      font-size: 12px;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+
+    /* Score & Combo Box */
+    .score-panel {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border-color: rgba(56, 189, 248, 0.28);
+    }
+    #hud-score {
+      color: #38bdf8;
+      font-size: 24px;
+    }
+    #hud-best {
+      color: #facc15;
+      font-size: 16px;
+    }
+    #combo-box {
+      display: none;
+      flex-direction: column;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.92), rgba(239, 68, 68, 0.92));
+      border-radius: 10px;
+      padding: 6px 12px;
+      min-width: 120px;
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
+    }
+    .combo-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-weight: 900;
+      font-size: 15px;
+      color: #fff;
+    }
+    .combo-bar-bg {
+      width: 100%;
+      height: 4px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 99px;
+      margin-top: 4px;
+      overflow: hidden;
+    }
+    #combo-timer-fill {
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      transform-origin: left center;
+    }
+
+    /* Floating Stunt Callout */
+    #callout-feed {
+      position: fixed;
+      top: 23%;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      pointer-events: none;
+      z-index: 8;
+    }
+    .callout-pill {
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.86);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+      animation: popFloat 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes popFloat {
+      0% { opacity: 0; transform: translateY(10px) scale(0.85); }
+      20% { opacity: 1; transform: translateY(0) scale(1.06); }
+      80% { opacity: 1; transform: translateY(-10px) scale(1); }
+      100% { opacity: 0; transform: translateY(-22px) scale(0.95); }
+    }
+
+    .top-right-cluster {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+    .perf-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      pointer-events: auto;
+    }
+    .pill-btn {
+      font-size: 11px;
+      font-weight: 700;
+      color: #e2e8f0;
+      background: rgba(30, 41, 59, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 5px 9px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .pill-btn:hover {
+      border-color: #38bdf8;
+      color: #fff;
+    }
+    #edit-ads-hud-btn {
+      background: rgba(14, 165, 233, 0.25);
+      border-color: rgba(56, 189, 248, 0.55);
+      color: #7dd3fc;
+    }
+    #fps-badge {
+      font-size: 11px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: #4ade80;
+      background: rgba(15, 23, 42, 0.86);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      padding: 5px 9px;
+      border-radius: 8px;
+    }
+
+    #minimap {
+      width: 112px;
+      height: 112px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.86);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    .hud-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .controls-hint {
+      font-size: 11.5px;
+      color: #cbd5e1;
+      line-height: 1.65;
+    }
+    .key {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-weight: 700;
+      font-size: 10.5px;
+      color: #fff;
+    }
+    .speed-cluster {
+      text-align: right;
+      min-width: 185px;
+    }
+    .speed-num {
+      font-size: 44px;
+      font-weight: 900;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      color: #f8fafc;
+    }
+    .speed-unit {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #38bdf8;
+      margin-bottom: 7px;
+    }
+    .nitro-bar-bg {
+      width: 100%;
+      height: 9px;
+      background: rgba(255, 255, 255, 0.14);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    #nitro-fill {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #0ea5e9, #38bdf8, #f43f5e);
+      transform-origin: left center;
+      will-change: transform;
+    }
+
+    #countdown {
+      position: fixed;
+      top: 35%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 80px;
+      font-weight: 900;
+      text-shadow: 0 6px 24px rgba(0, 0, 0, 0.7);
+      pointer-events: none;
+      opacity: 0;
+      z-index: 9;
+    }
+
+    /* Start / Finish Modal */
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.84);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      padding: 16px;
+    }
+    .modal {
+      max-width: 470px;
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 20px;
+      padding: 26px 24px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+    }
+    .modal h1 {
+      font-size: 26px;
+      font-weight: 900;
+      margin-bottom: 8px;
+      color: #38bdf8;
+      letter-spacing: -0.3px;
+    }
+    .modal p {
+      color: #cbd5e1;
+      font-size: 13.5px;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    /* Promo Challenge & Coupon Voucher Cards */
+    .challenge-banner {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(56, 189, 248, 0.16));
+      border: 1px solid rgba(250, 204, 21, 0.45);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: #fef08a;
+    }
+    .challenge-banner strong {
+      color: #ffffff;
+      font-weight: 800;
+    }
+
+    .coupon-card {
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .coupon-unlocked {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(14, 165, 233, 0.22));
+      border: 2px dashed #34d399;
+    }
+    .coupon-locked {
+      background: rgba(30, 41, 59, 0.75);
+      border: 1px dashed rgba(148, 163, 184, 0.4);
+    }
+    .coupon-badge {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .coupon-offer {
+      font-size: 18px;
+      font-weight: 900;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+    .coupon-code-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .coupon-code-box {
+      background: #020617;
+      border: 1px solid #34d399;
+      color: #4ade80;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      padding: 6px 16px;
+      border-radius: 8px;
+      user-select: all;
+      -webkit-user-select: all;
+    }
+    .copy-code-btn {
+      background: #10b981;
+      color: #022c22;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 12px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .coupon-note {
+      font-size: 11.5px;
+      color: #cbd5e1;
+    }
+
+    .score-summary {
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-around;
+    }
+    .quality-picker {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .q-btn {
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 8px;
+      padding: 8px 13px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .q-btn.active {
+      background: #0284c7;
+      color: #fff;
+      border-color: #38bdf8;
+    }
+    .modal-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .btn {
+      pointer-events: auto;
+      background: linear-gradient(135deg, #0284c7, #4f46e5);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 13px 24px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .btn-secondary {
+      background: #1e293b;
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      color: #7dd3fc;
+    }
+    .btn-export {
+      background: linear-gradient(135deg, #059669, #0284c7);
+      color: #fff;
+    }
+
+    /* ==========================================
+       COMMERCIAL STUDIO DRAWER
+       ========================================== */
+    #editor-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 385px;
+      max-width: 95vw;
+      background: rgba(15, 23, 42, 0.97);
+      border-left: 1px solid rgba(56, 189, 248, 0.35);
+      z-index: 35;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(102%);
+      transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: -16px 0 48px rgba(0, 0, 0, 0.65);
+    }
+    #editor-drawer.open {
+      transform: translateX(0);
+    }
+    .editor-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .editor-header h2 {
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: 0.4px;
+      color: #38bdf8;
+    }
+    .close-btn {
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .editor-tabs {
+      display: flex;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      background: #0b1120;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      color: #38bdf8;
+      border-bottom-color: #38bdf8;
+      background: rgba(56, 189, 248, 0.08);
+    }
+    .editor-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      touch-action: pan-y;
+    }
+    .editor-body * {
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    .tab-pane {
+      display: none;
+      flex-direction: column;
+      gap: 13px;
+    }
+    .tab-pane.active {
+      display: flex;
+    }
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .field-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #94a3b8;
+      display: flex;
+      justify-content: space-between;
+    }
+    .editor-select, .editor-input {
+      width: 100%;
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 8px;
+      padding: 9px 11px;
+      color: #f8fafc;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+    }
+    .editor-select:focus, .editor-input:focus {
+      border-color: #38bdf8;
+    }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .preview-box {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: #020617;
+    }
+    #editor-preview-canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .color-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .color-chip {
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 8px;
+      padding: 6px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #cbd5e1;
+    }
+    .color-chip input[type="color"] {
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: none;
+      cursor: pointer;
+    }
+    .preset-swatches {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .swatch-btn {
+      flex: 1;
+      min-width: 56px;
+      padding: 6px 6px;
+      border-radius: 7px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      color: #fff;
+      font-size: 10.5px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .img-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .mini-btn {
+      flex: 1;
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+    }
+    .mini-btn:hover {
+      border-color: #38bdf8;
+    }
+    .info-box {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+      line-height: 1.45;
+      color: #a7f3d0;
+    }
+    .editor-footer {
+      padding: 14px 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: #0b1120;
+    }
+    .footer-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    #touch-controls {
+      display: none;
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
+      justify-content: space-between;
+      z-index: 15;
+      pointer-events: none;
+    }
+    .touch-group {
+      display: flex;
+      gap: 10px;
+      pointer-events: auto;
+    }
+    .touch-btn {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: rgba(15, 23, 42, 0.82);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      font-size: 18px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    @media (pointer: coarse) {
+      #touch-controls { display: flex; }
+      .controls-hint { display: none; }
+      .speed-cluster { margin-bottom: 70px; }
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+  <canvas id="game-canvas"></canvas>
+  <div id="nitro-vignette"></div>
+  <div id="callout-feed"></div>
+
+  <div id="hud">
+    <div class="hud-top">
+      <div class="hud-left-stack">
+        <div class="hud-panel stat-row">
+          <div>
+            <div class="stat-label">Pos</div>
+            <div class="stat-value" id="hud-pos">1<span>/4</span></div>
+          </div>
+          <div>
+            <div class="stat-label">Lap</div>
+            <div class="stat-value" id="hud-lap">1<span>/3</span></div>
+          </div>
+          <div>
+            <div class="stat-label">Time</div>
+            <div class="stat-value" id="hud-time">00:00.0</div>
+          </div>
+        </div>
+
+        <div class="hud-panel score-panel">
+          <div>
+            <div class="stat-label">Score</div>
+            <div class="stat-value" id="hud-score">0</div>
+          </div>
+          <div>
+            <div class="stat-label">Best</div>
+            <div class="stat-value" id="hud-best">0</div>
+          </div>
+          <div id="combo-box">
+            <div class="combo-top">
+              <span id="combo-mult">2x</span>
+              <span id="combo-pts">+0</span>
+            </div>
+            <div class="combo-bar-bg">
+              <div id="combo-timer-fill"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="top-right-cluster">
+        <div class="perf-bar">
+          <button class="pill-btn" id="edit-ads-hud-btn" title="Open Shop & Billboard Studio (B)">STUDIO</button>
+          <div id="fps-badge">60 FPS</div>
+          <button class="pill-btn" id="gfx-btn" title="Switch Graphics Quality (G)">GFX: SMOOTH</button>
+        </div>
+        <canvas id="minimap" width="112" height="112"></canvas>
+      </div>
+    </div>
+
+    <div class="hud-bottom">
+      <div class="hud-panel controls-hint" id="controls-hint-box">
+        <div><span class="key">W</span>/<span class="key">↑</span> Gas &nbsp; <span class="key">S</span>/<span class="key">↓</span> Brake &nbsp; <span class="key">A</span><span class="key">D</span>/<span class="key">←</span><span class="key">→</span> Steer</div>
+        <div><span class="key">SHIFT</span> Drift (Charges Nitro + Score) &nbsp; <span class="key">SPACE</span> Nitro Boost</div>
+        <div id="studio-shortcut-hint"><span class="key">B</span> Studio Editor &nbsp; <span class="key">C</span> Camera &nbsp; <span class="key">R</span> Reset</div>
+      </div>
+
+      <div class="hud-panel speed-cluster">
+        <div class="speed-num" id="hud-speed">0</div>
+        <div class="speed-unit">KM/H</div>
+        <div class="nitro-bar-bg">
+          <div id="nitro-fill"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="countdown">3</div>
+
+  <div id="overlay">
+    <div class="modal" id="modal-content">
+      <h1 id="menu-title">APEX HORIZON 3D</h1>
+      <p id="menu-subtitle">Drift corners to charge Nitro, thread near-misses past rivals, and beat the target score!</p>
+      <div class="challenge-banner" id="menu-challenge-banner">
+        🏆 Score <strong>5,000+ pts</strong> to unlock <strong>15% OFF YOUR ORDER</strong>
+      </div>
+      <div class="quality-picker" id="quality-picker">
+        <button class="q-btn active" data-q="0">ULTRA SMOOTH</button>
+        <button class="q-btn" data-q="1">BALANCED</button>
+        <button class="q-btn" data-q="2">HIGH</button>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" id="start-btn">START RACE</button>
+        <button class="btn btn-secondary" id="open-editor-menu-btn">SHOP STUDIO &amp; EXPORT CLIENT HTML</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMMERCIAL SHOP & BILLBOARD STUDIO DRAWER -->
+  <aside id="editor-drawer">
+    <div class="editor-header">
+      <h2>SHOP ADVERGAME STUDIO</h2>
+      <button class="close-btn" id="close-editor-btn">DONE ✕</button>
+    </div>
+
+    <div class="editor-tabs">
+      <button class="tab-btn active" data-tab="billboards">1. BILLBOARDS (9)</button>
+      <button class="tab-btn" data-tab="shop">2. SHOP &amp; COUPON</button>
+    </div>
+
+    <div class="editor-body">
+      <!-- TAB 1: BILLBOARDS -->
+      <div class="tab-pane active" id="pane-billboards">
+        <div class="field-group">
+          <label class="field-label">
+            <span>Select Trackside Sign</span>
+            <span id="bb-index-badge">1 / 9</span>
+          </label>
+          <select class="editor-select" id="bb-select">
+            <option value="0">#1 — Opening Straight (Right)</option>
+            <option value="1">#2 — North Approach (Left)</option>
+            <option value="2">#3 — Fast Sweeper (Right)</option>
+            <option value="3">#4 — East Apex (Left)</option>
+            <option value="4">#5 — Backstretch Entry (Right)</option>
+            <option value="5">#6 — Chicane Bend (Left)</option>
+            <option value="6">#7 — South Hairpin (Right)</option>
+            <option value="7">#8 — West Curve (Left)</option>
+            <option value="8">#9 — Final Corner (Right)</option>
+          </select>
+        </div>
+
+        <div class="preview-box">
+          <canvas id="editor-preview-canvas" width="512" height="256"></canvas>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Headline Text</label>
+          <input class="editor-input" id="bb-title" type="text" maxlength="22" placeholder="e.g. METRO CAFE" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Offer / Tagline</label>
+          <input class="editor-input" id="bb-subtitle" type="text" maxlength="34" placeholder="e.g. BUY 1 GET 1 FREE ⚡" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Quick Theme Presets</label>
+          <div class="preset-swatches">
+            <button class="swatch-btn" data-p="0" style="background:linear-gradient(135deg,#0f172a,#0369a1);border-color:#38bdf8;">CYAN</button>
+            <button class="swatch-btn" data-p="1" style="background:linear-gradient(135deg,#1e1b4b,#701a75);border-color:#f472b6;">NEON</button>
+            <button class="swatch-btn" data-p="2" style="background:linear-gradient(135deg,#18181b,#991b1b);border-color:#facc15;">GOLD</button>
+            <button class="swatch-btn" data-p="3" style="background:linear-gradient(135deg,#064e3b,#0f172a);border-color:#34d399;">VOLT</button>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Custom Colors</label>
+          <div class="color-row">
+            <label class="color-chip">BG 1 <input type="color" id="bb-bg1" /></label>
+            <label class="color-chip">BG 2 <input type="color" id="bb-bg2" /></label>
+            <label class="color-chip">Frame <input type="color" id="bb-accent" /></label>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Shop Photo / Logo (Optional)</label>
+          <input class="editor-input" id="bb-img-url" type="text" placeholder="Paste image URL or upload below" />
+          <div class="img-actions">
+            <label class="mini-btn" style="cursor:pointer;">
+              UPLOAD IMAGE
+              <input type="file" id="bb-img-file" accept="image/*" style="display:none;" />
+            </label>
+            <button class="mini-btn" id="bb-clear-img">CLEAR IMAGE</button>
+          </div>
+        </div>
+
+        <div class="footer-row">
+          <button class="mini-btn" id="bb-apply-all">APPLY TO ALL 9</button>
+          <button class="mini-btn" id="bb-reset-all">RESET SIGNS</button>
+        </div>
+      </div>
+
+      <!-- TAB 2: SHOP BRANDING & COUPON REWARD -->
+      <div class="tab-pane" id="pane-shop">
+        <div class="field-group">
+          <label class="field-label">Shop / Event Title (Start Screen &amp; Jumbotron)</label>
+          <input class="editor-input" id="cfg-shop-title" type="text" maxlength="28" placeholder="e.g. METRO CAFE GRAND PRIX" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Start Screen Welcome Message</label>
+          <input class="editor-input" id="cfg-shop-subtitle" type="text" maxlength="95" placeholder="e.g. Race 3 laps & beat the target score to win a discount!" />
+        </div>
+
+        <div class="two-col">
+          <div class="field-group">
+            <label class="field-label">Target Score</label>
+            <input class="editor-input" id="cfg-target-score" type="number" min="0" step="500" placeholder="5000" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">Promo Code</label>
+            <input class="editor-input" id="cfg-promo-code" type="text" maxlength="16" placeholder="RACE15" />
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Customer Reward Description</label>
+          <input class="editor-input" id="cfg-reward-title" type="text" maxlength="40" placeholder="e.g. 15% OFF YOUR ORDER" />
+        </div>
+
+        <div class="info-box">
+          <strong>Client Lock Protection:</strong> When you click <em>Export Client HTML</em> below, the Studio Editor is automatically <strong>removed &amp; locked</strong> so customers can play and unlock coupons without editing the shop's ads.
+        </div>
+      </div>
+    </div>
+
+    <div class="editor-footer">
+      <button class="btn btn-export" id="export-html-btn" style="width:100%;padding:12px;">
+        EXPORT LOCKED CLIENT HTML ⬇
+      </button>
+    </div>
+  </aside>
+
+  <div id="touch-controls">
+    <div class="touch-group">
+      <div class="touch-btn" id="t-left">◀</div>
+      <div class="touch-btn" id="t-right">▶</div>
+    </div>
+    <div class="touch-group">
+      <div class="touch-btn" id="t-drift" style="font-size:12px;">DRIFT</div>
+      <div class="touch-btn" id="t-nitro">⚡</div>
+      <div class="touch-btn" id="t-gas">▲</div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // 0. DEFAULT & BAKED CLIENT CONFIGURATION
+    // ==========================================
+    const DEFAULT_CLIENT_CONFIG = {
+      shopTitle: 'APEX HORIZON 3D',
+      shopSubtitle: 'Drift corners to charge Nitro, thread near-misses past rivals, and beat the target score!',
+      targetScore: 5000,
+      rewardTitle: '15% OFF YOUR ORDER',
+      promoCode: 'RACE15',
+      lockEditor: false
+    };
+
+    const DEFAULT_BILLBOARDS = [
+      { title: 'HYPER NITRO', subtitle: 'BOOST BEYOND LIMITS ⚡', bg1: '#0f172a', bg2: '#0369a1', accent: '#38bdf8', imageUrl: '' },
+      { title: 'DRIFT KING', subtitle: 'SLIDE CORNERS • BUILD 10X', bg1: '#1e1b4b', bg2: '#701a75', accent: '#f472b6', imageUrl: '' },
+      { title: 'APEX TIRES', subtitle: 'MAXIMUM GRIP • ZERO SLIP', bg1: '#18181b', bg2: '#991b1b', accent: '#facc15', imageUrl: '' },
+      { title: 'SOLAR VOLT', subtitle: '100% ELECTRIC TORQUE', bg1: '#064e3b', bg2: '#0f172a', accent: '#34d399', imageUrl: '' },
+      { title: 'NEAR MISS!', subtitle: 'PASS CLOSE FOR +250 PTS', bg1: '#31102f', bg2: '#9a3412', accent: '#fb923c', imageUrl: '' },
+      { title: 'APEX HORIZON', subtitle: 'COASTAL GRAND PRIX', bg1: '#0f172a', bg2: '#1d4ed8', accent: '#60a5fa', imageUrl: '' },
+      { title: 'TURBO CHARGE', subtitle: 'HOLD SPACE FOR MAX SPEED', bg1: '#171717', bg2: '#b91c1c', accent: '#fde047', imageUrl: '' },
+      { title: 'COMBO RUSH', subtitle: 'CHAIN DRIFTS FOR 10X', bg1: '#2e1065', bg2: '#be185d', accent: '#f9a8d4', imageUrl: '' },
+      { title: 'PODIUM CLUB', subtitle: 'BEAT THE TRACK RECORD', bg1: '#042f2e', bg2: '#115e59', accent: '#2dd4bf', imageUrl: '' }
+    ];
+
+    // === CLIENT_CONFIG_START ===
+    const BAKED_CLIENT_CONFIG = null;
+    const BAKED_BILLBOARDS = null;
+    // === CLIENT_CONFIG_END ===
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function loadClientConfig() {
+      if (BAKED_CLIENT_CONFIG && typeof BAKED_CLIENT_CONFIG === 'object') {
+        return { ...DEFAULT_CLIENT_CONFIG, ...BAKED_CLIENT_CONFIG };
+      }
+      try {
+        const saved = JSON.parse(localStorage.getItem('apex_horizon_client_cfg_v1'));
+        if (saved && typeof saved === 'object') {
+          return { ...DEFAULT_CLIENT_CONFIG, ...saved };
+        }
+      } catch (e) {}
+      return { ...DEFAULT_CLIENT_CONFIG };
+    }
+
+    function loadBillboardData() {
+      if (Array.isArray(BAKED_BILLBOARDS) && BAKED_BILLBOARDS.length === 9) {
+        return BAKED_BILLBOARDS.map(b => ({ ...b }));
+      }
+      try {
+        const saved = JSON.parse(localStorage.getItem('apex_horizon_billboards_v1'));
+        if (Array.isArray(saved) && saved.length === 9) {
+          return saved.map((b, i) => ({ ...DEFAULT_BILLBOARDS[i], ...b }));
+        }
+      } catch (e) {}
+      return DEFAULT_BILLBOARDS.map(b => ({ ...b }));
+    }
+
+    let clientConfig = loadClientConfig();
+    let billboardData = loadBillboardData();
+    const IS_LOCKED_CLIENT = Boolean(clientConfig.lockEditor);
+
+    function persistStudioState() {
+      if (IS_LOCKED_CLIENT) return;
+      try {
+        localStorage.setItem('apex_horizon_client_cfg_v1', JSON.stringify(clientConfig));
+        localStorage.setItem('apex_horizon_billboards_v1', JSON.stringify(billboardData));
+      } catch (e) {}
+    }
+
+    function applyBrandingToMenu() {
+      document.title = clientConfig.shopTitle || 'Apex Horizon 3D';
+      const titleEl = document.getElementById('menu-title');
+      const subEl = document.getElementById('menu-subtitle');
+      const bannerEl = document.getElementById('menu-challenge-banner');
+
+      if (titleEl) titleEl.textContent = clientConfig.shopTitle || 'APEX HORIZON 3D';
+      if (subEl) subEl.textContent = clientConfig.shopSubtitle || '';
+
+      if (bannerEl) {
+        const target = Number(clientConfig.targetScore) || 0;
+        const reward = (clientConfig.rewardTitle || '').trim();
+        const code = (clientConfig.promoCode || '').trim();
+        if (target > 0 && reward && code) {
+          bannerEl.style.display = 'block';
+          bannerEl.innerHTML = `🏆 Score <strong>${target.toLocaleString()}+ pts</strong> to unlock <strong>${escapeHtml(reward)}</strong>`;
+        } else {
+          bannerEl.style.display = 'none';
+        }
+      }
+
+      if (IS_LOCKED_CLIENT) {
+        const hudBtn = document.getElementById('edit-ads-hud-btn');
+        const menuBtn = document.getElementById('open-editor-menu-btn');
+        const drawer = document.getElementById('editor-drawer');
+        const shortcutHint = document.getElementById('studio-shortcut-hint');
+        if (hudBtn) hudBtn.remove();
+        if (menuBtn) menuBtn.remove();
+        if (drawer) drawer.remove();
+        if (shortcutHint) shortcutHint.innerHTML = '<span class="key">C</span> Camera &nbsp; <span class="key">R</span> Reset &nbsp; <span class="key">G</span> Graphics';
+      }
+    }
+
+    applyBrandingToMenu();
+
+    // ==========================================
+    // 1. ENGINE, QUALITY PROFILES & SCRATCH VECTORS
+    // ==========================================
+    const canvas = document.getElementById('game-canvas');
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: false,
+      powerPreference: 'high-performance',
+      stencil: false,
+      depth: true
+    });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x87ceeb);
+    scene.fog = new THREE.Fog(0x9bd5f0, 140, 560);
+
+    const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.8, 620);
+
+    const _v1 = new THREE.Vector3();
+    const _v2 = new THREE.Vector3();
+
+    const hemiLight = new THREE.HemisphereLight(0xe0f2fe, 0x3f6212, 0.95);
+    scene.add(hemiLight);
+
+    const dirLight = new THREE.DirectionalLight(0xfffbeb, 1.15);
+    dirLight.position.set(140, 220, 110);
+    scene.add(dirLight);
+
+    const QUALITY_LEVELS = [
+      { name: 'SMOOTH', dprCap: 1.0, far: 560, shadows: false },
+      { name: 'BALANCED', dprCap: 1.35, far: 680, shadows: false },
+      { name: 'HIGH', dprCap: 1.75, far: 820, shadows: true }
+    ];
+    let currentQuality = 0;
+
+    function applyQuality(levelIdx) {
+      currentQuality = levelIdx % QUALITY_LEVELS.length;
+      const q = QUALITY_LEVELS[currentQuality];
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, q.dprCap));
+      camera.far = q.far;
+      scene.fog.near = q.far * 0.25;
+      scene.fog.far = q.far * 0.92;
+      camera.updateProjectionMatrix();
+
+      renderer.shadowMap.enabled = q.shadows;
+      dirLight.castShadow = q.shadows;
+      if (q.shadows && !dirLight.shadow.map) {
+        dirLight.shadow.mapSize.set(1024, 1024);
+        dirLight.shadow.camera.near = 20;
+        dirLight.shadow.camera.far = 450;
+        const d = 160;
+        dirLight.shadow.camera.left = -d;
+        dirLight.shadow.camera.right = d;
+        dirLight.shadow.camera.top = d;
+        dirLight.shadow.camera.bottom = -d;
+      }
+
+      document.getElementById('gfx-btn').textContent = `GFX: ${q.name}`;
+      document.querySelectorAll('.q-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', idx === currentQuality);
+      });
+    }
+
+    applyQuality(0);
+
+    document.getElementById('gfx-btn').addEventListener('click', () => applyQuality(currentQuality + 1));
+    document.querySelectorAll('.q-btn').forEach(btn => {
+      btn.addEventListener('click', () => applyQuality(Number(btn.dataset.q)));
+    });
+
+    // ==========================================
+    // 2. PROCEDURAL TEXTURES & DYNAMIC BILLBOARD PAINTER
+    // ==========================================
+    function createRoadTexture() {
+      const c = document.createElement('canvas');
+      c.width = 256;
+      c.height = 256;
+      const ctx = c.getContext('2d');
+
+      ctx.fillStyle = '#272b33';
+      ctx.fillRect(0, 0, 256, 256);
+
+      for (let i = 0; i < 1600; i++) {
+        const shade = 34 + ((i * 17) % 18);
+        ctx.fillStyle = `rgb(${shade},${shade + 2},${shade + 6})`;
+        ctx.fillRect(Math.random() * 256, Math.random() * 256, 2, 2);
+      }
+
+      ctx.fillStyle = '#e2e8f0';
+      ctx.fillRect(9, 0, 5, 256);
+      ctx.fillRect(242, 0, 5, 256);
+
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(126, 16, 4, 95);
+      ctx.fillRect(126, 144, 4, 95);
+
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.RepeatWrapping;
+      tex.anisotropy = 4;
+      return tex;
+    }
+
+    function createCurbTexture() {
+      const c = document.createElement('canvas');
+      c.width = 32;
+      c.height = 64;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(0, 0, 32, 32);
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(0, 32, 32, 32);
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.RepeatWrapping;
+      return tex;
+    }
+
+    function createCheckerTexture() {
+      const c = document.createElement('canvas');
+      c.width = 128;
+      c.height = 32;
+      const ctx = c.getContext('2d');
+      const size = 8;
+      for (let y = 0; y < 32; y += size) {
+        for (let x = 0; x < 128; x += size) {
+          ctx.fillStyle = ((x + y) / size) % 2 === 0 ? '#ffffff' : '#0f172a';
+          ctx.fillRect(x, y, size, size);
+        }
+      }
+      return new THREE.CanvasTexture(c);
+    }
+
+    function createShadowBlobTexture() {
+      const c = document.createElement('canvas');
+      c.width = 64;
+      c.height = 64;
+      const ctx = c.getContext('2d');
+      const grad = ctx.createRadialGradient(32, 32, 6, 32, 32, 30);
+      grad.addColorStop(0, 'rgba(0, 0, 0, 0.55)');
+      grad.addColorStop(0.7, 'rgba(0, 0, 0, 0.25)');
+      grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 64, 64);
+      return new THREE.CanvasTexture(c);
+    }
+
+    function paintBillboardCanvas(targetCanvas, cfg, onReady) {
+      if (!targetCanvas) return;
+      const ctx = targetCanvas.getContext('2d');
+
+      const renderOverlay = (bgImage) => {
+        const grad = ctx.createLinearGradient(0, 0, 512, 256);
+        grad.addColorStop(0, cfg.bg1 || '#0f172a');
+        grad.addColorStop(1, cfg.bg2 || '#0369a1');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 512, 256);
+
+        if (bgImage) {
+          const scale = Math.max(512 / bgImage.width, 256 / bgImage.height);
+          const w = bgImage.width * scale;
+          const h = bgImage.height * scale;
+          ctx.drawImage(bgImage, (512 - w) * 0.5, (256 - h) * 0.5, w, h);
+
+          if (cfg.title || cfg.subtitle) {
+            ctx.fillStyle = 'rgba(2, 6, 23, 0.48)';
+            ctx.fillRect(0, 0, 512, 256);
+          }
+        } else {
+          ctx.fillStyle = 'rgba(255,255,255,0.08)';
+          ctx.beginPath();
+          ctx.moveTo(360, 0);
+          ctx.lineTo(430, 0);
+          ctx.lineTo(350, 256);
+          ctx.lineTo(280, 256);
+          ctx.fill();
+        }
+
+        ctx.strokeStyle = cfg.accent || '#38bdf8';
+        ctx.lineWidth = 10;
+        ctx.strokeRect(10, 10, 492, 236);
+
+        if (cfg.title) {
+          ctx.fillStyle = '#ffffff';
+          ctx.font = '900 50px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.shadowColor = 'rgba(0,0,0,0.75)';
+          ctx.shadowBlur = 10;
+          ctx.fillText(cfg.title, 256, cfg.subtitle ? 102 : 128);
+          ctx.shadowBlur = 0;
+        }
+
+        if (cfg.subtitle) {
+          ctx.fillStyle = cfg.accent || '#38bdf8';
+          ctx.font = '800 23px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.shadowColor = 'rgba(0,0,0,0.85)';
+          ctx.shadowBlur = 8;
+          ctx.fillText(cfg.subtitle, 256, cfg.title ? 172 : 128);
+          ctx.shadowBlur = 0;
+        }
+
+        if (onReady) onReady();
+      };
+
+      const url = (cfg.imageUrl || '').trim();
+      if (!url) {
+        renderOverlay(null);
+        return;
+      }
+
+      renderOverlay(null);
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => renderOverlay(img);
+      img.onerror = () => {
+        const fallbackImg = new Image();
+        fallbackImg.onload = () => renderOverlay(fallbackImg);
+        fallbackImg.src = url;
+      };
+      img.src = url;
+    }
+
+    const carShadowTex = createShadowBlobTexture();
+
+    // ==========================================
+    // 3. CIRCUIT TRACK, BILLBOARDS & SCENERY
+    // ==========================================
+    const controlPoints = [
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(0, 0, -160),
+      new THREE.Vector3(70, 0, -280),
+      new THREE.Vector3(210, 0, -300),
+      new THREE.Vector3(310, 0, -200),
+      new THREE.Vector3(280, 0, -60),
+      new THREE.Vector3(360, 0, 70),
+      new THREE.Vector3(320, 0, 210),
+      new THREE.Vector3(170, 0, 250),
+      new THREE.Vector3(60, 0, 170),
+      new THREE.Vector3(-40, 0, 210),
+      new THREE.Vector3(-120, 0, 130),
+      new THREE.Vector3(-60, 0, 40)
+    ];
+
+    const trackCurve = new THREE.CatmullRomCurve3(controlPoints, true, 'catmullrom', 0.5);
+    const TRACK_SAMPLES = 560;
+    const ROAD_HALF_WIDTH = 13;
+    const CURB_WIDTH = 1.6;
+    const trackPoints = trackCurve.getSpacedPoints(TRACK_SAMPLES);
+    trackPoints.pop();
+    const N = trackPoints.length;
+
+    const trackTangents = [];
+    const trackRights = [];
+
+    for (let i = 0; i < N; i++) {
+      const prev = trackPoints[(i - 1 + N) % N];
+      const next = trackPoints[(i + 1) % N];
+      const tan = next.clone().sub(prev).normalize();
+      const right = new THREE.Vector3(-tan.z, 0, tan.x).normalize();
+      trackTangents.push(tan);
+      trackRights.push(right);
+    }
+
+    const ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(2200, 2200),
+      new THREE.MeshLambertMaterial({ color: 0x4d7c0f })
+    );
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -0.08;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    function buildTrackRibbon(innerOffset, outerOffset, yHeight, material, uvRepeatLen) {
+      const positions = [];
+      const normals = [];
+      const uvs = [];
+      const indices = [];
+      let distAccum = 0;
+
+      for (let i = 0; i <= N; i++) {
+        const idx = i % N;
+        const p = trackPoints[idx];
+        const r = trackRights[idx];
+
+        if (i > 0) distAccum += p.distanceTo(trackPoints[(i - 1) % N]);
+
+        positions.push(
+          p.x + r.x * innerOffset, yHeight, p.z + r.z * innerOffset,
+          p.x + r.x * outerOffset, yHeight, p.z + r.z * outerOffset
+        );
+        normals.push(0, 1, 0, 0, 1, 0);
+        const v = distAccum / uvRepeatLen;
+        uvs.push(0, v, 1, v);
+
+        if (i < N) {
+          const base = i * 2;
+          indices.push(base, base + 1, base + 2, base + 1, base + 3, base + 2);
+        }
+      }
+
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      geo.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
+      geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+      geo.setIndex(indices);
+
+      const mesh = new THREE.Mesh(geo, material);
+      mesh.receiveShadow = true;
+      scene.add(mesh);
+      return mesh;
+    }
+
+    const roadMat = new THREE.MeshLambertMaterial({ map: createRoadTexture() });
+    const curbMat = new THREE.MeshLambertMaterial({ map: createCurbTexture() });
+
+    buildTrackRibbon(-ROAD_HALF_WIDTH, ROAD_HALF_WIDTH, 0.01, roadMat, 18);
+    buildTrackRibbon(-ROAD_HALF_WIDTH - CURB_WIDTH, -ROAD_HALF_WIDTH, 0.02, curbMat, 6);
+    buildTrackRibbon(ROAD_HALF_WIDTH, ROAD_HALF_WIDTH + CURB_WIDTH, 0.02, curbMat, 6);
+
+    // Start / Finish Line & Gantry
+    (function createStartFinish() {
+      const p0 = trackPoints[0];
+      const t0 = trackTangents[0];
+      const angle = Math.atan2(t0.x, t0.z);
+      const checkerTex = createCheckerTexture();
+
+      const strip = new THREE.Mesh(
+        new THREE.PlaneGeometry(ROAD_HALF_WIDTH * 2, 4.5),
+        new THREE.MeshLambertMaterial({ map: checkerTex })
+      );
+      strip.rotation.x = -Math.PI / 2;
+      strip.rotation.z = -angle;
+      strip.position.set(p0.x, 0.03, p0.z);
+      scene.add(strip);
+
+      const gantryGroup = new THREE.Group();
+      gantryGroup.position.copy(p0);
+      gantryGroup.rotation.y = angle;
+
+      const pillarGeo = new THREE.BoxGeometry(1.2, 9.5, 1.2);
+      const pillarMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
+      const leftPillar = new THREE.Mesh(pillarGeo, pillarMat);
+      leftPillar.position.set(-ROAD_HALF_WIDTH - 1.8, 4.75, 0);
+      const rightPillar = leftPillar.clone();
+      rightPillar.position.x = ROAD_HALF_WIDTH + 1.8;
+
+      const banner = new THREE.Mesh(
+        new THREE.BoxGeometry(ROAD_HALF_WIDTH * 2 + 4.8, 2.2, 1.4),
+        new THREE.MeshLambertMaterial({ map: checkerTex })
+      );
+      banner.position.set(0, 9.2, 0);
+
+      gantryGroup.add(leftPillar, rightPillar, banner);
+      scene.add(gantryGroup);
+    })();
+
+    // ==========================================
+    // 3B. DYNAMIC TRACKSIDE BILLBOARDS & JUMBOTRON
+    // ==========================================
+    const billboardInstances = [];
+    let jumbotronCanvas, jumbotronCtx, jumbotronTex;
+
+    (function createBillboards() {
+      const boardGeo = new THREE.PlaneGeometry(16, 8);
+      const frameGeo = new THREE.BoxGeometry(16.6, 8.6, 0.5);
+      const postGeo = new THREE.CylinderGeometry(0.35, 0.42, 7.5, 6);
+      const metalMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
+
+      const placements = [
+        { idx: 42, side: 1 },
+        { idx: 92, side: -1 },
+        { idx: 145, side: 1 },
+        { idx: 205, side: -1 },
+        { idx: 260, side: 1 },
+        { idx: 325, side: -1 },
+        { idx: 385, side: 1 },
+        { idx: 445, side: -1 },
+        { idx: 500, side: 1 }
+      ];
+
+      placements.forEach((pInfo, i) => {
+        const pt = trackPoints[pInfo.idx];
+        const rt = trackRights[pInfo.idx];
+        const tan = trackTangents[pInfo.idx];
+
+        const group = new THREE.Group();
+        const lateralDist = ROAD_HALF_WIDTH + 9.5;
+        group.position.set(
+          pt.x + rt.x * pInfo.side * lateralDist,
+          0,
+          pt.z + rt.z * pInfo.side * lateralDist
+        );
+
+        const faceAngle = Math.atan2(-tan.x, -tan.z) - pInfo.side * 0.36;
+        group.rotation.y = faceAngle;
+
+        const postL = new THREE.Mesh(postGeo, metalMat);
+        postL.position.set(-5.5, 3.75, -0.3);
+        const postR = new THREE.Mesh(postGeo, metalMat);
+        postR.position.set(5.5, 3.75, -0.3);
+
+        const frame = new THREE.Mesh(frameGeo, metalMat);
+        frame.position.set(0, 8.2, -0.26);
+
+        const bCanvas = document.createElement('canvas');
+        bCanvas.width = 512;
+        bCanvas.height = 256;
+        const bTex = new THREE.CanvasTexture(bCanvas);
+        bTex.anisotropy = 4;
+
+        paintBillboardCanvas(bCanvas, billboardData[i], () => {
+          bTex.needsUpdate = true;
+        });
+
+        const faceMat = new THREE.MeshBasicMaterial({ map: bTex });
+        const face = new THREE.Mesh(boardGeo, faceMat);
+        face.position.set(0, 8.2, 0.02);
+
+        group.add(postL, postR, frame, face);
+        scene.add(group);
+
+        const normalX = Math.sin(faceAngle);
+        const normalZ = Math.cos(faceAngle);
+        const camPos = new THREE.Vector3(group.position.x + normalX * 22, 8.5, group.position.z + normalZ * 22);
+        const lookAt = new THREE.Vector3(group.position.x, 8.0, group.position.z);
+
+        billboardInstances.push({ canvas: bCanvas, texture: bTex, camPos, lookAt });
+      });
+
+      // Live Jumbotron near Finish Straight
+      jumbotronCanvas = document.createElement('canvas');
+      jumbotronCanvas.width = 512;
+      jumbotronCanvas.height = 256;
+      jumbotronCtx = jumbotronCanvas.getContext('2d');
+      jumbotronTex = new THREE.CanvasTexture(jumbotronCanvas);
+
+      const jumboIdx = 22;
+      const jPt = trackPoints[jumboIdx];
+      const jRt = trackRights[jumboIdx];
+      const jTan = trackTangents[jumboIdx];
+
+      const jumboGroup = new THREE.Group();
+      jumboGroup.position.set(
+        jPt.x - jRt.x * (ROAD_HALF_WIDTH + 11),
+        0,
+        jPt.z - jRt.z * (ROAD_HALF_WIDTH + 11)
+      );
+      jumboGroup.rotation.y = Math.atan2(-jTan.x, -jTan.z) + 0.38;
+
+      const jPostL = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.55, 9, 6), metalMat);
+      jPostL.position.set(-7, 4.5, -0.3);
+      const jPostR = jPostL.clone();
+      jPostR.position.x = 7;
+
+      const jFrame = new THREE.Mesh(new THREE.BoxGeometry(20.8, 10.8, 0.6), metalMat);
+      jFrame.position.set(0, 10, -0.32);
+
+      const jScreen = new THREE.Mesh(
+        new THREE.PlaneGeometry(20, 10),
+        new THREE.MeshBasicMaterial({ map: jumbotronTex })
+      );
+      jScreen.position.set(0, 10, 0.02);
+
+      jumboGroup.add(jPostL, jPostR, jFrame, jScreen);
+      scene.add(jumboGroup);
+    })();
+
+    function refreshBillboard3D(index) {
+      const inst = billboardInstances[index];
+      if (!inst) return;
+      paintBillboardCanvas(inst.canvas, billboardData[index], () => {
+        inst.texture.needsUpdate = true;
+      });
+    }
+
+    function updateJumbotron(leaderName, speedKmh, score, bestScore) {
+      if (!jumbotronCtx) return;
+      const ctx = jumbotronCtx;
+      ctx.fillStyle = '#090d16';
+      ctx.fillRect(0, 0, 512, 256);
+
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 8;
+      ctx.strokeRect(8, 8, 496, 240);
+
+      const headerBrand = (clientConfig.shopTitle || 'APEX HORIZON').toUpperCase().slice(0, 26);
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = '800 19px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${headerBrand} • LIVE TELEMETRY`, 256, 42);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 40px sans-serif';
+      ctx.fillText(`LEADER: ${leaderName.toUpperCase()}`, 256, 102);
+
+      ctx.fillStyle = '#facc15';
+      ctx.font = '800 27px sans-serif';
+      ctx.fillText(`SCORE: ${score.toLocaleString()}   |   SPEED: ${speedKmh} KM/H`, 256, 162);
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '700 20px sans-serif';
+      ctx.fillText(`TRACK RECORD: ${bestScore.toLocaleString()} PTS`, 256, 212);
+
+      jumbotronTex.needsUpdate = true;
+    }
+
+    // Boost Pads
+    const boostPads = [];
+    const boostIndices = [76, 180, 296, 416, 504];
+    const padGeo = new THREE.PlaneGeometry(4.2, 7.5);
+    const padMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, side: THREE.DoubleSide });
+
+    boostIndices.forEach((idx, i) => {
+      const lateralOffset = i % 2 === 0 ? -4.5 : 4.5;
+      const pos = trackPoints[idx].clone().addScaledVector(trackRights[idx], lateralOffset);
+      const tan = trackTangents[idx];
+      const pad = new THREE.Mesh(padGeo, padMat);
+      pad.rotation.x = -Math.PI / 2;
+      pad.rotation.z = -Math.atan2(tan.x, tan.z);
+      pad.position.set(pos.x, 0.04, pos.z);
+      scene.add(pad);
+      boostPads.push({ pos, radiusSq: 4.5 * 4.5 });
+    });
+
+    // GPU-Instanced Scenery
+    (function populateInstancedScenery() {
+      const validTrees = [];
+      const minClearSq = (ROAD_HALF_WIDTH + 13) ** 2;
+
+      for (let i = 0; i < 210; i++) {
+        const x = (Math.random() - 0.5) * 1050;
+        const z = (Math.random() - 0.5) * 1050;
+        let tooClose = false;
+        for (let j = 0; j < N; j += 4) {
+          const dx = x - trackPoints[j].x;
+          const dz = z - trackPoints[j].z;
+          if (dx * dx + dz * dz < minClearSq) {
+            tooClose = true;
+            break;
+          }
+        }
+        if (!tooClose) {
+          validTrees.push({ x, z, scale: 0.85 + Math.random() * 0.9, shade: i % 2 === 0 ? 0x15803d : 0x166534 });
+        }
+      }
+
+      const trunkGeo = new THREE.CylinderGeometry(0.45, 0.7, 3.2, 5);
+      const trunkMat = new THREE.MeshLambertMaterial({ color: 0x78350f });
+      const crownGeo = new THREE.ConeGeometry(2.8, 7.5, 6);
+      const crownMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+
+      const trunkInst = new THREE.InstancedMesh(trunkGeo, trunkMat, validTrees.length);
+      const crownInst = new THREE.InstancedMesh(crownGeo, crownMat, validTrees.length);
+
+      const dummy = new THREE.Object3D();
+      const color = new THREE.Color();
+
+      validTrees.forEach((t, i) => {
+        dummy.position.set(t.x, 1.6 * t.scale, t.z);
+        dummy.scale.setScalar(t.scale);
+        dummy.updateMatrix();
+        trunkInst.setMatrixAt(i, dummy.matrix);
+
+        dummy.position.set(t.x, 6.2 * t.scale, t.z);
+        dummy.updateMatrix();
+        crownInst.setMatrixAt(i, dummy.matrix);
+
+        color.setHex(t.shade);
+        crownInst.setColorAt(i, color);
+      });
+
+      trunkInst.instanceMatrix.needsUpdate = true;
+      crownInst.instanceMatrix.needsUpdate = true;
+      if (crownInst.instanceColor) crownInst.instanceColor.needsUpdate = true;
+      scene.add(trunkInst, crownInst);
+
+      const hillCount = 16;
+      const hillInst = new THREE.InstancedMesh(
+        new THREE.ConeGeometry(1, 1, 5),
+        new THREE.MeshLambertMaterial({ color: 0x3b6e4c }),
+        hillCount
+      );
+      for (let i = 0; i < hillCount; i++) {
+        const angle = (i / hillCount) * Math.PI * 2;
+        const dist = 520 + (i % 3) * 55;
+        const radius = 85 + (i % 4) * 18;
+        const height = 75 + (i % 3) * 28;
+        dummy.position.set(Math.cos(angle) * dist + 140, height * 0.5 - 2, Math.sin(angle) * dist - 40);
+        dummy.scale.set(radius, height, radius);
+        dummy.updateMatrix();
+        hillInst.setMatrixAt(i, dummy.matrix);
+      }
+      hillInst.instanceMatrix.needsUpdate = true;
+      scene.add(hillInst);
+    })();
+
+    // ==========================================
+    // 4. INSTANCED PARTICLE POOL
+    // ==========================================
+    const MAX_PARTICLES = 90;
+    const particleGeo = new THREE.BoxGeometry(0.45, 0.45, 0.45);
+    const particleMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const particleInst = new THREE.InstancedMesh(particleGeo, particleMat, MAX_PARTICLES);
+    particleInst.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    scene.add(particleInst);
+
+    const particles = Array.from({ length: MAX_PARTICLES }, () => ({
+      active: false,
+      x: 0, y: -50, z: 0,
+      vx: 0, vy: 0, vz: 0,
+      life: 0, maxLife: 1,
+      startScale: 1, endScale: 0.1
+    }));
+    let particleCursor = 0;
+    const _pDummy = new THREE.Object3D();
+    const _pColor = new THREE.Color();
+
+    function spawnParticle(x, y, z, vx, vy, vz, life, startScale, endScale, hexColor) {
+      const idx = particleCursor;
+      const p = particles[idx];
+      particleCursor = (particleCursor + 1) % MAX_PARTICLES;
+      p.active = true;
+      p.x = x; p.y = y; p.z = z;
+      p.vx = vx; p.vy = vy; p.vz = vz;
+      p.life = life;
+      p.maxLife = life;
+      p.startScale = startScale;
+      p.endScale = endScale;
+      _pColor.setHex(hexColor);
+      particleInst.setColorAt(idx, _pColor);
+      if (particleInst.instanceColor) particleInst.instanceColor.needsUpdate = true;
+    }
+
+    function updateParticles(dt) {
+      let anyUpdated = false;
+      for (let i = 0; i < MAX_PARTICLES; i++) {
+        const p = particles[i];
+        if (!p.active) continue;
+        anyUpdated = true;
+        p.life -= dt;
+        if (p.life <= 0) {
+          p.active = false;
+          _pDummy.position.set(0, -100, 0);
+          _pDummy.scale.setScalar(0.001);
+          _pDummy.updateMatrix();
+          particleInst.setMatrixAt(i, _pDummy.matrix);
+          continue;
+        }
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.z += p.vz * dt;
+        const t = 1 - p.life / p.maxLife;
+        const sc = p.startScale + (p.endScale - p.startScale) * t;
+        _pDummy.position.set(p.x, p.y, p.z);
+        _pDummy.rotation.set(t * 2, t * 3, 0);
+        _pDummy.scale.setScalar(sc);
+        _pDummy.updateMatrix();
+        particleInst.setMatrixAt(i, _pDummy.matrix);
+      }
+      if (anyUpdated) particleInst.instanceMatrix.needsUpdate = true;
+    }
+
+    for (let i = 0; i < MAX_PARTICLES; i++) {
+      _pDummy.position.set(0, -100, 0);
+      _pDummy.scale.setScalar(0.001);
+      _pDummy.updateMatrix();
+      particleInst.setMatrixAt(i, _pDummy.matrix);
+    }
+    particleInst.instanceMatrix.needsUpdate = true;
+
+    // ==========================================
+    // 5. VEHICLE BUILDER
+    // ==========================================
+    const sharedCarGeos = {
+      chassis: new THREE.BoxGeometry(2.15, 0.62, 4.5),
+      splitter: new THREE.BoxGeometry(2.22, 0.16, 4.68),
+      cabin: new THREE.BoxGeometry(1.72, 0.56, 2.15),
+      roof: new THREE.BoxGeometry(1.66, 0.1, 1.6),
+      wing: new THREE.BoxGeometry(2.1, 0.1, 0.45),
+      strut: new THREE.BoxGeometry(0.12, 0.42, 0.25),
+      head: new THREE.BoxGeometry(0.45, 0.16, 0.08),
+      tail: new THREE.BoxGeometry(0.55, 0.16, 0.08),
+      wheel: new THREE.CylinderGeometry(0.42, 0.42, 0.34, 12).rotateZ(Math.PI / 2),
+      rim: new THREE.CylinderGeometry(0.24, 0.24, 0.36, 8).rotateZ(Math.PI / 2),
+      shadowBlob: new THREE.PlaneGeometry(2.8, 5.2).rotateX(-Math.PI / 2),
+      flame: new THREE.ConeGeometry(0.22, 1.35, 6).rotateX(-Math.PI / 2)
+    };
+
+    const sharedCarMats = {
+      dark: new THREE.MeshLambertMaterial({ color: 0x1e293b }),
+      glass: new THREE.MeshLambertMaterial({ color: 0x0f172a }),
+      head: new THREE.MeshBasicMaterial({ color: 0xfef08a }),
+      tire: new THREE.MeshLambertMaterial({ color: 0x111827 }),
+      rim: new THREE.MeshLambertMaterial({ color: 0xe2e8f0 }),
+      shadowBlob: new THREE.MeshBasicMaterial({ map: carShadowTex, transparent: true, depthWrite: false }),
+      flame: new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
+    };
+
+    function createCarMesh(primaryColor, accentColor) {
+      const car = new THREE.Group();
+      const bodyMat = new THREE.MeshLambertMaterial({ color: primaryColor });
+      const accentMat = new THREE.MeshLambertMaterial({ color: accentColor });
+
+      const shadowMesh = new THREE.Mesh(sharedCarGeos.shadowBlob, sharedCarMats.shadowBlob);
+      shadowMesh.position.y = 0.035;
+      car.add(shadowMesh);
+
+      const chassis = new THREE.Mesh(sharedCarGeos.chassis, bodyMat);
+      chassis.position.y = 0.62;
+      chassis.castShadow = true;
+      car.add(chassis);
+
+      const splitter = new THREE.Mesh(sharedCarGeos.splitter, sharedCarMats.dark);
+      splitter.position.y = 0.34;
+      car.add(splitter);
+
+      const cabin = new THREE.Mesh(sharedCarGeos.cabin, sharedCarMats.glass);
+      cabin.position.set(0, 1.15, -0.22);
+      car.add(cabin);
+
+      const roof = new THREE.Mesh(sharedCarGeos.roof, bodyMat);
+      roof.position.set(0, 1.44, -0.25);
+      car.add(roof);
+
+      const wingBlade = new THREE.Mesh(sharedCarGeos.wing, accentMat);
+      wingBlade.position.set(0, 1.32, -2.02);
+      car.add(wingBlade);
+
+      const strutL = new THREE.Mesh(sharedCarGeos.strut, sharedCarMats.dark);
+      strutL.position.set(-0.65, 1.1, -2.02);
+      const strutR = strutL.clone();
+      strutR.position.x = 0.65;
+      car.add(strutL, strutR);
+
+      const hl = new THREE.Mesh(sharedCarGeos.head, sharedCarMats.head);
+      hl.position.set(-0.72, 0.68, 2.26);
+      const hr = hl.clone();
+      hr.position.x = 0.72;
+      car.add(hl, hr);
+
+      const tailMat = new THREE.MeshBasicMaterial({ color: 0xdc2626 });
+      const tl = new THREE.Mesh(sharedCarGeos.tail, tailMat);
+      tl.position.set(-0.68, 0.72, -2.26);
+      const tr = tl.clone();
+      tr.position.x = 0.68;
+      car.add(tl, tr);
+
+      const flameL = new THREE.Mesh(sharedCarGeos.flame, sharedCarMats.flame);
+      flameL.position.set(-0.48, 0.46, -2.85);
+      flameL.visible = false;
+      const flameR = flameL.clone();
+      flameR.position.x = 0.48;
+      car.add(flameL, flameR);
+
+      const wheelPositions = [
+        [-1.08, 0.42, 1.38],
+        [1.08, 0.42, 1.38],
+        [-1.08, 0.42, -1.38],
+        [1.08, 0.42, -1.38]
+      ];
+
+      const wheels = [];
+      wheelPositions.forEach(([wx, wy, wz], idx) => {
+        const pivot = new THREE.Group();
+        pivot.position.set(wx, wy, wz);
+        const tire = new THREE.Mesh(sharedCarGeos.wheel, sharedCarMats.tire);
+        const rim = new THREE.Mesh(sharedCarGeos.rim, sharedCarMats.rim);
+        tire.add(rim);
+        pivot.add(tire);
+        car.add(pivot);
+        wheels.push({ pivot, tire, isFront: idx < 2 });
+      });
+
+      return { mesh: car, wheels, tailMat, flames: [flameL, flameR] };
+    }
+
+    // ==========================================
+    // 6. SYNTHESIZED ENGINE + ARCADE SFX ENGINE
+    // ==========================================
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.osc = null;
+        this.gain = null;
+        this.filter = null;
+        this.initialized = false;
+      }
+
+      init() {
+        if (this.initialized) return;
+        try {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioCtx();
+          this.osc = this.ctx.createOscillator();
+          this.filter = this.ctx.createBiquadFilter();
+          this.gain = this.ctx.createGain();
+
+          this.osc.type = 'sawtooth';
+          this.osc.frequency.value = 55;
+          this.filter.type = 'lowpass';
+          this.filter.frequency.value = 220;
+          this.gain.gain.value = 0.035;
+
+          this.osc.connect(this.filter);
+          this.filter.connect(this.gain);
+          this.gain.connect(this.ctx.destination);
+          this.osc.start();
+          this.initialized = true;
+        } catch (e) {}
+      }
+
+      update(speedRatio, isBoosting, isDrifting, active) {
+        if (!this.initialized || !this.ctx || document.hidden) return;
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+
+        const targetFreq = active ? 52 + speedRatio * 145 + (isBoosting ? 38 : 0) + (isDrifting ? 14 : 0) : 45;
+        const targetCutoff = active ? 180 + speedRatio * 680 + (isBoosting ? 340 : 0) : 120;
+        const targetGain = active ? 0.032 + speedRatio * 0.04 : 0.008;
+
+        this.osc.frequency.setTargetAtTime(targetFreq, this.ctx.currentTime, 0.06);
+        this.filter.frequency.setTargetAtTime(targetCutoff, this.ctx.currentTime, 0.06);
+        this.gain.gain.setTargetAtTime(targetGain, this.ctx.currentTime, 0.08);
+      }
+
+      playTone(freq, duration, type = 'triangle', vol = 0.12) {
+        if (!this.initialized || !this.ctx || document.hidden) return;
+        const now = this.ctx.currentTime;
+        const o = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        o.type = type;
+        o.frequency.setValueAtTime(freq, now);
+        o.frequency.exponentialRampToValueAtTime(freq * 1.35, now + duration);
+        g.gain.setValueAtTime(vol, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        o.connect(g);
+        g.connect(this.ctx.destination);
+        o.start(now);
+        o.stop(now + duration);
+      }
+
+      playChime(comboLevel) {
+        const scale = [523.25, 587.33, 659.25, 783.99, 880.0, 1046.5, 1174.66, 1318.5];
+        const note = scale[Math.min(scale.length - 1, Math.max(0, comboLevel - 1))];
+        this.playTone(note, 0.18, 'sine', 0.14);
+      }
+
+      playBump() {
+        this.playTone(95, 0.12, 'sawtooth', 0.14);
+      }
+    }
+
+    const sound = new SoundEngine();
+    document.addEventListener('visibilitychange', () => {
+      if (sound.ctx) {
+        if (document.hidden) sound.ctx.suspend();
+        else if (gameState === 'RACING') sound.ctx.resume();
+      }
+    });
+
+    // ==========================================
+    // 7. SCORE, COMBO & CALLOUT SYSTEM
+    // ==========================================
+    const calloutFeed = document.getElementById('callout-feed');
+    const comboBox = document.getElementById('combo-box');
+    const comboMultEl = document.getElementById('combo-mult');
+    const comboPtsEl = document.getElementById('combo-pts');
+    const comboTimerFill = document.getElementById('combo-timer-fill');
+
+    let bestScore = Number(localStorage.getItem('apex_horizon_best_score') || 0);
+    document.getElementById('hud-best').textContent = bestScore.toLocaleString();
+
+    const scoreState = {
+      total: 0,
+      comboPts: 0,
+      comboMult: 1,
+      comboTimer: 0,
+      maxComboTimer: 3.2,
+      driftAccum: 0,
+      lastCalloutTime: 0
+    };
+
+    function triggerCallout(text, color = '#38bdf8') {
+      const now = performance.now();
+      if (now - scoreState.lastCalloutTime < 220) return;
+      scoreState.lastCalloutTime = now;
+
+      const el = document.createElement('div');
+      el.className = 'callout-pill';
+      el.style.color = color;
+      el.textContent = text;
+      calloutFeed.appendChild(el);
+      if (calloutFeed.children.length > 3) calloutFeed.removeChild(calloutFeed.firstChild);
+      setTimeout(() => { if (el.parentNode) el.remove(); }, 860);
+    }
+
+    function addComboScore(points, label, color, playSound = true) {
+      scoreState.comboPts += points;
+      scoreState.comboTimer = scoreState.maxComboTimer;
+      if (label) {
+        scoreState.comboMult = Math.min(10, scoreState.comboMult + 1);
+        triggerCallout(`${label} +${points}`, color);
+        if (playSound) sound.playChime(scoreState.comboMult);
+      }
+    }
+
+    function bankComboScore() {
+      if (scoreState.comboPts > 0) {
+        const earned = Math.round(scoreState.comboPts * scoreState.comboMult);
+        scoreState.total += earned;
+        if (scoreState.total > bestScore) {
+          bestScore = scoreState.total;
+          localStorage.setItem('apex_horizon_best_score', String(bestScore));
+        }
+      }
+      scoreState.comboPts = 0;
+      scoreState.comboMult = 1;
+      scoreState.comboTimer = 0;
+      scoreState.driftAccum = 0;
+    }
+
+    function resetScoreState() {
+      scoreState.total = 0;
+      scoreState.comboPts = 0;
+      scoreState.comboMult = 1;
+      scoreState.comboTimer = 0;
+      scoreState.driftAccum = 0;
+    }
+
+    // ==========================================
+    // 8. COMMERCIAL STUDIO EDITOR & LOCKED CLIENT EXPORTER
+    // ==========================================
+    const editorDrawer = document.getElementById('editor-drawer');
+    let selectedBillboardIdx = 0;
+    let editorOpen = false;
+
+    const THEME_PRESETS = [
+      { bg1: '#0f172a', bg2: '#0369a1', accent: '#38bdf8' },
+      { bg1: '#1e1b4b', bg2: '#701a75', accent: '#f472b6' },
+      { bg1: '#18181b', bg2: '#991b1b', accent: '#facc15' },
+      { bg1: '#064e3b', bg2: '#0f172a', accent: '#34d399' }
+    ];
+
+    function openStudioEditor() {
+      if (IS_LOCKED_CLIENT || !editorDrawer) return;
+      editorOpen = true;
+      editorDrawer.classList.add('open');
+      overlay.style.display = 'none';
+      sound.update(0, false, false, false);
+      syncEditorFields();
+    }
+
+    function closeStudioEditor() {
+      if (!editorDrawer) return;
+      editorOpen = false;
+      editorDrawer.classList.remove('open');
+      if (gameState === 'MENU' || gameState === 'FINISHED') {
+        overlay.style.display = 'flex';
+      }
+    }
+
+    let syncEditorFields = () => {};
+
+    if (!IS_LOCKED_CLIENT && editorDrawer) {
+      const bbSelect = document.getElementById('bb-select');
+      const bbIndexBadge = document.getElementById('bb-index-badge');
+      const bbTitleInput = document.getElementById('bb-title');
+      const bbSubtitleInput = document.getElementById('bb-subtitle');
+      const bbBg1Input = document.getElementById('bb-bg1');
+      const bbBg2Input = document.getElementById('bb-bg2');
+      const bbAccentInput = document.getElementById('bb-accent');
+      const bbImgUrlInput = document.getElementById('bb-img-url');
+      const bbImgFileInput = document.getElementById('bb-img-file');
+      const editorPreviewCanvas = document.getElementById('editor-preview-canvas');
+
+      const cfgShopTitle = document.getElementById('cfg-shop-title');
+      const cfgShopSubtitle = document.getElementById('cfg-shop-subtitle');
+      const cfgTargetScore = document.getElementById('cfg-target-score');
+      const cfgPromoCode = document.getElementById('cfg-promo-code');
+      const cfgRewardTitle = document.getElementById('cfg-reward-title');
+
+      syncEditorFields = function () {
+        const cfg = billboardData[selectedBillboardIdx];
+        bbSelect.value = String(selectedBillboardIdx);
+        bbIndexBadge.textContent = `${selectedBillboardIdx + 1} / 9`;
+        bbTitleInput.value = cfg.title || '';
+        bbSubtitleInput.value = cfg.subtitle || '';
+        bbBg1Input.value = cfg.bg1 || '#0f172a';
+        bbBg2Input.value = cfg.bg2 || '#0369a1';
+        bbAccentInput.value = cfg.accent || '#38bdf8';
+        bbImgUrlInput.value = (cfg.imageUrl && cfg.imageUrl.startsWith('data:')) ? '[Uploaded Local Image]' : (cfg.imageUrl || '');
+        paintBillboardCanvas(editorPreviewCanvas, cfg);
+
+        cfgShopTitle.value = clientConfig.shopTitle || '';
+        cfgShopSubtitle.value = clientConfig.shopSubtitle || '';
+        cfgTargetScore.value = clientConfig.targetScore ?? 5000;
+        cfgPromoCode.value = clientConfig.promoCode || '';
+        cfgRewardTitle.value = clientConfig.rewardTitle || '';
+      };
+
+      function applyBillboardEdit() {
+        const cfg = billboardData[selectedBillboardIdx];
+        cfg.title = bbTitleInput.value;
+        cfg.subtitle = bbSubtitleInput.value;
+        cfg.bg1 = bbBg1Input.value;
+        cfg.bg2 = bbBg2Input.value;
+        cfg.accent = bbAccentInput.value;
+        const rawUrl = bbImgUrlInput.value.trim();
+        if (rawUrl !== '[Uploaded Local Image]') {
+          cfg.imageUrl = rawUrl;
+        }
+        persistStudioState();
+        paintBillboardCanvas(editorPreviewCanvas, cfg);
+        refreshBillboard3D(selectedBillboardIdx);
+      }
+
+      function applyShopEdit() {
+        clientConfig.shopTitle = cfgShopTitle.value;
+        clientConfig.shopSubtitle = cfgShopSubtitle.value;
+        clientConfig.targetScore = Math.max(0, Number(cfgTargetScore.value) || 0);
+        clientConfig.promoCode = cfgPromoCode.value.trim().toUpperCase();
+        clientConfig.rewardTitle = cfgRewardTitle.value;
+        persistStudioState();
+        applyBrandingToMenu();
+        updateJumbotron('PLAYER', 0, 0, bestScore);
+      }
+
+      // Tabs
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+          btn.classList.add('active');
+          document.getElementById(`pane-${btn.dataset.tab}`).classList.add('active');
+        });
+      });
+
+      document.getElementById('open-editor-menu-btn').addEventListener('click', openStudioEditor);
+      document.getElementById('edit-ads-hud-btn').addEventListener('click', openStudioEditor);
+      document.getElementById('close-editor-btn').addEventListener('click', closeStudioEditor);
+
+      bbSelect.addEventListener('change', () => {
+        selectedBillboardIdx = Number(bbSelect.value);
+        syncEditorFields();
+      });
+
+      [bbTitleInput, bbSubtitleInput, bbBg1Input, bbBg2Input, bbAccentInput, bbImgUrlInput].forEach(el => {
+        el.addEventListener('input', applyBillboardEdit);
+      });
+
+      [cfgShopTitle, cfgShopSubtitle, cfgTargetScore, cfgPromoCode, cfgRewardTitle].forEach(el => {
+        el.addEventListener('input', applyShopEdit);
+      });
+
+      document.querySelectorAll('.swatch-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const p = THEME_PRESETS[Number(btn.dataset.p)];
+          bbBg1Input.value = p.bg1;
+          bbBg2Input.value = p.bg2;
+          bbAccentInput.value = p.accent;
+          applyBillboardEdit();
+        });
+      });
+
+      bbImgFileInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = new Image();
+          img.onload = () => {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 512;
+            tempCanvas.height = 256;
+            const tCtx = tempCanvas.getContext('2d');
+            const scale = Math.max(512 / img.width, 256 / img.height);
+            const w = img.width * scale;
+            const h = img.height * scale;
+            tCtx.drawImage(img, (512 - w) * 0.5, (256 - h) * 0.5, w, h);
+            billboardData[selectedBillboardIdx].imageUrl = tempCanvas.toDataURL('image/jpeg', 0.82);
+            persistStudioState();
+            syncEditorFields();
+            refreshBillboard3D(selectedBillboardIdx);
+          };
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+        bbImgFileInput.value = '';
+      });
+
+      document.getElementById('bb-clear-img').addEventListener('click', () => {
+        billboardData[selectedBillboardIdx].imageUrl = '';
+        bbImgUrlInput.value = '';
+        persistStudioState();
+        syncEditorFields();
+        refreshBillboard3D(selectedBillboardIdx);
+      });
+
+      document.getElementById('bb-apply-all').addEventListener('click', () => {
+        const src = billboardData[selectedBillboardIdx];
+        for (let i = 0; i < 9; i++) {
+          billboardData[i] = { ...src };
+          refreshBillboard3D(i);
+        }
+        persistStudioState();
+        triggerCallout('APPLIED TO ALL 9 BILLBOARDS!', '#4ade80');
+      });
+
+      document.getElementById('bb-reset-all').addEventListener('click', () => {
+        billboardData = DEFAULT_BILLBOARDS.map(b => ({ ...b }));
+        persistStudioState();
+        for (let i = 0; i < 9; i++) refreshBillboard3D(i);
+        syncEditorFields();
+        triggerCallout('BILLBOARDS RESET', '#facc15');
+      });
+
+      // Export Locked Client HTML File
+      document.getElementById('export-html-btn').addEventListener('click', () => {
+        const clone = document.documentElement.cloneNode(true);
+
+        // Strip Studio UI from exported client DOM
+        const cloneEditorDrawer = clone.querySelector('#editor-drawer');
+        if (cloneEditorDrawer) cloneEditorDrawer.remove();
+
+        const cloneHudStudioBtn = clone.querySelector('#edit-ads-hud-btn');
+        if (cloneHudStudioBtn) cloneHudStudioBtn.remove();
+
+        const cloneMenuStudioBtn = clone.querySelector('#open-editor-menu-btn');
+        if (cloneMenuStudioBtn) cloneMenuStudioBtn.remove();
+
+        const cloneShortcutHint = clone.querySelector('#studio-shortcut-hint');
+        if (cloneShortcutHint) {
+          cloneShortcutHint.innerHTML = '<span class="key">C</span> Camera &nbsp; <span class="key">R</span> Reset &nbsp; <span class="key">G</span> Graphics';
+        }
+
+        // Reset runtime HUD & modal elements
+        const cloneOverlay = clone.querySelector('#overlay');
+        if (cloneOverlay) cloneOverlay.style.display = 'flex';
+
+        const cloneCountdown = clone.querySelector('#countdown');
+        if (cloneCountdown) {
+          cloneCountdown.style.opacity = '0';
+          cloneCountdown.textContent = '3';
+        }
+
+        const cloneVignette = clone.querySelector('#nitro-vignette');
+        if (cloneVignette) cloneVignette.style.opacity = '0';
+
+        const cloneFeed = clone.querySelector('#callout-feed');
+        if (cloneFeed) cloneFeed.innerHTML = '';
+
+        const cloneCombo = clone.querySelector('#combo-box');
+        if (cloneCombo) cloneCombo.style.display = 'none';
+
+        const resetMap = {
+          '#hud-score': '0',
+          '#hud-best': '0',
+          '#hud-speed': '0',
+          '#hud-time': '00:00.0'
+        };
+        Object.entries(resetMap).forEach(([sel, val]) => {
+          const el = clone.querySelector(sel);
+          if (el) el.textContent = val;
+        });
+
+        // Bake locked client config + custom billboards safely into inline script
+        const exportedClientCfg = {
+          ...clientConfig,
+          lockEditor: true
+        };
+
+        const safeJson = (obj) => JSON.stringify(obj, null, 2).replace(/<\//g, '<\\/');
+
+        const scripts = clone.querySelectorAll('script');
+        const mainScript = scripts[scripts.length - 1];
+        if (mainScript) {
+          const markerRegex = /\/\/ === CLIENT_CONFIG_START ===[\s\S]*?\/\/ === CLIENT_CONFIG_END ===/;
+          const bakedBlock = `// === CLIENT_CONFIG_START ===\n    const BAKED_CLIENT_CONFIG = ${safeJson(exportedClientCfg)};\n    const BAKED_BILLBOARDS = ${safeJson(billboardData)};\n    // === CLIENT_CONFIG_END ===`;
+          mainScript.textContent = mainScript.textContent.replace(markerRegex, bakedBlock);
+        }
+
+        const slug = (clientConfig.shopTitle || 'shop-race')
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '') || 'shop-race';
+
+        const finalHtml = '<!DOCTYPE html>\n' + clone.outerHTML;
+        const blob = new Blob([finalHtml], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${slug}.html`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1500);
+
+        triggerCallout(`EXPORTED ${slug.toUpperCase()}.HTML!`, '#4ade80');
+      });
+    }
+
+    // ==========================================
+    // 9. RACERS STATE & RESET
+    // ==========================================
+    const TOTAL_LAPS = 3;
+    const racerConfigs = [
+      { name: 'Player', color: 0x0ea5e9, accent: 0xf8fafc, isPlayer: true, lane: -3.8, startIdx: N - 11 },
+      { name: 'Apex Red', color: 0xef4444, accent: 0xfef08a, isPlayer: false, lane: 3.8, startIdx: N - 11, baseSpeed: 64 },
+      { name: 'Venom Green', color: 0x10b981, accent: 0x0f172a, isPlayer: false, lane: -3.8, startIdx: N - 18, baseSpeed: 61 },
+      { name: 'Solar Gold', color: 0xf59e0b, accent: 0x1e293b, isPlayer: false, lane: 3.8, startIdx: N - 18, baseSpeed: 58 }
+    ];
+
+    const racers = racerConfigs.map(cfg => {
+      const visual = createCarMesh(cfg.color, cfg.accent);
+      scene.add(visual.mesh);
+      return {
+        ...cfg,
+        visual,
+        pos: new THREE.Vector3(),
+        heading: 0,
+        driftSlipAngle: 0,
+        speed: 0,
+        steerAngle: 0,
+        nitro: 100,
+        boostTimer: 0,
+        closestIdx: cfg.startIdx,
+        lastRawProgress: 0,
+        totalProgress: 0,
+        currentLap: 1,
+        finished: false,
+        finishTime: 0,
+        aiLaneOffset: cfg.lane,
+        aiWeavePhase: Math.random() * Math.PI * 2,
+        nearMissCooldown: 0
+      };
+    });
+
+    function resetRacers() {
+      racers.forEach(r => {
+        const pt = trackPoints[r.startIdx];
+        const rt = trackRights[r.startIdx];
+        const tan = trackTangents[r.startIdx];
+
+        r.pos.set(pt.x + rt.x * r.lane, 0, pt.z + rt.z * r.lane);
+        r.heading = Math.atan2(tan.x, tan.z);
+        r.driftSlipAngle = 0;
+        r.speed = 0;
+        r.steerAngle = 0;
+        r.nitro = 100;
+        r.boostTimer = 0;
+        r.closestIdx = r.startIdx;
+        r.lastRawProgress = r.startIdx / N;
+        r.totalProgress = r.lastRawProgress - 1.0;
+        r.currentLap = 1;
+        r.finished = false;
+        r.finishTime = 0;
+        r.aiLaneOffset = r.lane;
+        r.nearMissCooldown = 0;
+
+        r.visual.mesh.position.copy(r.pos);
+        r.visual.mesh.rotation.set(0, r.heading, 0);
+        r.visual.flames[0].visible = false;
+        r.visual.flames[1].visible = false;
+      });
+    }
+
+    resetRacers();
+
+    // ==========================================
+    // 10. INPUT HANDLING
+    // ==========================================
+    const keys = {};
+    let cameraMode = 0;
+
+    window.addEventListener('keydown', e => {
+      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT')) return;
+      keys[e.code] = true;
+      if (e.code === 'KeyB' && !IS_LOCKED_CLIENT) {
+        if (editorOpen) closeStudioEditor();
+        else openStudioEditor();
+      }
+      if (e.code === 'KeyC') cameraMode = (cameraMode + 1) % 2;
+      if (e.code === 'KeyG') applyQuality(currentQuality + 1);
+      if (e.code === 'KeyR' && gameState === 'RACING' && !editorOpen) resetPlayerToTrack();
+    });
+    window.addEventListener('keyup', e => { keys[e.code] = false; });
+
+    function bindTouch(id, code) {
+      const el = document.getElementById(id);
+      el.addEventListener('touchstart', e => { e.preventDefault(); keys[code] = true; }, { passive: false });
+      el.addEventListener('touchend', e => { e.preventDefault(); keys[code] = false; }, { passive: false });
+    }
+    bindTouch('t-left', 'ArrowLeft');
+    bindTouch('t-right', 'ArrowRight');
+    bindTouch('t-gas', 'ArrowUp');
+    bindTouch('t-drift', 'ShiftLeft');
+    bindTouch('t-nitro', 'Space');
+
+    function resetPlayerToTrack() {
+      const player = racers[0];
+      const idx = player.closestIdx;
+      player.pos.copy(trackPoints[idx]);
+      const tan = trackTangents[idx];
+      player.heading = Math.atan2(tan.x, tan.z);
+      player.driftSlipAngle = 0;
+      player.speed = 0;
+    }
+
+    // ==========================================
+    // 11. TRACK SPATIAL QUERY & BOUNDARIES
+    // ==========================================
+    function findClosestTrackIndex(pos, hintIdx) {
+      let bestIdx = hintIdx;
+      let bestDistSq = pos.distanceToSquared(trackPoints[hintIdx]);
+
+      const windowSize = 36;
+      for (let offset = -windowSize; offset <= windowSize; offset++) {
+        const idx = (hintIdx + offset + N) % N;
+        const dSq = pos.distanceToSquared(trackPoints[idx]);
+        if (dSq < bestDistSq) {
+          bestDistSq = dSq;
+          bestIdx = idx;
+        }
+      }
+
+      if (bestDistSq > 900) {
+        for (let i = 0; i < N; i++) {
+          const dSq = pos.distanceToSquared(trackPoints[i]);
+          if (dSq < bestDistSq) {
+            bestDistSq = dSq;
+            bestIdx = i;
+          }
+        }
+      }
+      return bestIdx;
+    }
+
+    function updateRacerTrackState(racer, dt) {
+      const idx = findClosestTrackIndex(racer.pos, racer.closestIdx);
+      racer.closestIdx = idx;
+
+      const center = trackPoints[idx];
+      const right = trackRights[idx];
+      const tan = trackTangents[idx];
+
+      const rawProgress = idx / N;
+      let diff = rawProgress - racer.lastRawProgress;
+      if (diff < -0.5) diff += 1.0;
+      else if (diff > 0.5) diff -= 1.0;
+      racer.totalProgress += diff;
+      racer.lastRawProgress = rawProgress;
+
+      const newLap = Math.floor(racer.totalProgress) + 1;
+      if (racer.isPlayer && newLap > racer.currentLap && newLap <= TOTAL_LAPS && gameState === 'RACING') {
+        racer.currentLap = newLap;
+        addComboScore(500, `LAP ${newLap}!`, '#4ade80', true);
+      }
+
+      if (!racer.finished && racer.totalProgress >= TOTAL_LAPS) {
+        racer.finished = true;
+        racer.finishTime = raceElapsed;
+      }
+
+      _v1.subVectors(racer.pos, center);
+      const lateral = _v1.dot(right);
+      const maxLateral = ROAD_HALF_WIDTH + 0.35;
+
+      if (Math.abs(lateral) > maxLateral) {
+        const sign = Math.sign(lateral);
+        racer.pos.set(
+          center.x + right.x * sign * maxLateral,
+          0,
+          center.z + right.z * sign * maxLateral
+        );
+
+        const sinH = Math.sin(racer.heading);
+        const cosH = Math.cos(racer.heading);
+        const outwardDot = (sinH * right.x + cosH * right.z) * sign;
+
+        if (outwardDot > 0) {
+          const trackHeading = Math.atan2(tan.x, tan.z);
+          let angleDiff = trackHeading - racer.heading;
+          while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+          while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+          racer.heading += angleDiff * Math.min(1, dt * 8);
+          racer.speed *= 0.95;
+
+          if (racer.isPlayer && Math.abs(racer.speed) > 25 && Math.random() < 0.45) {
+            spawnParticle(
+              racer.pos.x + right.x * sign * 0.9, 0.5, racer.pos.z + right.z * sign * 0.9,
+              (Math.random() - 0.5) * 6, 3 + Math.random() * 4, (Math.random() - 0.5) * 6,
+              0.28, 0.45, 0.05, 0xfacc15
+            );
+          }
+        }
+      }
+    }
+
+    // ==========================================
+    // 12. CACHED MINIMAP & DIFFED HUD
+    // ==========================================
+    const minimapCanvas = document.getElementById('minimap');
+    const mCtx = minimapCanvas.getContext('2d');
+    const minimapBg = document.createElement('canvas');
+    minimapBg.width = 112;
+    minimapBg.height = 112;
+    const bgCtx = minimapBg.getContext('2d');
+
+    let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
+    trackPoints.forEach(p => {
+      if (p.x < minX) minX = p.x;
+      if (p.x > maxX) maxX = p.x;
+      if (p.z < minZ) minZ = p.z;
+      if (p.z > maxZ) maxZ = p.z;
+    });
+    const mapScale = 84 / Math.max(maxX - minX, maxZ - minZ);
+    const mapOffsetX = (112 - (maxX - minX) * mapScale) * 0.5;
+    const mapOffsetZ = (112 - (maxZ - minZ) * mapScale) * 0.5;
+
+    bgCtx.beginPath();
+    trackPoints.forEach((p, i) => {
+      const x = (p.x - minX) * mapScale + mapOffsetX;
+      const y = (p.z - minZ) * mapScale + mapOffsetZ;
+      if (i === 0) bgCtx.moveTo(x, y);
+      else bgCtx.lineTo(x, y);
+    });
+    bgCtx.closePath();
+    bgCtx.strokeStyle = 'rgba(255, 255, 255, 0.36)';
+    bgCtx.lineWidth = 4;
+    bgCtx.stroke();
+
+    function drawMinimap() {
+      mCtx.clearRect(0, 0, 112, 112);
+      mCtx.drawImage(minimapBg, 0, 0);
+
+      for (let i = racers.length - 1; i >= 0; i--) {
+        const r = racers[i];
+        const x = (r.pos.x - minX) * mapScale + mapOffsetX;
+        const y = (r.pos.z - minZ) * mapScale + mapOffsetZ;
+        mCtx.beginPath();
+        mCtx.arc(x, y, r.isPlayer ? 4.2 : 3.0, 0, Math.PI * 2);
+        mCtx.fillStyle = r.isPlayer ? '#38bdf8' : '#' + r.color.toString(16).padStart(6, '0');
+        mCtx.fill();
+      }
+    }
+
+    const elPos = document.getElementById('hud-pos');
+    const elLap = document.getElementById('hud-lap');
+    const elTime = document.getElementById('hud-time');
+    const elSpeed = document.getElementById('hud-speed');
+    const elNitro = document.getElementById('nitro-fill');
+    const elScore = document.getElementById('hud-score');
+    const elBest = document.getElementById('hud-best');
+    const elFps = document.getElementById('fps-badge');
+    const elVignette = document.getElementById('nitro-vignette');
+
+    const hudCache = { pos: -1, lap: -1, time: '', speed: -1, nitro: -1, score: -1, best: -1 };
+
+    function formatTime(sec) {
+      const m = (sec / 60) | 0;
+      const s = (sec % 60) | 0;
+      const tenths = ((sec * 10) % 10) | 0;
+      return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}.${tenths}`;
+    }
+
+    // ==========================================
+    // 13. MAIN GAME LOOP
+    // ==========================================
+    let gameState = 'MENU';
+    let countdownTimer = 0;
+    let lastCountdownBeep = 4;
+    let raceElapsed = 0;
+    let cameraShake = 0;
+    let jumboTimer = 0;
+
+    const smoothCamPos = new THREE.Vector3(0, 8, 16);
+    const smoothCamLook = new THREE.Vector3(0, 1.5, -10);
+    const sortedRacers = [...racers];
+
+    const overlay = document.getElementById('overlay');
+    const modalContent = document.getElementById('modal-content');
+    const countdownEl = document.getElementById('countdown');
+
+    function startRaceSequence() {
+      sound.init();
+      closeStudioEditor();
+      resetRacers();
+      resetScoreState();
+      gameState = 'COUNTDOWN';
+      countdownTimer = 3.1;
+      lastCountdownBeep = 4;
+      raceElapsed = 0;
+      cameraShake = 0;
+      overlay.style.display = 'none';
+      countdownEl.style.opacity = '1';
+
+      const p = racers[0];
+      const sinH = Math.sin(p.heading);
+      const cosH = Math.cos(p.heading);
+      smoothCamPos.set(p.pos.x - sinH * 10, 4.3, p.pos.z - cosH * 10);
+      smoothCamLook.set(p.pos.x + sinH * 14, 1.4, p.pos.z + cosH * 14);
+      updateJumbotron('PLAYER', 0, 0, bestScore);
+    }
+
+    document.getElementById('start-btn').addEventListener('click', startRaceSequence);
+
+    function showFinishScreen(playerRank) {
+      bankComboScore();
+      const positionBonus = [1500, 900, 450, 150][playerRank - 1] || 100;
+      scoreState.total += positionBonus;
+      const isNewRecord = scoreState.total >= bestScore && scoreState.total > 0;
+      if (isNewRecord) {
+        bestScore = scoreState.total;
+        localStorage.setItem('apex_horizon_best_score', String(bestScore));
+      }
+
+      sound.playTone(523.25, 0.16);
+      setTimeout(() => sound.playTone(659.25, 0.16), 130);
+      setTimeout(() => sound.playTone(783.99, 0.35), 260);
+
+      // Build Coupon Unlock / Progress Card
+      const targetScore = Number(clientConfig.targetScore) || 0;
+      const rewardTitle = (clientConfig.rewardTitle || '').trim();
+      const promoCode = (clientConfig.promoCode || '').trim();
+      let couponHtml = '';
+
+      if (targetScore > 0 && rewardTitle && promoCode) {
+        if (scoreState.total >= targetScore) {
+          couponHtml = `
+            <div class="coupon-card coupon-unlocked">
+              <div class="coupon-badge" style="color:#4ade80;">🎉 REWARD UNLOCKED!</div>
+              <div class="coupon-offer">${escapeHtml(rewardTitle)}</div>
+              <div class="coupon-code-row">
+                <div class="coupon-code-box" id="unlocked-code-text">${escapeHtml(promoCode)}</div>
+                <button class="copy-code-btn" id="copy-coupon-btn">COPY</button>
+              </div>
+              <div class="coupon-note">Show this screen at the counter to claim your reward!</div>
+            </div>
+          `;
+        } else {
+          const ptsNeeded = targetScore - scoreState.total;
+          couponHtml = `
+            <div class="coupon-card coupon-locked">
+              <div class="coupon-badge" style="color:#facc15;">🔒 ${ptsNeeded.toLocaleString()} PTS AWAY FROM REWARD</div>
+              <div class="coupon-offer" style="font-size:15px;">Score ${targetScore.toLocaleString()}+ pts to unlock: ${escapeHtml(rewardTitle)}</div>
+              <div class="coupon-note">Tip: Hold SHIFT around corners to drift &amp; build 10x combos!</div>
+            </div>
+          `;
+        }
+      }
+
+      const ordinal = ['1st', '2nd', '3rd', '4th'][playerRank - 1] || `${playerRank}th`;
+      overlay.style.display = 'flex';
+      modalContent.innerHTML = `
+        <h1>FINISHED ${ordinal}!</h1>
+        <p>${isNewRecord ? '<strong style="color:#facc15;">★ NEW TRACK RECORD! ★</strong><br/>' : ''}Race Time: <strong>${formatTime(racers[0].finishTime)}</strong> &bull; Rank Bonus: <strong>+${positionBonus}</strong></p>
+        ${couponHtml}
+        <div class="score-summary">
+          <div>
+            <div class="stat-label">Final Score</div>
+            <div class="stat-value" style="color:#38bdf8;">${scoreState.total.toLocaleString()}</div>
+          </div>
+          <div>
+            <div class="stat-label">Best Score</div>
+            <div class="stat-value" style="color:#facc15;">${bestScore.toLocaleString()}</div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn" id="restart-btn">RACE AGAIN</button>
+          ${!IS_LOCKED_CLIENT ? '<button class="btn btn-secondary" id="finish-edit-btn">SHOP STUDIO &amp; EXPORT</button>' : ''}
+        </div>
+      `;
+
+      document.getElementById('restart-btn').addEventListener('click', startRaceSequence);
+
+      const copyBtn = document.getElementById('copy-coupon-btn');
+      if (copyBtn) {
+        copyBtn.addEventListener('click', () => {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(promoCode).catch(() => {});
+          }
+          copyBtn.textContent = 'COPIED ✓';
+          copyBtn.style.background = '#38bdf8';
+        });
+      }
+
+      const finishEditBtn = document.getElementById('finish-edit-btn');
+      if (finishEditBtn) {
+        finishEditBtn.addEventListener('click', openStudioEditor);
+      }
+    }
+
+    const clock = new THREE.Clock();
+    let fpsFrames = 0;
+    let fpsAccum = 0;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const dt = Math.min(clock.getDelta(), 0.05);
+
+      fpsFrames++;
+      fpsAccum += dt;
+      if (fpsAccum >= 0.5) {
+        const fps = Math.round(fpsFrames / fpsAccum);
+        elFps.textContent = `${fps} FPS`;
+        elFps.style.color = fps >= 50 ? '#4ade80' : fps >= 30 ? '#facc15' : '#f87171';
+        fpsFrames = 0;
+        fpsAccum = 0;
+      }
+
+      if (gameState === 'COUNTDOWN' && !editorOpen) {
+        countdownTimer -= dt;
+        const num = Math.ceil(countdownTimer);
+        if (num < lastCountdownBeep && num >= 1) {
+          lastCountdownBeep = num;
+          sound.playTone(440, 0.14, 'sine', 0.12);
+        }
+        countdownEl.textContent = num > 0 ? num : 'GO!';
+        if (countdownTimer <= 0) {
+          gameState = 'RACING';
+          sound.playTone(880, 0.28, 'triangle', 0.16);
+          setTimeout(() => { countdownEl.style.opacity = '0'; }, 600);
+        }
+      }
+
+      let playerBoosting = false;
+
+      if ((gameState === 'RACING' || gameState === 'FINISHED') && !editorOpen) {
+        if (gameState === 'RACING') raceElapsed += dt;
+
+        if (scoreState.comboTimer > 0) {
+          scoreState.comboTimer -= dt;
+          if (scoreState.comboTimer <= 0) {
+            bankComboScore();
+          }
+        }
+
+        for (let i = 0; i < racers.length; i++) {
+          const r = racers[i];
+          if (r.nearMissCooldown > 0) r.nearMissCooldown -= dt;
+
+          for (let b = 0; b < boostPads.length; b++) {
+            if (r.pos.distanceToSquared(boostPads[b].pos) < boostPads[b].radiusSq) {
+              const wasFresh = r.boostTimer <= 0.2;
+              r.boostTimer = 1.15;
+              if (r.isPlayer) {
+                r.nitro = Math.min(100, r.nitro + 30 * dt);
+                if (wasFresh && gameState === 'RACING') {
+                  cameraShake = Math.max(cameraShake, 0.26);
+                  addComboScore(150, 'BOOST PAD!', '#38bdf8', true);
+                }
+              }
+            }
+          }
+          if (r.boostTimer > 0) r.boostTimer -= dt;
+
+          if (r.isPlayer && gameState === 'RACING') {
+            const throttle = (keys['KeyW'] || keys['ArrowUp']) ? 1 : 0;
+            const brake = (keys['KeyS'] || keys['ArrowDown']) ? 1 : 0;
+            const steerInput = ((keys['KeyA'] || keys['ArrowLeft']) ? 1 : 0) - ((keys['KeyD'] || keys['ArrowRight']) ? 1 : 0);
+            const wantsNitro = keys['Space'] && r.nitro > 1 && throttle > 0;
+            const wantsDrift = (keys['ShiftLeft'] || keys['ShiftRight']) && Math.abs(steerInput) > 0 && r.speed > 36;
+
+            if (wantsNitro) {
+              r.nitro = Math.max(0, r.nitro - 32 * dt);
+              cameraShake = Math.max(cameraShake, 0.08);
+            } else {
+              const rechargeRate = wantsDrift ? 26 : 10;
+              r.nitro = Math.min(100, r.nitro + rechargeRate * dt);
+            }
+
+            const isBoosting = wantsNitro || r.boostTimer > 0;
+            playerBoosting = isBoosting;
+            const maxSpeed = isBoosting ? 86 : wantsDrift ? 61 : 66;
+            const accel = isBoosting ? 54 : 34;
+
+            if (throttle > 0) {
+              r.speed += accel * dt;
+            } else if (brake > 0) {
+              r.speed -= (r.speed > 0 ? 58 : 24) * dt;
+            } else {
+              r.speed *= Math.exp(-1.15 * dt);
+            }
+
+            r.speed = Math.max(-22, Math.min(maxSpeed, r.speed));
+            r.visual.tailMat.color.setHex(brake > 0 ? 0xff2a2a : 0x991b1b);
+
+            const targetSteer = steerInput * (wantsDrift ? 0.62 : 0.48);
+            r.steerAngle += (targetSteer - r.steerAngle) * (1 - Math.exp(-11 * dt));
+
+            const speedFactor = Math.min(1, Math.abs(r.speed) / 14);
+            const reverseSign = r.speed >= -0.1 ? 1 : -1;
+            r.heading += r.steerAngle * (wantsDrift ? 3.45 : 3.05) * speedFactor * reverseSign * dt;
+
+            const targetSlip = wantsDrift ? steerInput * 0.28 : 0;
+            r.driftSlipAngle += (targetSlip - r.driftSlipAngle) * (1 - Math.exp(-10 * dt));
+
+            if (wantsDrift) {
+              scoreState.driftAccum += dt * 240;
+              scoreState.comboTimer = scoreState.maxComboTimer;
+              if (scoreState.driftAccum >= 60) {
+                const chunk = Math.floor(scoreState.driftAccum);
+                scoreState.driftAccum -= chunk;
+                addComboScore(chunk, null, null, false);
+              }
+
+              if (Math.random() < 0.65) {
+                const sinH = Math.sin(r.heading);
+                const cosH = Math.cos(r.heading);
+                const side = Math.random() < 0.5 ? -0.95 : 0.95;
+                spawnParticle(
+                  r.pos.x - sinH * 1.4 + cosH * side,
+                  0.22,
+                  r.pos.z - cosH * 1.4 - sinH * side,
+                  (Math.random() - 0.5) * 1.6,
+                  1.2 + Math.random() * 1.2,
+                  (Math.random() - 0.5) * 1.6,
+                  0.42, 0.55, 1.55, 0xe2e8f0
+                );
+              }
+            }
+
+            r.visual.flames[0].visible = isBoosting;
+            r.visual.flames[1].visible = isBoosting;
+            if (isBoosting) {
+              const fScale = 0.85 + Math.random() * 0.55;
+              r.visual.flames[0].scale.set(1, 1, fScale);
+              r.visual.flames[1].scale.set(1, 1, fScale);
+              if (Math.random() < 0.5) {
+                const sinH = Math.sin(r.heading);
+                const cosH = Math.cos(r.heading);
+                spawnParticle(
+                  r.pos.x - sinH * 2.4, 0.45, r.pos.z - cosH * 2.4,
+                  -sinH * 8 + (Math.random() - 0.5) * 2, 0.5, -cosH * 8 + (Math.random() - 0.5) * 2,
+                  0.22, 0.4, 0.05, 0x38bdf8
+                );
+              }
+            }
+
+            r.pos.x += Math.sin(r.heading) * r.speed * dt;
+            r.pos.z += Math.cos(r.heading) * r.speed * dt;
+
+            sound.update(Math.abs(r.speed) / 86, isBoosting, wantsDrift, true);
+          } else {
+            const lookAheadIdx = (r.closestIdx + 14) % N;
+            r.aiWeavePhase += dt * 0.7;
+            const dynamicLane = r.isPlayer ? 0 : r.aiLaneOffset + Math.sin(r.aiWeavePhase) * 2.4;
+            const lp = trackPoints[lookAheadIdx];
+            const lr = trackRights[lookAheadIdx];
+
+            const dx = (lp.x + lr.x * dynamicLane) - r.pos.x;
+            const dz = (lp.z + lr.z * dynamicLane) - r.pos.z;
+            const desiredHeading = Math.atan2(dx, dz);
+
+            let angleDiff = desiredHeading - r.heading;
+            while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+            while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+
+            const clampedSteer = Math.max(-0.45, Math.min(0.45, angleDiff * 1.8));
+            r.steerAngle += (clampedSteer - r.steerAngle) * (1 - Math.exp(-10 * dt));
+            r.heading += angleDiff * (1 - Math.exp(-5.2 * dt));
+
+            const aiBoosting = r.boostTimer > 0;
+            r.visual.flames[0].visible = aiBoosting;
+            r.visual.flames[1].visible = aiBoosting;
+
+            const targetAiSpeed = (r.isPlayer ? 48 : r.baseSpeed) + (aiBoosting ? 16 : 0);
+            r.speed += (targetAiSpeed - r.speed) * (1 - Math.exp(-2.5 * dt));
+
+            r.pos.x += Math.sin(r.heading) * r.speed * dt;
+            r.pos.z += Math.cos(r.heading) * r.speed * dt;
+          }
+
+          updateRacerTrackState(r, dt);
+
+          r.visual.mesh.position.copy(r.pos);
+          r.visual.mesh.rotation.y = r.heading + r.driftSlipAngle;
+          r.visual.mesh.rotation.z = -r.steerAngle * (r.speed / 75) * 0.15;
+
+          const wheelSpin = (r.speed / 0.42) * dt;
+          for (let w = 0; w < 4; w++) {
+            const wheel = r.visual.wheels[w];
+            wheel.tire.rotation.x += wheelSpin;
+            if (wheel.isFront) wheel.pivot.rotation.y = r.steerAngle * 0.75;
+          }
+        }
+
+        // Car-to-car collisions & Near-Miss Overtake Detection
+        for (let i = 0; i < racers.length; i++) {
+          for (let j = i + 1; j < racers.length; j++) {
+            const a = racers[i];
+            const b = racers[j];
+            const dx = a.pos.x - b.pos.x;
+            const dz = a.pos.z - b.pos.z;
+            const distSq = dx * dx + dz * dz;
+            const minDist = 2.6;
+
+            if (distSq > 0.0001 && distSq < minDist * minDist) {
+              const dist = Math.sqrt(distSq);
+              const factor = ((minDist - dist) * 0.52) / dist;
+              const px = dx * factor;
+              const pz = dz * factor;
+              a.pos.x += px;
+              a.pos.z += pz;
+              b.pos.x -= px;
+              b.pos.z -= pz;
+
+              const avgSpeed = (a.speed + b.speed) * 0.5;
+              a.speed = a.speed * 0.7 + avgSpeed * 0.28;
+              b.speed = b.speed * 0.7 + avgSpeed * 0.28;
+
+              if ((a.isPlayer || b.isPlayer) && gameState === 'RACING') {
+                cameraShake = Math.max(cameraShake, 0.35);
+                sound.playBump();
+                spawnParticle(
+                  (a.pos.x + b.pos.x) * 0.5, 0.65, (a.pos.z + b.pos.z) * 0.5,
+                  (Math.random() - 0.5) * 8, 4, (Math.random() - 0.5) * 8,
+                  0.3, 0.6, 0.05, 0xfacc15
+                );
+              }
+            } else if (gameState === 'RACING' && (a.isPlayer || b.isPlayer)) {
+              const playerObj = a.isPlayer ? a : b;
+              const rivalObj = a.isPlayer ? b : a;
+              if (distSq < 27 && rivalObj.nearMissCooldown <= 0 && playerObj.speed > 45 && Math.abs(playerObj.speed - rivalObj.speed) > 6) {
+                rivalObj.nearMissCooldown = 4.0;
+                addComboScore(250, 'NEAR MISS!', '#f472b6', true);
+              }
+            }
+          }
+        }
+      }
+
+      updateParticles(dt);
+
+      // Standings & Diffed HUD
+      sortedRacers.sort((a, b) => b.totalProgress - a.totalProgress);
+      const player = racers[0];
+      const playerRank = sortedRacers.indexOf(player) + 1;
+
+      if (gameState === 'RACING' && player.finished) {
+        gameState = 'FINISHED';
+        sound.update(0, false, false, false);
+        showFinishScreen(playerRank);
+      }
+
+      const displayLap = Math.min(TOTAL_LAPS, Math.max(1, Math.floor(player.totalProgress) + 1));
+      const timeStr = formatTime(raceElapsed);
+      const speedKmh = Math.round(Math.abs(player.speed) * 3.4);
+      const nitroPct = Math.round(player.nitro);
+
+      if (hudCache.pos !== playerRank) {
+        hudCache.pos = playerRank;
+        elPos.innerHTML = `${playerRank}<span>/4</span>`;
+      }
+      if (hudCache.lap !== displayLap) {
+        hudCache.lap = displayLap;
+        elLap.innerHTML = `${displayLap}<span>/${TOTAL_LAPS}</span>`;
+      }
+      if (hudCache.time !== timeStr) {
+        hudCache.time = timeStr;
+        elTime.textContent = timeStr;
+      }
+      if (hudCache.speed !== speedKmh) {
+        hudCache.speed = speedKmh;
+        elSpeed.textContent = speedKmh;
+      }
+      if (hudCache.nitro !== nitroPct) {
+        hudCache.nitro = nitroPct;
+        elNitro.style.transform = `scaleX(${player.nitro * 0.01})`;
+      }
+      if (hudCache.score !== scoreState.total) {
+        hudCache.score = scoreState.total;
+        elScore.textContent = scoreState.total.toLocaleString();
+      }
+      if (hudCache.best !== bestScore) {
+        hudCache.best = bestScore;
+        elBest.textContent = bestScore.toLocaleString();
+      }
+
+      if (scoreState.comboPts > 0 && scoreState.comboTimer > 0) {
+        comboBox.style.display = 'flex';
+        comboMultEl.textContent = `${scoreState.comboMult}x`;
+        comboPtsEl.textContent = `+${Math.round(scoreState.comboPts)}`;
+        comboTimerFill.style.transform = `scaleX(${Math.max(0, scoreState.comboTimer / scoreState.maxComboTimer)})`;
+      } else {
+        comboBox.style.display = 'none';
+      }
+
+      elVignette.style.opacity = playerBoosting ? '1' : '0';
+
+      jumboTimer += dt;
+      if (jumboTimer >= 0.25) {
+        jumboTimer = 0;
+        updateJumbotron(sortedRacers[0].name, speedKmh, scoreState.total + Math.round(scoreState.comboPts * scoreState.comboMult), bestScore);
+      }
+
+      // Camera Control
+      if (editorOpen && billboardInstances[selectedBillboardIdx]) {
+        const bb = billboardInstances[selectedBillboardIdx];
+        smoothCamPos.lerp(bb.camPos, 1 - Math.exp(-8 * dt));
+        smoothCamLook.lerp(bb.lookAt, 1 - Math.exp(-10 * dt));
+        camera.position.copy(smoothCamPos);
+        camera.lookAt(smoothCamLook);
+        camera.fov += (54 - camera.fov) * (1 - Math.exp(-8 * dt));
+        camera.updateProjectionMatrix();
+      } else {
+        const sinP = Math.sin(player.heading);
+        const cosP = Math.cos(player.heading);
+        const speedRatio = Math.min(1, Math.abs(player.speed) / 84);
+
+        let shakeX = 0, shakeY = 0;
+        if (cameraShake > 0.001) {
+          shakeX = (Math.random() - 0.5) * cameraShake;
+          shakeY = (Math.random() - 0.5) * cameraShake;
+          cameraShake *= Math.exp(-12 * dt);
+        }
+
+        if (cameraMode === 0) {
+          const distBack = 9.5 + speedRatio * 2.2;
+          _v1.set(
+            player.pos.x - sinP * distBack,
+            4.1 + speedRatio * 0.5,
+            player.pos.z - cosP * distBack
+          );
+          _v2.set(
+            player.pos.x + sinP * 14,
+            1.3,
+            player.pos.z + cosP * 14
+          );
+
+          smoothCamPos.lerp(_v1, 1 - Math.exp(-10 * dt));
+          smoothCamLook.lerp(_v2, 1 - Math.exp(-14 * dt));
+          camera.position.set(smoothCamPos.x + shakeX, smoothCamPos.y + shakeY, smoothCamPos.z);
+          camera.lookAt(smoothCamLook);
+        } else {
+          camera.position.set(player.pos.x + sinP * 0.7 + shakeX, 1.55 + shakeY, player.pos.z + cosP * 0.7);
+          camera.lookAt(player.pos.x + sinP * 24, 1.2, player.pos.z + cosP * 24);
+        }
+
+        const targetFov = 62 + speedRatio * 19 + (playerBoosting ? 5 : 0);
+        if (Math.abs(targetFov - camera.fov) > 0.05) {
+          camera.fov += (targetFov - camera.fov) * (1 - Math.exp(-6 * dt));
+          camera.updateProjectionMatrix();
+        }
+      }
+
+      if (QUALITY_LEVELS[currentQuality].shadows) {
+        dirLight.position.set(player.pos.x + 100, 180, player.pos.z + 80);
+        dirLight.target.position.copy(player.pos);
+        dirLight.target.updateMatrixWorld();
+      }
+
+      drawMinimap();
+      renderer.render(scene, camera);
+    }
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    animate();
+  </script>
+</body>
+</html>
