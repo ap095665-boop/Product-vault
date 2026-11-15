@@ -459,8 +459,8 @@
       top: 0;
       right: 0;
       bottom: 0;
-      width: 395px;
-      max-width: 95vw;
+      width: 405px;
+      max-width: 96vw;
       background: rgba(15, 23, 42, 0.97);
       border-left: 1px solid rgba(56, 189, 248, 0.35);
       z-index: 35;
@@ -503,14 +503,15 @@
     }
     .tab-btn {
       flex: 1;
-      padding: 10px 6px;
+      padding: 10px 4px;
       background: none;
       border: none;
       border-bottom: 2px solid transparent;
       color: #94a3b8;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 800;
       cursor: pointer;
+      white-space: nowrap;
     }
     .tab-btn.active {
       color: #38bdf8;
@@ -577,7 +578,7 @@
       border: 1px solid rgba(255, 255, 255, 0.2);
       background: #020617;
     }
-    #editor-preview-canvas, #led-preview-canvas {
+    #editor-preview-canvas, #led-preview-canvas, #drone-preview-canvas {
       display: block;
       width: 100%;
       height: auto;
@@ -799,8 +800,9 @@
 
     <div class="editor-tabs">
       <button class="tab-btn active" data-tab="billboards">1. SIGNS (9)</button>
-      <button class="tab-btn" data-tab="overhead">2. OVERHEAD LED</button>
-      <button class="tab-btn" data-tab="shop">3. SHOP &amp; COUPON</button>
+      <button class="tab-btn" data-tab="overhead">2. ROAD LED</button>
+      <button class="tab-btn" data-tab="drone">3. SKY DRONE</button>
+      <button class="tab-btn" data-tab="shop">4. SHOP</button>
     </div>
 
     <div class="editor-body">
@@ -882,7 +884,7 @@
         </div>
 
         <div class="field-group">
-          <label class="field-label">Moving Digital Ticker Message</label>
+          <label class="field-label">Overhead Road Ticker Message</label>
           <input class="editor-input" id="cfg-led-text" type="text" maxlength="150" placeholder="★ WELCOME TO APEX HORIZON • DRIFT FOR NITRO ★" />
         </div>
 
@@ -914,11 +916,65 @@
         <button class="mini-btn" id="led-sync-offer-btn">AUTO-FILL FROM SHOP OFFER &amp; CODE ⚡</button>
 
         <div class="info-box">
-          <strong>Overhead Road Gantries (2x):</strong> Mounted 6.6m above the asphalt on two main straights so racers and cameras drive cleanly underneath while reading your live scrolling ticker!
+          <strong>Overhead Road Gantries (2x):</strong> Mounted 6.6m above the asphalt on two main straights so racers drive cleanly underneath!
         </div>
       </div>
 
-      <!-- TAB 3: SHOP BRANDING & COUPON REWARD -->
+      <!-- TAB 3: SKY DRONE LIFTING GIANT LED SCREEN -->
+      <div class="tab-pane" id="pane-drone">
+        <div class="preview-box">
+          <canvas id="drone-preview-canvas" width="512" height="224"></canvas>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Sky Banner Headline</label>
+          <input class="editor-input" id="cfg-drone-title" type="text" maxlength="22" placeholder="e.g. MEGA WEEKEND SALE" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Moving Sky Ticker Text</label>
+          <input class="editor-input" id="cfg-drone-ticker" type="text" maxlength="140" placeholder="★ FLAT 20% OFF TODAY • VISIT OUR STORE ★" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Drone LED Accent Color</label>
+          <div class="preset-swatches">
+            <button class="swatch-btn drone-swatch" data-c="#38bdf8" style="background:#0c4a6e;border-color:#38bdf8;color:#38bdf8;">CYAN</button>
+            <button class="swatch-btn drone-swatch" data-c="#facc15" style="background:#422006;border-color:#facc15;color:#facc15;">GOLD</button>
+            <button class="swatch-btn drone-swatch" data-c="#f472b6" style="background:#500724;border-color:#f472b6;color:#f472b6;">PINK</button>
+            <button class="swatch-btn drone-swatch" data-c="#4ade80" style="background:#052e16;border-color:#4ade80;color:#4ade80;">VOLT</button>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="field-group">
+            <label class="field-label">Custom LED Glow</label>
+            <label class="color-chip" style="height:38px;">Glow <input type="color" id="cfg-drone-color" /></label>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Quick Sync</label>
+            <button class="mini-btn" id="drone-sync-offer-btn" style="height:38px;">SYNC OFFER ⚡</button>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Aerial Backdrop Photo / Logo (Optional)</label>
+          <input class="editor-input" id="cfg-drone-img-url" type="text" placeholder="Paste image URL or upload below" />
+          <div class="img-actions">
+            <label class="mini-btn" style="cursor:pointer;">
+              UPLOAD IMAGE
+              <input type="file" id="cfg-drone-img-file" accept="image/*" style="display:none;" />
+            </label>
+            <button class="mini-btn" id="cfg-drone-clear-img">CLEAR IMAGE</button>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <strong>Heavy-Lift Quad-Drone Fleet:</strong> 4 synchronized industrial drones suspend a giant <strong>28m × 11m</strong> double-sided LED screen in the sky above the circuit!
+        </div>
+      </div>
+
+      <!-- TAB 4: SHOP BRANDING & COUPON REWARD -->
       <div class="tab-pane" id="pane-shop">
         <div class="field-group">
           <label class="field-label">Shop / Event Title (Start Screen &amp; Jumbotron)</label>
@@ -984,6 +1040,10 @@
       ledText: '★ WELCOME TO APEX HORIZON 3D • SCORE 5,000+ PTS FOR 15% OFF (CODE: RACE15) • DRIFT CORNERS TO CHARGE NITRO ★',
       ledColor: '#38bdf8',
       ledSpeed: 125,
+      droneTitle: 'SKY ARENA LIVE',
+      droneTicker: '★ SCORE 5,000+ PTS TO UNLOCK 15% OFF • USE CODE: RACE15 AT COUNTER ★',
+      droneColor: '#facc15',
+      droneImageUrl: '',
       lockEditor: false
     };
 
@@ -1017,7 +1077,7 @@
         return { ...DEFAULT_CLIENT_CONFIG, ...BAKED_CLIENT_CONFIG };
       }
       try {
-        const saved = JSON.parse(localStorage.getItem('apex_horizon_client_cfg_v2'));
+        const saved = JSON.parse(localStorage.getItem('apex_horizon_client_cfg_v3'));
         if (saved && typeof saved === 'object') {
           return { ...DEFAULT_CLIENT_CONFIG, ...saved };
         }
@@ -1045,7 +1105,7 @@
     function persistStudioState() {
       if (IS_LOCKED_CLIENT) return;
       try {
-        localStorage.setItem('apex_horizon_client_cfg_v2', JSON.stringify(clientConfig));
+        localStorage.setItem('apex_horizon_client_cfg_v3', JSON.stringify(clientConfig));
         localStorage.setItem('apex_horizon_billboards_v1', JSON.stringify(billboardData));
       } catch (e) {}
     }
@@ -1314,7 +1374,7 @@
     const carShadowTex = createShadowBlobTexture();
 
     // ==========================================
-    // 3. CIRCUIT TRACK, BILLBOARDS & OVERHEAD LED GANTRIES
+    // 3. CIRCUIT TRACK, OVERHEAD LED & SKY DRONE BILLBOARD
     // ==========================================
     const controlPoints = [
       new THREE.Vector3(0, 0, 0),
@@ -1446,7 +1506,7 @@
     })();
 
     // ==========================================
-    // 3B. OVERHEAD DIGITAL LED ROAD BILLBOARDS (CARS CROSS UNDERNEATH)
+    // 3B. OVERHEAD DIGITAL LED ROAD BILLBOARDS
     // ==========================================
     const ledCanvas = document.createElement('canvas');
     ledCanvas.width = 512;
@@ -1455,7 +1515,6 @@
     const ledTex = new THREE.CanvasTexture(ledCanvas);
     ledTex.anisotropy = 4;
 
-    // Pre-bake subtle 4x4 LED matrix grid pattern once (near-zero runtime cost)
     const ledDotPattern = (function createLedMatrixPattern() {
       const pCanvas = document.createElement('canvas');
       pCanvas.width = 4;
@@ -1473,7 +1532,6 @@
     const overheadGantries = [];
 
     (function createOverheadLedGantries() {
-      // Two overhead highway LED bridges on key straights so racers pass underneath twice per lap
       const gantryIndices = [55, 305];
       const pillarGeo = new THREE.CylinderGeometry(0.55, 0.68, 9.8, 8);
       const baseFootGeo = new THREE.BoxGeometry(1.8, 0.7, 1.8);
@@ -1481,7 +1539,7 @@
       const darkCabinetMat = new THREE.MeshLambertMaterial({ color: 0x090d16 });
       const screenMat = new THREE.MeshBasicMaterial({ map: ledTex });
 
-      const spanWidth = ROAD_HALF_WIDTH * 2 + 5.2; // 31.2m full road span
+      const spanWidth = ROAD_HALF_WIDTH * 2 + 5.2;
       const cabinetGeo = new THREE.BoxGeometry(spanWidth + 1.4, 3.1, 1.15);
       const screenGeo = new THREE.PlaneGeometry(spanWidth, 2.55);
       const beaconGeo = new THREE.SphereGeometry(0.28, 6, 6);
@@ -1493,7 +1551,6 @@
 
         const group = new THREE.Group();
         group.position.copy(pt);
-        // Face local +Z toward oncoming traffic (-tan)
         const faceAngle = Math.atan2(-tan.x, -tan.z);
         group.rotation.y = faceAngle;
 
@@ -1509,20 +1566,16 @@
         const rightFoot = leftFoot.clone();
         rightFoot.position.x = pillarOffset;
 
-        // Elevated LED Cabinet (bottom edge at y = 6.55m -> cars & chase cam pass cleanly underneath!)
         const cabinet = new THREE.Mesh(cabinetGeo, darkCabinetMat);
         cabinet.position.set(0, 8.1, 0);
 
-        // Front LED Screen facing oncoming racers
         const frontScreen = new THREE.Mesh(screenGeo, screenMat);
         frontScreen.position.set(0, 8.1, 0.6);
 
-        // Rear LED Screen so it remains viewable from behind as well
         const rearScreen = new THREE.Mesh(screenGeo, screenMat);
         rearScreen.position.set(0, 8.1, -0.6);
         rearScreen.rotation.y = Math.PI;
 
-        // Top corner safety beacons
         const beaconL = new THREE.Mesh(beaconGeo, beaconMat);
         beaconL.position.set(-spanWidth * 0.48, 9.85, 0);
         const beaconR = beaconL.clone();
@@ -1531,7 +1584,6 @@
         group.add(leftPillar, rightPillar, leftFoot, rightFoot, cabinet, frontScreen, rearScreen, beaconL, beaconR);
         scene.add(group);
 
-        // Ideal preview camera vantage point on the road looking up at the overhead sign
         const normalX = Math.sin(faceAngle);
         const normalZ = Math.cos(faceAngle);
         const camPos = new THREE.Vector3(pt.x + normalX * 26, 4.8, pt.z + normalZ * 26);
@@ -1578,12 +1630,10 @@
       }
       ctx.shadowBlur = 0;
 
-      // Top & bottom glowing LED trim bars
       ctx.fillStyle = ledColor;
       ctx.fillRect(0, 0, w, 5);
       ctx.fillRect(0, h - 5, w, 5);
 
-      // Apply dot-matrix pixel grid overlay
       if (ledDotPattern) {
         ctx.fillStyle = ledDotPattern;
         ctx.fillRect(0, 0, w, h);
@@ -1594,7 +1644,268 @@
     ledTex.needsUpdate = true;
 
     // ==========================================
-    // 3C. TRACKSIDE BILLBOARDS & JUMBOTRON
+    // 3C. SKY DRONE FLEET LIFTING LARGE LED SCREEN
+    // ==========================================
+    const droneLedCanvas = document.createElement('canvas');
+    droneLedCanvas.width = 512;
+    droneLedCanvas.height = 224;
+    const droneLedTex = new THREE.CanvasTexture(droneLedCanvas);
+    droneLedTex.anisotropy = 4;
+
+    let droneCachedBgImg = null;
+    let droneCachedBgUrl = '';
+    let droneScrollX = 512;
+    let droneTickerWidth = 750;
+    let cachedDroneMeasureStr = '';
+
+    function refreshDroneBackdropImage() {
+      const url = (clientConfig.droneImageUrl || '').trim();
+      if (url === droneCachedBgUrl) return;
+      droneCachedBgUrl = url;
+      droneCachedBgImg = null;
+      if (!url) return;
+
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        if (droneCachedBgUrl === url) droneCachedBgImg = img;
+      };
+      img.onerror = () => {
+        const fallbackImg = new Image();
+        fallbackImg.onload = () => {
+          if (droneCachedBgUrl === url) droneCachedBgImg = fallbackImg;
+        };
+        fallbackImg.src = url;
+      };
+      img.src = url;
+    }
+
+    refreshDroneBackdropImage();
+
+    function renderSkyDroneCanvas(targetCanvas, dt) {
+      if (!targetCanvas) return;
+      const ctx = targetCanvas.getContext('2d');
+      const w = targetCanvas.width;
+      const h = targetCanvas.height;
+      const glowColor = clientConfig.droneColor || '#facc15';
+      const titleText = (clientConfig.droneTitle || 'SKY ARENA LIVE').trim();
+      const rawTicker = (clientConfig.droneTicker || 'WELCOME TO APEX HORIZON 3D').trim() || 'WELCOME TO APEX HORIZON 3D';
+      const tickerMsg = `${rawTicker}     ★     `;
+
+      // Dark LED panel base
+      const grad = ctx.createLinearGradient(0, 0, w, h);
+      grad.addColorStop(0, '#060a14');
+      grad.addColorStop(0.5, '#0f172a');
+      grad.addColorStop(1, '#060a14');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Optional uploaded/URL shop backdrop image
+      if (droneCachedBgImg) {
+        const scale = Math.max(w / droneCachedBgImg.width, h / droneCachedBgImg.height);
+        const iw = droneCachedBgImg.width * scale;
+        const ih = droneCachedBgImg.height * scale;
+        ctx.drawImage(droneCachedBgImg, (w - iw) * 0.5, (h - ih) * 0.5, iw, ih);
+        ctx.fillStyle = 'rgba(2, 6, 23, 0.52)';
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      // Top Aerial Broadcast Header Strip
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
+      ctx.fillRect(12, 12, w - 24, 24);
+      ctx.fillStyle = glowColor;
+      ctx.font = '800 13px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('● LIVE AERIAL BROADCAST ●', w * 0.5, 24);
+
+      // Large Main Headline in Upper/Center Zone
+      if (titleText) {
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '900 48px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = glowColor;
+        ctx.shadowBlur = 14;
+        ctx.fillText(titleText, w * 0.5, 96);
+        ctx.shadowBlur = 0;
+      }
+
+      // Bottom Digital Scrolling Ticker Band
+      const bandY = h - 56;
+      ctx.fillStyle = 'rgba(2, 6, 23, 0.88)';
+      ctx.fillRect(10, bandY, w - 20, 44);
+
+      ctx.fillStyle = glowColor;
+      ctx.fillRect(10, bandY, w - 20, 3);
+
+      ctx.font = '900 24px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+      if (cachedDroneMeasureStr !== tickerMsg) {
+        cachedDroneMeasureStr = tickerMsg;
+        droneTickerWidth = Math.max(220, ctx.measureText(tickerMsg).width);
+      }
+
+      if (dt > 0) {
+        droneScrollX -= 115 * dt;
+        if (droneScrollX <= -droneTickerWidth) {
+          droneScrollX += droneTickerWidth;
+        }
+      }
+
+      ctx.fillStyle = glowColor;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      let drawX = Math.floor(droneScrollX);
+      while (drawX < w) {
+        ctx.fillText(tickerMsg, drawX, bandY + 23);
+        drawX += droneTickerWidth;
+      }
+
+      // Outer LED Cabinet Frame
+      ctx.strokeStyle = glowColor;
+      ctx.lineWidth = 8;
+      ctx.strokeRect(6, 6, w - 12, h - 12);
+
+      // Subtle LED dot-matrix texture
+      if (ledDotPattern) {
+        ctx.fillStyle = ledDotPattern;
+        ctx.fillRect(0, 0, w, h);
+      }
+    }
+
+    renderSkyDroneCanvas(droneLedCanvas, 0);
+    droneLedTex.needsUpdate = true;
+
+    // Build the 3D Quad-Drone Fleet + Giant Suspended LED Screen
+    const skyDroneSystem = (function createSkyDroneRig() {
+      const rig = new THREE.Group();
+      const rotors = [];
+
+      const screenW = 28;
+      const screenH = 11.5;
+
+      // Giant Double-Sided Aerial LED Cabinet
+      const cabinetMat = new THREE.MeshLambertMaterial({ color: 0x090d16 });
+      const glowFrameMat = new THREE.MeshBasicMaterial({ color: clientConfig.droneColor || '#facc15' });
+      const screenMat = new THREE.MeshBasicMaterial({ map: droneLedTex });
+
+      const cabinet = new THREE.Mesh(new THREE.BoxGeometry(screenW + 0.8, screenH + 0.8, 0.9), cabinetMat);
+      rig.add(cabinet);
+
+      // Glowing top & bottom truss bars
+      const topTruss = new THREE.Mesh(new THREE.BoxGeometry(screenW + 1.4, 0.45, 1.2), glowFrameMat);
+      topTruss.position.y = screenH * 0.5 + 0.45;
+      const botTruss = topTruss.clone();
+      botTruss.position.y = -screenH * 0.5 - 0.45;
+      rig.add(topTruss, botTruss);
+
+      // Front & Back LED Display Faces (viewable from both directions across the circuit)
+      const faceGeo = new THREE.PlaneGeometry(screenW, screenH);
+      const frontFace = new THREE.Mesh(faceGeo, screenMat);
+      frontFace.position.z = 0.48;
+      const backFace = new THREE.Mesh(faceGeo, screenMat);
+      backFace.position.z = -0.48;
+      backFace.rotation.y = Math.PI;
+      rig.add(frontFace, backFace);
+
+      // 4 Heavy-Lift Industrial Drones Lifting the Giant Screen
+      const droneOffsets = [
+        [-11.5, 9.6, 1.2],
+        [11.5, 9.6, 1.2],
+        [-11.5, 9.6, -1.2],
+        [11.5, 9.6, -1.2]
+      ];
+
+      const droneBodyGeo = new THREE.BoxGeometry(2.4, 0.75, 2.4);
+      const droneArmGeo = new THREE.BoxGeometry(4.4, 0.18, 0.22);
+      const rotorDiscGeo = new THREE.CylinderGeometry(1.15, 1.15, 0.05, 10);
+      const cableGeo = new THREE.CylinderGeometry(0.06, 0.06, 4.1, 4);
+
+      const droneMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
+      const rotorMat = new THREE.MeshBasicMaterial({ color: 0xe2e8f0, transparent: true, opacity: 0.55 });
+      const cableMat = new THREE.MeshBasicMaterial({ color: 0x94a3b8 });
+      const beaconRedMat = new THREE.MeshBasicMaterial({ color: 0xef4444 });
+      const beaconGeo = new THREE.SphereGeometry(0.22, 6, 6);
+
+      droneOffsets.forEach(([dx, dy, dz]) => {
+        const drone = new THREE.Group();
+        drone.position.set(dx, dy, dz);
+
+        const body = new THREE.Mesh(droneBodyGeo, droneMat);
+        drone.add(body);
+
+        // Glowing drone belly beacon
+        const bellyLight = new THREE.Mesh(beaconGeo, glowFrameMat);
+        bellyLight.position.y = -0.45;
+        const topBeacon = new THREE.Mesh(beaconGeo, beaconRedMat);
+        topBeacon.position.y = 0.5;
+        drone.add(bellyLight, topBeacon);
+
+        // Cross arms + 4 spinning rotor discs
+        const arm1 = new THREE.Mesh(droneArmGeo, droneMat);
+        arm1.rotation.y = Math.PI / 4;
+        const arm2 = new THREE.Mesh(droneArmGeo, droneMat);
+        arm2.rotation.y = -Math.PI / 4;
+        drone.add(arm1, arm2);
+
+        const rotorCoords = [
+          [-1.55, 0.22, -1.55],
+          [1.55, 0.22, -1.55],
+          [-1.55, 0.22, 1.55],
+          [1.55, 0.22, 1.55]
+        ];
+        rotorCoords.forEach(([rx, ry, rz]) => {
+          const rotor = new THREE.Mesh(rotorDiscGeo, rotorMat);
+          rotor.position.set(rx, ry, rz);
+          drone.add(rotor);
+          rotors.push(rotor);
+        });
+
+        // Suspension Cable connecting Drone to Top Truss of LED Screen
+        const cable = new THREE.Mesh(cableGeo, cableMat);
+        cable.position.set(dx, dy - 2.05, dz * 0.45);
+        cable.rotation.x = -dz * 0.14;
+        rig.add(cable);
+
+        rig.add(drone);
+      });
+
+      rig.position.set(130, 26, -35);
+      scene.add(rig);
+
+      return { rig, rotors, glowFrameMat, orbitTime: 0 };
+    })();
+
+    function updateSkyDroneRig(dt) {
+      skyDroneSystem.orbitTime += dt * 0.14;
+      const t = skyDroneSystem.orbitTime;
+
+      // Smooth figure-8 / elliptical aerial patrol high above the circuit
+      const centerX = 135;
+      const centerZ = -25;
+      const targetX = centerX + Math.cos(t) * 145;
+      const targetZ = centerZ + Math.sin(t * 2) * 95;
+      const targetY = 25.5 + Math.sin(t * 5.5) * 0.85;
+
+      // Look ahead along flight path to orient the giant screen toward racers
+      const nextT = t + 0.05;
+      const nextX = centerX + Math.cos(nextT) * 145;
+      const nextZ = centerZ + Math.sin(nextT * 2) * 95;
+      const heading = Math.atan2(nextX - targetX, nextZ - targetZ);
+
+      skyDroneSystem.rig.position.set(targetX, targetY, targetZ);
+      skyDroneSystem.rig.rotation.y = heading + Math.PI * 0.5;
+      skyDroneSystem.rig.rotation.z = Math.sin(t * 2) * 0.05; // Gentle aerodynamic wind tilt
+
+      // Spin all 16 drone rotors
+      const spinStep = dt * 36;
+      for (let i = 0; i < skyDroneSystem.rotors.length; i++) {
+        skyDroneSystem.rotors[i].rotation.y += spinStep;
+      }
+    }
+
+    // ==========================================
+    // 3D. TRACKSIDE BILLBOARDS & JUMBOTRON
     // ==========================================
     const billboardInstances = [];
     let jumbotronCanvas, jumbotronCtx, jumbotronTex;
@@ -2171,7 +2482,7 @@
     const editorDrawer = document.getElementById('editor-drawer');
     let selectedBillboardIdx = 0;
     let editorOpen = false;
-    let activeEditorTab = 'billboards'; // 'billboards' | 'overhead' | 'shop'
+    let activeEditorTab = 'billboards'; // 'billboards' | 'overhead' | 'drone' | 'shop'
 
     const THEME_PRESETS = [
       { bg1: '#0f172a', bg2: '#0369a1', accent: '#38bdf8' },
@@ -2200,6 +2511,7 @@
 
     let syncEditorFields = () => {};
     let ledPreviewCanvas = null;
+    let dronePreviewCanvas = null;
 
     if (!IS_LOCKED_CLIENT && editorDrawer) {
       const bbSelect = document.getElementById('bb-select');
@@ -2217,6 +2529,13 @@
       const cfgLedText = document.getElementById('cfg-led-text');
       const cfgLedColor = document.getElementById('cfg-led-color');
       const cfgLedSpeed = document.getElementById('cfg-led-speed');
+
+      dronePreviewCanvas = document.getElementById('drone-preview-canvas');
+      const cfgDroneTitle = document.getElementById('cfg-drone-title');
+      const cfgDroneTicker = document.getElementById('cfg-drone-ticker');
+      const cfgDroneColor = document.getElementById('cfg-drone-color');
+      const cfgDroneImgUrl = document.getElementById('cfg-drone-img-url');
+      const cfgDroneImgFile = document.getElementById('cfg-drone-img-file');
 
       const cfgShopTitle = document.getElementById('cfg-shop-title');
       const cfgShopSubtitle = document.getElementById('cfg-shop-subtitle');
@@ -2240,6 +2559,12 @@
         cfgLedColor.value = clientConfig.ledColor || '#38bdf8';
         cfgLedSpeed.value = String(clientConfig.ledSpeed || 125);
         renderOverheadLedCanvas(ledPreviewCanvas, 0);
+
+        cfgDroneTitle.value = clientConfig.droneTitle || '';
+        cfgDroneTicker.value = clientConfig.droneTicker || '';
+        cfgDroneColor.value = clientConfig.droneColor || '#facc15';
+        cfgDroneImgUrl.value = (clientConfig.droneImageUrl && clientConfig.droneImageUrl.startsWith('data:')) ? '[Uploaded Local Image]' : (clientConfig.droneImageUrl || '');
+        renderSkyDroneCanvas(dronePreviewCanvas, 0);
 
         cfgShopTitle.value = clientConfig.shopTitle || '';
         cfgShopSubtitle.value = clientConfig.shopSubtitle || '';
@@ -2275,6 +2600,22 @@
         renderOverheadLedCanvas(ledPreviewCanvas, 0);
       }
 
+      function applyDroneEdit() {
+        clientConfig.droneTitle = cfgDroneTitle.value;
+        clientConfig.droneTicker = cfgDroneTicker.value;
+        clientConfig.droneColor = cfgDroneColor.value;
+        const rawUrl = cfgDroneImgUrl.value.trim();
+        if (rawUrl !== '[Uploaded Local Image]') {
+          clientConfig.droneImageUrl = rawUrl;
+          refreshDroneBackdropImage();
+        }
+        skyDroneSystem.glowFrameMat.color.set(clientConfig.droneColor);
+        persistStudioState();
+        renderSkyDroneCanvas(droneLedCanvas, 0);
+        droneLedTex.needsUpdate = true;
+        renderSkyDroneCanvas(dronePreviewCanvas, 0);
+      }
+
       function applyShopEdit() {
         clientConfig.shopTitle = cfgShopTitle.value;
         clientConfig.shopSubtitle = cfgShopSubtitle.value;
@@ -2286,7 +2627,7 @@
         updateJumbotron('PLAYER', 0, 0, bestScore);
       }
 
-      // Tabs (automatically glides 3D camera to Side Sign or Overhead Road Gantry!)
+      // Tabs
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -2315,10 +2656,21 @@
         el.addEventListener('change', applyLedEdit);
       });
 
+      [cfgDroneTitle, cfgDroneTicker, cfgDroneColor, cfgDroneImgUrl].forEach(el => {
+        el.addEventListener('input', applyDroneEdit);
+      });
+
       document.querySelectorAll('.led-swatch').forEach(btn => {
         btn.addEventListener('click', () => {
           cfgLedColor.value = btn.dataset.c;
           applyLedEdit();
+        });
+      });
+
+      document.querySelectorAll('.drone-swatch').forEach(btn => {
+        btn.addEventListener('click', () => {
+          cfgDroneColor.value = btn.dataset.c;
+          applyDroneEdit();
         });
       });
 
@@ -2329,14 +2681,59 @@
         const code = (clientConfig.promoCode || 'RACE15').toUpperCase();
         cfgLedText.value = `★ ${shop} • SCORE ${target}+ PTS TO UNLOCK ${reward} (CODE: ${code}) • DRIFT FOR NITRO ★`;
         applyLedEdit();
-        triggerCallout('LED TICKER SYNCED WITH OFFER!', '#38bdf8');
+        triggerCallout('OVERHEAD LED SYNCED!', '#38bdf8');
+      });
+
+      document.getElementById('drone-sync-offer-btn').addEventListener('click', () => {
+        const shop = (clientConfig.shopTitle || 'SKY ARENA').toUpperCase().slice(0, 22);
+        const target = (Number(clientConfig.targetScore) || 5000).toLocaleString();
+        const reward = (clientConfig.rewardTitle || '15% OFF').toUpperCase();
+        const code = (clientConfig.promoCode || 'RACE15').toUpperCase();
+        cfgDroneTitle.value = shop;
+        cfgDroneTicker.value = `★ SCORE ${target}+ PTS FOR ${reward} • USE CODE: ${code} ★`;
+        applyDroneEdit();
+        triggerCallout('SKY DRONE LED SYNCED!', '#facc15');
+      });
+
+      cfgDroneImgFile.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = new Image();
+          img.onload = () => {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 512;
+            tempCanvas.height = 224;
+            const tCtx = tempCanvas.getContext('2d');
+            const scale = Math.max(512 / img.width, 224 / img.height);
+            const w = img.width * scale;
+            const h = img.height * scale;
+            tCtx.drawImage(img, (512 - w) * 0.5, (224 - h) * 0.5, w, h);
+            clientConfig.droneImageUrl = tempCanvas.toDataURL('image/jpeg', 0.82);
+            refreshDroneBackdropImage();
+            persistStudioState();
+            syncEditorFields();
+          };
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+        cfgDroneImgFile.value = '';
+      });
+
+      document.getElementById('cfg-drone-clear-img').addEventListener('click', () => {
+        clientConfig.droneImageUrl = '';
+        cfgDroneImgUrl.value = '';
+        refreshDroneBackdropImage();
+        persistStudioState();
+        syncEditorFields();
       });
 
       [cfgShopTitle, cfgShopSubtitle, cfgTargetScore, cfgPromoCode, cfgRewardTitle].forEach(el => {
         el.addEventListener('input', applyShopEdit);
       });
 
-      document.querySelectorAll('.swatch-btn:not(.led-swatch)').forEach(btn => {
+      document.querySelectorAll('.swatch-btn:not(.led-swatch):not(.drone-swatch)').forEach(btn => {
         btn.addEventListener('click', () => {
           const p = THEME_PRESETS[Number(btn.dataset.p)];
           bbBg1Input.value = p.bg1;
@@ -2480,7 +2877,6 @@
       });
     }
 
-    // Apply initial LED beacon hue
     overheadGantries.forEach(g => g.beaconMat.color.set(clientConfig.ledColor || '#38bdf8'));
 
     // ==========================================
@@ -2892,13 +3288,24 @@
         fpsAccum = 0;
       }
 
-      // Smooth 30Hz Digital Overhead LED Marquee Ticker Update
+      // Update Sky Drone Fleet flight & spinning rotors
+      updateSkyDroneRig(dt);
+
+      // Smooth 30Hz Digital Overhead & Sky Drone LED Marquee Ticker Updates
       ledTimer += dt;
       if (ledTimer >= 0.033) {
         renderOverheadLedCanvas(ledCanvas, ledTimer);
         ledTex.needsUpdate = true;
-        if (editorOpen && activeEditorTab === 'overhead' && ledPreviewCanvas) {
-          renderOverheadLedCanvas(ledPreviewCanvas, 0);
+
+        renderSkyDroneCanvas(droneLedCanvas, ledTimer);
+        droneLedTex.needsUpdate = true;
+
+        if (editorOpen) {
+          if (activeEditorTab === 'overhead' && ledPreviewCanvas) {
+            renderOverheadLedCanvas(ledPreviewCanvas, 0);
+          } else if (activeEditorTab === 'drone' && dronePreviewCanvas) {
+            renderSkyDroneCanvas(dronePreviewCanvas, 0);
+          }
         }
         ledTimer = 0;
       }
@@ -3190,7 +3597,21 @@
       }
 
       // Camera Control
-      if (editorOpen && activeEditorTab === 'overhead' && overheadGantries[0]) {
+      if (editorOpen && activeEditorTab === 'drone') {
+        const dPos = skyDroneSystem.rig.position;
+        const dYaw = skyDroneSystem.rig.rotation.y;
+        const normalX = Math.sin(dYaw);
+        const normalZ = Math.cos(dYaw);
+        _v1.set(dPos.x + normalX * 36, dPos.y + 3.5, dPos.z + normalZ * 36);
+        _v2.set(dPos.x, dPos.y + 2.5, dPos.z);
+
+        smoothCamPos.lerp(_v1, 1 - Math.exp(-8 * dt));
+        smoothCamLook.lerp(_v2, 1 - Math.exp(-10 * dt));
+        camera.position.copy(smoothCamPos);
+        camera.lookAt(smoothCamLook);
+        camera.fov += (56 - camera.fov) * (1 - Math.exp(-8 * dt));
+        camera.updateProjectionMatrix();
+      } else if (editorOpen && activeEditorTab === 'overhead' && overheadGantries[0]) {
         const og = overheadGantries[0];
         smoothCamPos.lerp(og.camPos, 1 - Math.exp(-8 * dt));
         smoothCamLook.lerp(og.lookAt, 1 - Math.exp(-10 * dt));
