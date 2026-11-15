@@ -86,16 +86,14 @@ let busy = false;
 let pollTimer = null;
 let pollCount = 0;
 let autoPolling = false;
-let storageCleanupTimer = null;
 let knownPaymentId = "";
 let terminalFailure = false;
 
 const PENDING_KEY = "sindora_pending_payment";
 const RECEIPT_KEY = "sindora_receipt_data";
 const MAX_RECOVERY_AGE = 24 * 60 * 60 * 1000;
-const PENDING_STORAGE_TTL = 5 * 60 * 1000;
 // One immediate check plus seven scheduled checks, completed within about one minute.
-const POLL_DELAYS = [3000, 5000, 7000, 8000, 9000, 12000, 15000];
+const POLL_DELAYS = [2000, 3000, 4000, 5000, 6000, 8000, 10000];
 
 function readPending() {
   for (const store of [sessionStorage, localStorage]) {
@@ -116,25 +114,7 @@ function clearPending() {
   try { sessionStorage.removeItem(PENDING_KEY); } catch (_) {}
   try { localStorage.removeItem(PENDING_KEY); } catch (_) {}
   clearTimeout(pollTimer);
-  clearTimeout(storageCleanupTimer);
   autoPolling = false;
-}
-function clearPersistedPending() {
-  // Keep the in-memory order so the customer can still check manually on this page.
-  try { sessionStorage.removeItem(PENDING_KEY); } catch (_) {}
-  try { localStorage.removeItem(PENDING_KEY); } catch (_) {}
-  if (pending && verification.style.display !== "none") {
-    newOrderButton.hidden = false;
-    verifyTitle.textContent = "Payment still unconfirmed";
-    verifyMessage.textContent = "Automatic checks have stopped and the saved pending order has been cleared from this browser. You can still check this order manually, or start a new order if you understand the duplicate-payment risk.";
-    verifyStatus.textContent = "The previous order has not been marked failed. Its payment status is still unknown until the server confirms it.";
-  }
-}
-function schedulePendingStorageCleanup(createdAt) {
-  clearTimeout(storageCleanupTimer);
-  const age = Date.now() - Number(createdAt || Date.now());
-  const remaining = Math.max(0, PENDING_STORAGE_TTL - age);
-  storageCleanupTimer = setTimeout(clearPersistedPending, remaining);
 }
 function cleanPhone(value) { return value.replace(/[^0-9]/g, "").slice(-15); }
 function showNotice(message, isError) {
@@ -181,8 +161,11 @@ function scheduleNextCheck() {
   if (!autoPolling) {
     spinner.classList.add("done");
     verifyTitle.textContent = "Payment status pending";
-    verifyMessage.textContent = "Automatic checks have stopped. If you have completed payment, press the button below to check again. Do not pay a second time while the status is uncertain.";
-    verifyStatus.textContent = "Automatic verification finished. Waiting for your manual status check.";
+    verifyMessage.textContent = "All 8 automatic checks are complete. You can now check the payment status manually, or start a new order if you understand the duplicate-payment risk.";
+    verifyStatus.textContent = "Automatic verification has stopped. Your pending order is still saved in this browser.";
+    checkNow.disabled = false;
+    checkNow.textContent = "Check payment status";
+    newOrderButton.hidden = false;
     return;
   }
   if (!pending || document.visibilityState === "hidden") return;
@@ -191,6 +174,8 @@ function scheduleNextCheck() {
     scheduleNextCheck();
     return;
   }
+  checkNow.disabled = true;
+  checkNow.textContent = "Automatic checking…";
   const delay = POLL_DELAYS[pollCount++];
   pollTimer = setTimeout(checkUntilResolved, delay);
 }
@@ -223,10 +208,10 @@ async function checkOnce() {
   terminalFailure = false;
   spinner.classList.remove("done");
   verifyTitle.textContent = "Verifying your payment";
-  verifyMessage.textContent = "Please keep this page open. We are waiting for the server to confirm the payment.";
+  verifyMessage.textContent = "We are waiting for the server to confirm the payment.";
   verifyStatus.textContent = status === "authorized"
     ? "Payment authorised. Waiting for capture and server confirmation…"
-    : "Payment is not yet confirmed. We will check again automatically.";
+    : (autoPolling ? "Payment is not yet confirmed. We will check again automatically." : "Payment is not yet confirmed. You can check again manually.");
   return status;
 }
 async function checkUntilResolved() {
@@ -243,20 +228,21 @@ async function checkUntilResolved() {
     console.error("Payment status check failed", e);
     verifyTitle.textContent = "Still checking your payment";
     verifyMessage.textContent = "We could not reach the verification service just now. Your saved order has not been discarded. Please do not pay again until its status is confirmed.";
-    verifyStatus.textContent = "Connection issue. We will retry automatically.";
+    verifyStatus.textContent = autoPolling
+      ? "Connection issue. We will retry automatically while automatic checks remain."
+      : "Connection issue. Automatic checks have stopped. Please try the manual check again.";
   } finally {
     busy = false;
     if (pending && verification.style.display !== "none") {
-      checkNow.disabled = false;
-      checkNow.textContent = "Check payment status";
-      // Automatic checks stop after the eighth check; manual checks remain available.
+      // Keep manual checking disabled while automatic retries remain.
+      // Once all 8 checks finish, scheduleNextCheck enables manual checking.
       if (result !== "paid") scheduleNextCheck();
     }
   }
 }
 checkNow.addEventListener("click", () => {
-  // A manual check must never restart automatic polling.
-  autoPolling = false;
+  if (autoPolling || busy) return;
+  // A manual check never restarts automatic polling.
   clearTimeout(pollTimer);
   checkUntilResolved();
 });
@@ -291,7 +277,7 @@ function recoverPending(reason) {
   knownPaymentId = saved.payment_id || knownPaymentId;
   pollCount = 0;
   autoPolling = true;
-  schedulePendingStorageCleanup(saved.created_at);
+  newOrderButton.hidden = true;
   const age = Date.now() - Number(saved.created_at || 0);
   const message = age > MAX_RECOVERY_AGE
     ? "We found an older unfinished order. We will check its current server status before allowing another payment."
@@ -325,7 +311,7 @@ if (restored && restored.order_id) {
   knownPaymentId = restored.payment_id || "";
   pollCount = 0;
   autoPolling = true;
-  schedulePendingStorageCleanup(restored.created_at);
+  newOrderButton.hidden = true;
   showVerification("We found an unfinished checkout. We will verify that order before allowing another payment.");
   setTimeout(checkUntilResolved, 250);
 }
@@ -388,7 +374,7 @@ form.addEventListener("submit", async event => {
     });
     pollCount = 0;
     autoPolling = true;
-    schedulePendingStorageCleanup(pendingCreatedAt);
+    newOrderButton.hidden = true;
     showVerification("Your order is ready. Complete payment in Razorpay. When you return, this page will verify the saved order automatically.");
 
     const rzp = new Razorpay({
