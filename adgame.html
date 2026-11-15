@@ -920,10 +920,10 @@
         </div>
       </div>
 
-      <!-- TAB 3: SKY DRONE LIFTING GIANT LED SCREEN -->
+      <!-- TAB 3: SKY DRONE LIFTING GIANT LED SCREEN ABOVE STRAIGHT ROAD -->
       <div class="tab-pane" id="pane-drone">
         <div class="preview-box">
-          <canvas id="drone-preview-canvas" width="512" height="224"></canvas>
+          <canvas id="drone-preview-canvas" width="768" height="336"></canvas>
         </div>
 
         <div class="field-group">
@@ -970,7 +970,7 @@
         </div>
 
         <div class="info-box">
-          <strong>Heavy-Lift Quad-Drone Fleet:</strong> 4 synchronized industrial drones suspend a giant <strong>28m × 11m</strong> double-sided LED screen in the sky above the circuit!
+          <strong>Straight-Road Sky Display:</strong> 4 heavy-lift drones suspend a monumental <strong>54m × 22m</strong> double-sided LED screen directly above the main straight road, facing oncoming drivers so it is clearly readable from far away!
         </div>
       </div>
 
@@ -1160,9 +1160,9 @@
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x87ceeb);
-    scene.fog = new THREE.Fog(0x9bd5f0, 140, 560);
+    scene.fog = new THREE.Fog(0x9bd5f0, 180, 660);
 
-    const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.8, 620);
+    const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.8, 720);
 
     const _v1 = new THREE.Vector3();
     const _v2 = new THREE.Vector3();
@@ -1175,9 +1175,9 @@
     scene.add(dirLight);
 
     const QUALITY_LEVELS = [
-      { name: 'SMOOTH', dprCap: 1.0, far: 560, shadows: false },
-      { name: 'BALANCED', dprCap: 1.35, far: 680, shadows: false },
-      { name: 'HIGH', dprCap: 1.75, far: 820, shadows: true }
+      { name: 'SMOOTH', dprCap: 1.0, far: 660, shadows: false },
+      { name: 'BALANCED', dprCap: 1.35, far: 760, shadows: false },
+      { name: 'HIGH', dprCap: 1.75, far: 880, shadows: true }
     ];
     let currentQuality = 0;
 
@@ -1186,8 +1186,8 @@
       const q = QUALITY_LEVELS[currentQuality];
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, q.dprCap));
       camera.far = q.far;
-      scene.fog.near = q.far * 0.25;
-      scene.fog.far = q.far * 0.92;
+      scene.fog.near = q.far * 0.28;
+      scene.fog.far = q.far * 0.95;
       camera.updateProjectionMatrix();
 
       renderer.shadowMap.enabled = q.shadows;
@@ -1532,18 +1532,18 @@
     const overheadGantries = [];
 
     (function createOverheadLedGantries() {
-      const gantryIndices = [55, 305];
+      const gantryIndices = [42, 305];
       const pillarGeo = new THREE.CylinderGeometry(0.55, 0.68, 9.8, 8);
       const baseFootGeo = new THREE.BoxGeometry(1.8, 0.7, 1.8);
       const steelMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
       const darkCabinetMat = new THREE.MeshLambertMaterial({ color: 0x090d16 });
-      const screenMat = new THREE.MeshBasicMaterial({ map: ledTex });
+      const screenMat = new THREE.MeshBasicMaterial({ map: ledTex, fog: false });
 
       const spanWidth = ROAD_HALF_WIDTH * 2 + 5.2;
       const cabinetGeo = new THREE.BoxGeometry(spanWidth + 1.4, 3.1, 1.15);
       const screenGeo = new THREE.PlaneGeometry(spanWidth, 2.55);
       const beaconGeo = new THREE.SphereGeometry(0.28, 6, 6);
-      const beaconMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+      const beaconMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, fog: false });
 
       gantryIndices.forEach((idx) => {
         const pt = trackPoints[idx];
@@ -1644,18 +1644,18 @@
     ledTex.needsUpdate = true;
 
     // ==========================================
-    // 3C. SKY DRONE FLEET LIFTING LARGE LED SCREEN
+    // 3C. GIANT SKY DRONE LED BILLBOARD DIRECTLY ABOVE STRAIGHT ROAD
     // ==========================================
     const droneLedCanvas = document.createElement('canvas');
-    droneLedCanvas.width = 512;
-    droneLedCanvas.height = 224;
+    droneLedCanvas.width = 768;
+    droneLedCanvas.height = 336;
     const droneLedTex = new THREE.CanvasTexture(droneLedCanvas);
     droneLedTex.anisotropy = 4;
 
     let droneCachedBgImg = null;
     let droneCachedBgUrl = '';
-    let droneScrollX = 512;
-    let droneTickerWidth = 750;
+    let droneScrollX = 768;
+    let droneTickerWidth = 950;
     let cachedDroneMeasureStr = '';
 
     function refreshDroneBackdropImage() {
@@ -1692,11 +1692,11 @@
       const rawTicker = (clientConfig.droneTicker || 'WELCOME TO APEX HORIZON 3D').trim() || 'WELCOME TO APEX HORIZON 3D';
       const tickerMsg = `${rawTicker}     ★     `;
 
-      // Dark LED panel base
+      // High-contrast dark LED panel base
       const grad = ctx.createLinearGradient(0, 0, w, h);
-      grad.addColorStop(0, '#060a14');
-      grad.addColorStop(0.5, '#0f172a');
-      grad.addColorStop(1, '#060a14');
+      grad.addColorStop(0, '#040711');
+      grad.addColorStop(0.5, '#0c1528');
+      grad.addColorStop(1, '#040711');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, w, h);
 
@@ -1706,47 +1706,47 @@
         const iw = droneCachedBgImg.width * scale;
         const ih = droneCachedBgImg.height * scale;
         ctx.drawImage(droneCachedBgImg, (w - iw) * 0.5, (h - ih) * 0.5, iw, ih);
-        ctx.fillStyle = 'rgba(2, 6, 23, 0.52)';
+        ctx.fillStyle = 'rgba(2, 6, 23, 0.48)';
         ctx.fillRect(0, 0, w, h);
       }
 
       // Top Aerial Broadcast Header Strip
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
-      ctx.fillRect(12, 12, w - 24, 24);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+      ctx.fillRect(16, 16, w - 32, 34);
       ctx.fillStyle = glowColor;
-      ctx.font = '800 13px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+      ctx.font = '900 18px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('● LIVE AERIAL BROADCAST ●', w * 0.5, 24);
+      ctx.fillText('● LIVE AERIAL SKY SCREEN ●', w * 0.5, 33);
 
-      // Large Main Headline in Upper/Center Zone
+      // Extra-Large Bold Main Headline visible from far down the straight
       if (titleText) {
         ctx.fillStyle = '#ffffff';
-        ctx.font = '900 48px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+        ctx.font = '900 76px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.shadowColor = glowColor;
-        ctx.shadowBlur = 14;
-        ctx.fillText(titleText, w * 0.5, 96);
+        ctx.shadowBlur = 18;
+        ctx.fillText(titleText, w * 0.5, 146);
         ctx.shadowBlur = 0;
       }
 
       // Bottom Digital Scrolling Ticker Band
-      const bandY = h - 56;
-      ctx.fillStyle = 'rgba(2, 6, 23, 0.88)';
-      ctx.fillRect(10, bandY, w - 20, 44);
+      const bandY = h - 84;
+      ctx.fillStyle = 'rgba(2, 6, 23, 0.92)';
+      ctx.fillRect(14, bandY, w - 28, 66);
 
       ctx.fillStyle = glowColor;
-      ctx.fillRect(10, bandY, w - 20, 3);
+      ctx.fillRect(14, bandY, w - 28, 4);
 
-      ctx.font = '900 24px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+      ctx.font = '900 36px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
       if (cachedDroneMeasureStr !== tickerMsg) {
         cachedDroneMeasureStr = tickerMsg;
-        droneTickerWidth = Math.max(220, ctx.measureText(tickerMsg).width);
+        droneTickerWidth = Math.max(300, ctx.measureText(tickerMsg).width);
       }
 
       if (dt > 0) {
-        droneScrollX -= 115 * dt;
+        droneScrollX -= 165 * dt;
         if (droneScrollX <= -droneTickerWidth) {
           droneScrollX += droneTickerWidth;
         }
@@ -1757,16 +1757,16 @@
       ctx.textBaseline = 'middle';
       let drawX = Math.floor(droneScrollX);
       while (drawX < w) {
-        ctx.fillText(tickerMsg, drawX, bandY + 23);
+        ctx.fillText(tickerMsg, drawX, bandY + 35);
         drawX += droneTickerWidth;
       }
 
-      // Outer LED Cabinet Frame
+      // Outer High-Visibility LED Cabinet Frame
       ctx.strokeStyle = glowColor;
-      ctx.lineWidth = 8;
-      ctx.strokeRect(6, 6, w - 12, h - 12);
+      ctx.lineWidth = 12;
+      ctx.strokeRect(8, 8, w - 16, h - 16);
 
-      // Subtle LED dot-matrix texture
+      // Dot-matrix pixel grid overlay
       if (ledDotPattern) {
         ctx.fillStyle = ledDotPattern;
         ctx.fillRect(0, 0, w, h);
@@ -1776,56 +1776,66 @@
     renderSkyDroneCanvas(droneLedCanvas, 0);
     droneLedTex.needsUpdate = true;
 
-    // Build the 3D Quad-Drone Fleet + Giant Suspended LED Screen
+    // Position the Giant Sky Drone LED Billboard directly above the end of the main Start/Finish straight
+    // (idx = 70 is dead-center above the straight road, towering above the 8.1m road gantry so it's visible from the starting line & far away)
     const skyDroneSystem = (function createSkyDroneRig() {
       const rig = new THREE.Group();
       const rotors = [];
 
-      const screenW = 28;
-      const screenH = 11.5;
+      const straightIdx = 70;
+      const anchorPt = trackPoints[straightIdx];
+      const anchorTan = trackTangents[straightIdx];
+      const faceAngle = Math.atan2(-anchorTan.x, -anchorTan.z); // Faces oncoming traffic head-on!
+      const normalX = Math.sin(faceAngle);
+      const normalZ = Math.cos(faceAngle);
 
-      // Giant Double-Sided Aerial LED Cabinet
-      const cabinetMat = new THREE.MeshLambertMaterial({ color: 0x090d16 });
-      const glowFrameMat = new THREE.MeshBasicMaterial({ color: clientConfig.droneColor || '#facc15' });
-      const screenMat = new THREE.MeshBasicMaterial({ map: droneLedTex });
+      // Monumental 54m wide x 22m tall screen (over 2x wider than the 26m highway!)
+      const screenW = 54;
+      const screenH = 22;
+      const baseHeightY = 27.5; // Bottom edge at 16.5m, top edge at 38.5m — cars & gantries pass cleanly underneath
 
-      const cabinet = new THREE.Mesh(new THREE.BoxGeometry(screenW + 0.8, screenH + 0.8, 0.9), cabinetMat);
+      // fog: false ensures the luminous LED screen punches vividly through distance fog from anywhere on the track
+      const cabinetMat = new THREE.MeshLambertMaterial({ color: 0x070b14, fog: false });
+      const glowFrameMat = new THREE.MeshBasicMaterial({ color: clientConfig.droneColor || '#facc15', fog: false });
+      const screenMat = new THREE.MeshBasicMaterial({ map: droneLedTex, fog: false });
+
+      const cabinet = new THREE.Mesh(new THREE.BoxGeometry(screenW + 1.6, screenH + 1.6, 1.4), cabinetMat);
       rig.add(cabinet);
 
-      // Glowing top & bottom truss bars
-      const topTruss = new THREE.Mesh(new THREE.BoxGeometry(screenW + 1.4, 0.45, 1.2), glowFrameMat);
-      topTruss.position.y = screenH * 0.5 + 0.45;
+      // Glowing top & bottom structural truss beams
+      const topTruss = new THREE.Mesh(new THREE.BoxGeometry(screenW + 2.8, 0.85, 2.0), glowFrameMat);
+      topTruss.position.y = screenH * 0.5 + 0.85;
       const botTruss = topTruss.clone();
-      botTruss.position.y = -screenH * 0.5 - 0.45;
+      botTruss.position.y = -screenH * 0.5 - 0.85;
       rig.add(topTruss, botTruss);
 
-      // Front & Back LED Display Faces (viewable from both directions across the circuit)
+      // Front & Back Giant LED Display Faces
       const faceGeo = new THREE.PlaneGeometry(screenW, screenH);
       const frontFace = new THREE.Mesh(faceGeo, screenMat);
-      frontFace.position.z = 0.48;
+      frontFace.position.z = 0.75;
       const backFace = new THREE.Mesh(faceGeo, screenMat);
-      backFace.position.z = -0.48;
+      backFace.position.z = -0.75;
       backFace.rotation.y = Math.PI;
       rig.add(frontFace, backFace);
 
-      // 4 Heavy-Lift Industrial Drones Lifting the Giant Screen
+      // 4 Heavy-Lift Industrial Drones Hovering Above the Giant Screen
       const droneOffsets = [
-        [-11.5, 9.6, 1.2],
-        [11.5, 9.6, 1.2],
-        [-11.5, 9.6, -1.2],
-        [11.5, 9.6, -1.2]
+        [-22, 16.8, 1.8],
+        [22, 16.8, 1.8],
+        [-22, 16.8, -1.8],
+        [22, 16.8, -1.8]
       ];
 
-      const droneBodyGeo = new THREE.BoxGeometry(2.4, 0.75, 2.4);
-      const droneArmGeo = new THREE.BoxGeometry(4.4, 0.18, 0.22);
-      const rotorDiscGeo = new THREE.CylinderGeometry(1.15, 1.15, 0.05, 10);
-      const cableGeo = new THREE.CylinderGeometry(0.06, 0.06, 4.1, 4);
+      const droneBodyGeo = new THREE.BoxGeometry(3.8, 1.15, 3.8);
+      const droneArmGeo = new THREE.BoxGeometry(7.2, 0.28, 0.34);
+      const rotorDiscGeo = new THREE.CylinderGeometry(1.9, 1.9, 0.08, 12);
+      const cableGeo = new THREE.CylinderGeometry(0.09, 0.09, 5.8, 5);
 
-      const droneMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
-      const rotorMat = new THREE.MeshBasicMaterial({ color: 0xe2e8f0, transparent: true, opacity: 0.55 });
-      const cableMat = new THREE.MeshBasicMaterial({ color: 0x94a3b8 });
-      const beaconRedMat = new THREE.MeshBasicMaterial({ color: 0xef4444 });
-      const beaconGeo = new THREE.SphereGeometry(0.22, 6, 6);
+      const droneMat = new THREE.MeshLambertMaterial({ color: 0x1e293b, fog: false });
+      const rotorMat = new THREE.MeshBasicMaterial({ color: 0xe2e8f0, transparent: true, opacity: 0.62, fog: false });
+      const cableMat = new THREE.MeshBasicMaterial({ color: 0xcbd5e1, fog: false });
+      const beaconRedMat = new THREE.MeshBasicMaterial({ color: 0xef4444, fog: false });
+      const beaconGeo = new THREE.SphereGeometry(0.36, 6, 6);
 
       droneOffsets.forEach(([dx, dy, dz]) => {
         const drone = new THREE.Group();
@@ -1834,14 +1844,12 @@
         const body = new THREE.Mesh(droneBodyGeo, droneMat);
         drone.add(body);
 
-        // Glowing drone belly beacon
         const bellyLight = new THREE.Mesh(beaconGeo, glowFrameMat);
-        bellyLight.position.y = -0.45;
+        bellyLight.position.y = -0.7;
         const topBeacon = new THREE.Mesh(beaconGeo, beaconRedMat);
-        topBeacon.position.y = 0.5;
+        topBeacon.position.y = 0.78;
         drone.add(bellyLight, topBeacon);
 
-        // Cross arms + 4 spinning rotor discs
         const arm1 = new THREE.Mesh(droneArmGeo, droneMat);
         arm1.rotation.y = Math.PI / 4;
         const arm2 = new THREE.Mesh(droneArmGeo, droneMat);
@@ -1849,10 +1857,10 @@
         drone.add(arm1, arm2);
 
         const rotorCoords = [
-          [-1.55, 0.22, -1.55],
-          [1.55, 0.22, -1.55],
-          [-1.55, 0.22, 1.55],
-          [1.55, 0.22, 1.55]
+          [-2.5, 0.35, -2.5],
+          [2.5, 0.35, -2.5],
+          [-2.5, 0.35, 2.5],
+          [2.5, 0.35, 2.5]
         ];
         rotorCoords.forEach(([rx, ry, rz]) => {
           const rotor = new THREE.Mesh(rotorDiscGeo, rotorMat);
@@ -1861,44 +1869,55 @@
           rotors.push(rotor);
         });
 
-        // Suspension Cable connecting Drone to Top Truss of LED Screen
+        // Suspension Cable connecting each Drone to the Top Truss
         const cable = new THREE.Mesh(cableGeo, cableMat);
-        cable.position.set(dx, dy - 2.05, dz * 0.45);
+        cable.position.set(dx, dy - 2.9, dz * 0.45);
         cable.rotation.x = -dz * 0.14;
         rig.add(cable);
 
         rig.add(drone);
       });
 
-      rig.position.set(130, 26, -35);
+      rig.position.set(anchorPt.x, baseHeightY, anchorPt.z);
+      rig.rotation.y = faceAngle;
       scene.add(rig);
 
-      return { rig, rotors, glowFrameMat, orbitTime: 0 };
+      // Studio camera preview vantage point down the straight road looking right up at the giant sky screen
+      const previewCamPos = new THREE.Vector3(anchorPt.x + normalX * 72, 13.5, anchorPt.z + normalZ * 72);
+      const previewLookAt = new THREE.Vector3(anchorPt.x, baseHeightY - 1.0, anchorPt.z);
+
+      return {
+        rig,
+        rotors,
+        glowFrameMat,
+        anchorPt,
+        anchorRight: trackRights[straightIdx],
+        baseHeightY,
+        faceAngle,
+        previewCamPos,
+        previewLookAt,
+        hoverTime: 0
+      };
     })();
 
     function updateSkyDroneRig(dt) {
-      skyDroneSystem.orbitTime += dt * 0.14;
-      const t = skyDroneSystem.orbitTime;
+      skyDroneSystem.hoverTime += dt;
+      const t = skyDroneSystem.hoverTime;
 
-      // Smooth figure-8 / elliptical aerial patrol high above the circuit
-      const centerX = 135;
-      const centerZ = -25;
-      const targetX = centerX + Math.cos(t) * 145;
-      const targetZ = centerZ + Math.sin(t * 2) * 95;
-      const targetY = 25.5 + Math.sin(t * 5.5) * 0.85;
+      // Keep the giant screen centered directly above the straight road with gentle aerodynamic hover
+      const bobY = Math.sin(t * 2.1) * 0.75;
+      const swayLateral = Math.sin(t * 0.9) * 1.1;
 
-      // Look ahead along flight path to orient the giant screen toward racers
-      const nextT = t + 0.05;
-      const nextX = centerX + Math.cos(nextT) * 145;
-      const nextZ = centerZ + Math.sin(nextT * 2) * 95;
-      const heading = Math.atan2(nextX - targetX, nextZ - targetZ);
+      skyDroneSystem.rig.position.set(
+        skyDroneSystem.anchorPt.x + skyDroneSystem.anchorRight.x * swayLateral,
+        skyDroneSystem.baseHeightY + bobY,
+        skyDroneSystem.anchorPt.z + skyDroneSystem.anchorRight.z * swayLateral
+      );
+      skyDroneSystem.rig.rotation.y = skyDroneSystem.faceAngle;
+      skyDroneSystem.rig.rotation.z = Math.cos(t * 0.9) * 0.018;
 
-      skyDroneSystem.rig.position.set(targetX, targetY, targetZ);
-      skyDroneSystem.rig.rotation.y = heading + Math.PI * 0.5;
-      skyDroneSystem.rig.rotation.z = Math.sin(t * 2) * 0.05; // Gentle aerodynamic wind tilt
-
-      // Spin all 16 drone rotors
-      const spinStep = dt * 36;
+      // Spin all 16 heavy-lift rotors
+      const spinStep = dt * 38;
       for (let i = 0; i < skyDroneSystem.rotors.length; i++) {
         skyDroneSystem.rotors[i].rotation.y += spinStep;
       }
@@ -2703,13 +2722,13 @@
           const img = new Image();
           img.onload = () => {
             const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = 512;
-            tempCanvas.height = 224;
+            tempCanvas.width = 768;
+            tempCanvas.height = 336;
             const tCtx = tempCanvas.getContext('2d');
-            const scale = Math.max(512 / img.width, 224 / img.height);
+            const scale = Math.max(768 / img.width, 336 / img.height);
             const w = img.width * scale;
             const h = img.height * scale;
-            tCtx.drawImage(img, (512 - w) * 0.5, (224 - h) * 0.5, w, h);
+            tCtx.drawImage(img, (768 - w) * 0.5, (336 - h) * 0.5, w, h);
             clientConfig.droneImageUrl = tempCanvas.toDataURL('image/jpeg', 0.82);
             refreshDroneBackdropImage();
             persistStudioState();
@@ -3288,7 +3307,7 @@
         fpsAccum = 0;
       }
 
-      // Update Sky Drone Fleet flight & spinning rotors
+      // Update Sky Drone Rig hovering directly over the straight road
       updateSkyDroneRig(dt);
 
       // Smooth 30Hz Digital Overhead & Sky Drone LED Marquee Ticker Updates
@@ -3598,18 +3617,11 @@
 
       // Camera Control
       if (editorOpen && activeEditorTab === 'drone') {
-        const dPos = skyDroneSystem.rig.position;
-        const dYaw = skyDroneSystem.rig.rotation.y;
-        const normalX = Math.sin(dYaw);
-        const normalZ = Math.cos(dYaw);
-        _v1.set(dPos.x + normalX * 36, dPos.y + 3.5, dPos.z + normalZ * 36);
-        _v2.set(dPos.x, dPos.y + 2.5, dPos.z);
-
-        smoothCamPos.lerp(_v1, 1 - Math.exp(-8 * dt));
-        smoothCamLook.lerp(_v2, 1 - Math.exp(-10 * dt));
+        smoothCamPos.lerp(skyDroneSystem.previewCamPos, 1 - Math.exp(-8 * dt));
+        smoothCamLook.lerp(skyDroneSystem.previewLookAt, 1 - Math.exp(-10 * dt));
         camera.position.copy(smoothCamPos);
         camera.lookAt(smoothCamLook);
-        camera.fov += (56 - camera.fov) * (1 - Math.exp(-8 * dt));
+        camera.fov += (58 - camera.fov) * (1 - Math.exp(-8 * dt));
         camera.updateProjectionMatrix();
       } else if (editorOpen && activeEditorTab === 'overhead' && overheadGantries[0]) {
         const og = overheadGantries[0];
