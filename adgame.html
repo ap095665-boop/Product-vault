@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Apex Horizon 3D — Commercial Advergame Edition</title>
   <style>
     * {
@@ -12,17 +12,27 @@
       user-select: none;
       -webkit-user-select: none;
     }
-    body {
+    html, body {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      max-width: 100vw;
+      max-height: 100vh;
       overflow: hidden;
+      overscroll-behavior: none;
       background: #0f172a;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       color: #f8fafc;
       touch-action: none;
+      -webkit-text-size-adjust: 100%;
     }
     #game-canvas {
+      position: fixed;
+      inset: 0;
       display: block;
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
     }
 
     /* Nitro Screen Vignette */
@@ -36,96 +46,123 @@
       z-index: 4;
     }
 
-    /* HUD */
+    /* Strictly Bounded Viewport HUD (Never overflows 100vw or triggers zoom) */
     #hud {
       position: fixed;
       inset: 0;
+      width: 100%;
+      height: 100%;
+      max-width: 100vw;
+      max-height: 100vh;
+      overflow: hidden;
       pointer-events: none;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 16px;
+      padding: 12px;
       z-index: 6;
     }
     .hud-top {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 12px;
+      gap: 8px;
+      width: 100%;
+      max-width: 100%;
     }
     .hud-left-stack {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
+      min-width: 0;
+      flex: 1 1 auto;
+      max-width: calc(100% - 114px);
     }
     .hud-panel {
       background: rgba(15, 23, 42, 0.86);
       border: 1px solid rgba(255, 255, 255, 0.14);
-      border-radius: 12px;
-      padding: 9px 15px;
+      border-radius: 11px;
+      padding: 7px 11px;
+      max-width: 100%;
     }
     .stat-row {
       display: flex;
-      gap: 18px;
+      gap: 12px;
       align-items: center;
+      width: fit-content;
+      max-width: 100%;
     }
     .stat-label {
-      font-size: 10px;
+      font-size: 9px;
       text-transform: uppercase;
-      letter-spacing: 1.2px;
+      letter-spacing: 1px;
       color: #94a3b8;
       margin-bottom: 1px;
     }
     .stat-value {
-      font-size: 22px;
+      font-size: 18px;
       font-weight: 800;
       font-variant-numeric: tabular-nums;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.4px;
+      white-space: nowrap;
     }
     .stat-value span {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       color: #94a3b8;
     }
 
-    /* Score & Combo Box */
+    /* Score Panel */
     .score-panel {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
       border-color: rgba(56, 189, 248, 0.28);
+      width: fit-content;
+      max-width: 100%;
     }
     #hud-score {
       color: #38bdf8;
-      font-size: 24px;
+      font-size: 20px;
     }
     #hud-best {
       color: #facc15;
-      font-size: 16px;
+      font-size: 15px;
     }
+
+    /* Fixed-Slot Combo Badge (Uses visibility instead of display:none so layout NEVER shifts or zooms!) */
     #combo-box {
-      display: none;
+      visibility: hidden;
+      opacity: 0;
+      display: flex;
       flex-direction: column;
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.92), rgba(239, 68, 68, 0.92));
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.94), rgba(239, 68, 68, 0.94));
       border-radius: 10px;
-      padding: 6px 12px;
-      min-width: 120px;
-      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
+      padding: 5px 11px;
+      width: 148px;
+      max-width: 100%;
+      box-shadow: 0 6px 18px rgba(239, 68, 68, 0.35);
+      transition: opacity 0.12s ease-out;
+    }
+    #combo-box.active {
+      visibility: visible;
+      opacity: 1;
     }
     .combo-top {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
       font-weight: 900;
-      font-size: 15px;
+      font-size: 14px;
       color: #fff;
+      font-variant-numeric: tabular-nums;
     }
     .combo-bar-bg {
       width: 100%;
       height: 4px;
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(0, 0, 0, 0.32);
       border-radius: 99px;
-      margin-top: 4px;
+      margin-top: 3px;
       overflow: hidden;
     }
     #combo-timer-fill {
@@ -133,12 +170,13 @@
       height: 100%;
       background: #fff;
       transform-origin: left center;
+      will-change: transform;
     }
 
     /* Floating Stunt Callout */
     #callout-feed {
       position: fixed;
-      top: 23%;
+      top: 25%;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -147,88 +185,99 @@
       gap: 4px;
       pointer-events: none;
       z-index: 8;
+      max-width: 90vw;
     }
     .callout-pill {
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 900;
-      letter-spacing: 0.8px;
+      letter-spacing: 0.6px;
       text-transform: uppercase;
-      padding: 4px 14px;
+      padding: 4px 12px;
       border-radius: 999px;
       background: rgba(15, 23, 42, 0.88);
       border: 1px solid rgba(255, 255, 255, 0.25);
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+      white-space: nowrap;
       animation: popFloat 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     @keyframes popFloat {
       0% { opacity: 0; transform: translateY(10px) scale(0.85); }
-      20% { opacity: 1; transform: translateY(0) scale(1.06); }
+      20% { opacity: 1; transform: translateY(0) scale(1.05); }
       80% { opacity: 1; transform: translateY(-10px) scale(1); }
       100% { opacity: 0; transform: translateY(-22px) scale(0.95); }
     }
 
+    /* Right Cluster: Constrained so Minimap & Controls ALWAYS stay inside screen */
     .top-right-cluster {
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 8px;
+      gap: 6px;
+      flex-shrink: 0;
+      width: 106px;
     }
     .perf-bar {
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      width: 106px;
       pointer-events: auto;
-      flex-wrap: wrap;
-      justify-content: flex-end;
     }
     .pill-btn {
-      font-size: 11px;
-      font-weight: 700;
+      font-size: 9.5px;
+      font-weight: 800;
       color: #e2e8f0;
       background: rgba(30, 41, 59, 0.92);
       border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 5px 9px;
-      border-radius: 8px;
+      padding: 4px 4px;
+      border-radius: 7px;
       cursor: pointer;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .pill-btn:hover {
       border-color: #38bdf8;
       color: #fff;
     }
     .pill-btn.active-tilt {
-      background: rgba(16, 185, 129, 0.26);
+      background: rgba(16, 185, 129, 0.28);
       border-color: #34d399;
       color: #6ee7b7;
     }
     #edit-ads-hud-btn {
-      background: rgba(14, 165, 233, 0.25);
+      background: rgba(14, 165, 233, 0.28);
       border-color: rgba(56, 189, 248, 0.55);
       color: #7dd3fc;
     }
     #fps-badge {
-      font-size: 11px;
-      font-weight: 700;
+      font-size: 9.5px;
+      font-weight: 800;
       font-variant-numeric: tabular-nums;
       color: #4ade80;
       background: rgba(15, 23, 42, 0.86);
       border: 1px solid rgba(255, 255, 255, 0.14);
-      padding: 5px 9px;
-      border-radius: 8px;
+      padding: 4px 4px;
+      border-radius: 7px;
+      text-align: center;
+      white-space: nowrap;
     }
 
     #minimap {
-      width: 112px;
-      height: 112px;
+      width: 106px;
+      height: 106px;
       border-radius: 12px;
       background: rgba(15, 23, 42, 0.86);
       border: 1px solid rgba(255, 255, 255, 0.14);
+      display: block;
     }
 
     /* Live Gyroscope Horizon Tilt Meter */
     #gyro-meter {
       display: none;
-      width: 130px;
-      height: 10px;
+      width: 106px;
+      height: 8px;
       background: rgba(15, 23, 42, 0.85);
       border: 1px solid rgba(52, 211, 153, 0.45);
       border-radius: 999px;
@@ -248,8 +297,8 @@
       position: absolute;
       top: 1px;
       left: 50%;
-      width: 14px;
-      height: 6px;
+      width: 12px;
+      height: 4px;
       border-radius: 999px;
       background: #34d399;
       transform: translateX(-50%);
@@ -259,6 +308,8 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
+      width: 100%;
+      max-width: 100%;
     }
     .controls-hint {
       font-size: 11.5px;
@@ -277,25 +328,27 @@
     }
     .speed-cluster {
       text-align: right;
-      min-width: 185px;
+      min-width: 145px;
+      max-width: 48vw;
+      margin-left: auto;
     }
     .speed-num {
-      font-size: 44px;
+      font-size: 38px;
       font-weight: 900;
       line-height: 1;
       font-variant-numeric: tabular-nums;
       color: #f8fafc;
     }
     .speed-unit {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       letter-spacing: 2px;
       color: #38bdf8;
-      margin-bottom: 7px;
+      margin-bottom: 6px;
     }
     .nitro-bar-bg {
       width: 100%;
-      height: 9px;
+      height: 8px;
       background: rgba(255, 255, 255, 0.14);
       border-radius: 999px;
       overflow: hidden;
@@ -325,6 +378,8 @@
     #overlay {
       position: fixed;
       inset: 0;
+      width: 100%;
+      height: 100%;
       background: rgba(2, 6, 23, 0.84);
       display: flex;
       align-items: center;
@@ -338,12 +393,12 @@
       background: #0f172a;
       border: 1px solid rgba(255, 255, 255, 0.16);
       border-radius: 20px;
-      padding: 26px 24px;
+      padding: 24px 20px;
       text-align: center;
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
     }
     .modal h1 {
-      font-size: 26px;
+      font-size: 25px;
       font-weight: 900;
       margin-bottom: 8px;
       color: #38bdf8;
@@ -353,7 +408,7 @@
       color: #cbd5e1;
       font-size: 13.5px;
       line-height: 1.5;
-      margin-bottom: 16px;
+      margin-bottom: 15px;
     }
 
     /* Promo Challenge & Coupon Voucher Cards */
@@ -361,8 +416,8 @@
       background: linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(56, 189, 248, 0.16));
       border: 1px solid rgba(250, 204, 21, 0.45);
       border-radius: 12px;
-      padding: 10px 14px;
-      margin-bottom: 16px;
+      padding: 10px 12px;
+      margin-bottom: 15px;
       font-size: 13px;
       color: #fef08a;
     }
@@ -373,8 +428,8 @@
 
     .coupon-card {
       border-radius: 14px;
-      padding: 14px 16px;
-      margin-bottom: 16px;
+      padding: 14px 14px;
+      margin-bottom: 15px;
       text-align: center;
     }
     .coupon-unlocked {
@@ -413,7 +468,7 @@
       font-size: 20px;
       font-weight: 900;
       letter-spacing: 2px;
-      padding: 6px 16px;
+      padding: 6px 14px;
       border-radius: 8px;
       user-select: all;
       -webkit-user-select: all;
@@ -438,23 +493,23 @@
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 12px;
       padding: 10px;
-      margin-bottom: 16px;
+      margin-bottom: 15px;
       display: flex;
       justify-content: space-around;
     }
     .quality-picker {
       display: flex;
       justify-content: center;
-      gap: 8px;
-      margin-bottom: 18px;
+      gap: 6px;
+      margin-bottom: 16px;
     }
     .q-btn {
       background: #1e293b;
       color: #94a3b8;
       border: 1px solid rgba(255, 255, 255, 0.14);
       border-radius: 8px;
-      padding: 8px 13px;
-      font-size: 11.5px;
+      padding: 8px 11px;
+      font-size: 11px;
       font-weight: 700;
       cursor: pointer;
     }
@@ -474,7 +529,7 @@
       color: white;
       border: none;
       border-radius: 12px;
-      padding: 13px 24px;
+      padding: 13px 20px;
       font-size: 15px;
       font-weight: 800;
       cursor: pointer;
@@ -705,9 +760,10 @@
     #touch-controls {
       display: none;
       position: fixed;
-      bottom: 18px;
-      left: 18px;
-      right: 18px;
+      bottom: 14px;
+      left: 12px;
+      right: 12px;
+      max-width: calc(100vw - 24px);
       justify-content: space-between;
       align-items: flex-end;
       z-index: 15;
@@ -715,18 +771,18 @@
     }
     .touch-group {
       display: flex;
-      gap: 12px;
+      gap: 8px;
       align-items: center;
       pointer-events: auto;
     }
     .touch-btn {
-      width: 66px;
-      height: 66px;
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
       background: rgba(15, 23, 42, 0.84);
       border: 2px solid rgba(255, 255, 255, 0.28);
       color: #fff;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 900;
       display: flex;
       align-items: center;
@@ -738,10 +794,10 @@
       border-color: #38bdf8;
     }
     .touch-btn-big {
-      width: 78px;
-      height: 78px;
-      font-size: 14px;
-      letter-spacing: 0.6px;
+      width: 72px;
+      height: 72px;
+      font-size: 13px;
+      letter-spacing: 0.5px;
     }
     #t-drift-gyro {
       background: linear-gradient(135deg, rgba(245, 158, 11, 0.35), rgba(239, 68, 68, 0.35));
@@ -751,12 +807,12 @@
     #t-nitro {
       background: linear-gradient(135deg, rgba(14, 165, 233, 0.4), rgba(79, 70, 229, 0.4));
       border-color: rgba(56, 189, 248, 0.75);
-      font-size: 24px;
+      font-size: 22px;
     }
     #t-brake {
-      width: 52px;
-      height: 52px;
-      font-size: 11px;
+      width: 48px;
+      height: 48px;
+      font-size: 10px;
       color: #fca5a5;
       border-color: rgba(248, 113, 113, 0.45);
     }
@@ -764,7 +820,7 @@
     @media (pointer: coarse) {
       #touch-controls { display: flex; }
       .controls-hint { display: none; }
-      .speed-cluster { margin-bottom: 92px; }
+      .speed-cluster { margin-bottom: 84px; }
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -806,14 +862,15 @@
             <div class="stat-label">Best</div>
             <div class="stat-value" id="hud-best">0</div>
           </div>
-          <div id="combo-box">
-            <div class="combo-top">
-              <span id="combo-mult">2x</span>
-              <span id="combo-pts">+0</span>
-            </div>
-            <div class="combo-bar-bg">
-              <div id="combo-timer-fill"></div>
-            </div>
+        </div>
+
+        <div id="combo-box">
+          <div class="combo-top">
+            <span id="combo-mult">2x</span>
+            <span id="combo-pts">+0</span>
+          </div>
+          <div class="combo-bar-bg">
+            <div id="combo-timer-fill"></div>
           </div>
         </div>
       </div>
@@ -823,13 +880,13 @@
           <button class="pill-btn" id="gyro-btn" title="Toggle Tilt-to-Steer Gyroscope">TILT: OFF</button>
           <button class="pill-btn" id="edit-ads-hud-btn" title="Open Shop & Billboard Studio (B)">STUDIO</button>
           <div id="fps-badge">60 FPS</div>
-          <button class="pill-btn" id="gfx-btn" title="Switch Graphics Quality (G)">GFX: SMOOTH</button>
+          <button class="pill-btn" id="gfx-btn" title="Switch Graphics Quality (G)">SMOOTH</button>
         </div>
         <div id="gyro-meter" title="Tilt Balance">
           <div id="gyro-center-tick"></div>
           <div id="gyro-dot"></div>
         </div>
-        <canvas id="minimap" width="112" height="112"></canvas>
+        <canvas id="minimap" width="106" height="106"></canvas>
       </div>
     </div>
 
@@ -879,18 +936,88 @@
     </div>
 
     <div class="editor-tabs">
-      <button class="tab-btn active" data-tab="billboards">1. SIGNS (9)</button>
-      <button class="tab-btn" data-tab="overhead">2. ROAD LED</button>
-      <button class="tab-btn" data-tab="drone">3. SKY DRONE</button>
+      <button class="tab-btn active" data-tab="drone">1. SKY ADS (3)</button>
+      <button class="tab-btn" data-tab="billboards">2. BRIDGES (9)</button>
+      <button class="tab-btn" data-tab="overhead">3. ROAD LED</button>
       <button class="tab-btn" data-tab="shop">4. SHOP</button>
     </div>
 
     <div class="editor-body">
-      <!-- TAB 1: OVERHEAD STRAIGHT-ROAD BILLBOARDS (9) -->
-      <div class="tab-pane active" id="pane-billboards">
+      <!-- TAB 1 (PRIORITY): SKY DRONE FLEETS LIFTING GIANT LED SCREENS IN OPEN AREAS -->
+      <div class="tab-pane active" id="pane-drone">
         <div class="field-group">
           <label class="field-label">
-            <span>Select Overhead Road Billboard</span>
+            <span>Select Open-Sky Drone Fleet</span>
+            <span id="drone-index-badge">1 / 3</span>
+          </label>
+          <select class="editor-select" id="drone-select">
+            <option value="0">#1 — Main Straight Open Sky</option>
+            <option value="1">#2 — Open South Panorama Sky</option>
+            <option value="2">#3 — Open Southwest Return Sky</option>
+          </select>
+        </div>
+
+        <div class="preview-box">
+          <canvas id="drone-preview-canvas" width="768" height="336"></canvas>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Sky Banner Headline</label>
+          <input class="editor-input" id="cfg-drone-title" type="text" maxlength="22" placeholder="e.g. MEGA WEEKEND SALE" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Moving Sky Ticker Text</label>
+          <input class="editor-input" id="cfg-drone-ticker" type="text" maxlength="140" placeholder="★ FLAT 20% OFF TODAY • VISIT OUR STORE ★" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Drone LED Accent Color</label>
+          <div class="preset-swatches">
+            <button class="swatch-btn drone-swatch" data-c="#38bdf8" style="background:#0c4a6e;border-color:#38bdf8;color:#38bdf8;">CYAN</button>
+            <button class="swatch-btn drone-swatch" data-c="#facc15" style="background:#422006;border-color:#facc15;color:#facc15;">GOLD</button>
+            <button class="swatch-btn drone-swatch" data-c="#f472b6" style="background:#500724;border-color:#f472b6;color:#f472b6;">PINK</button>
+            <button class="swatch-btn drone-swatch" data-c="#4ade80" style="background:#052e16;border-color:#4ade80;color:#4ade80;">VOLT</button>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="field-group">
+            <label class="field-label">Custom LED Glow</label>
+            <label class="color-chip" style="height:38px;">Glow <input type="color" id="cfg-drone-color" /></label>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Quick Sync</label>
+            <button class="mini-btn" id="drone-sync-offer-btn" style="height:38px;">SYNC OFFER ⚡</button>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Aerial Backdrop Photo / Logo (Optional)</label>
+          <input class="editor-input" id="cfg-drone-img-url" type="text" placeholder="Paste image URL or upload below" />
+          <div class="img-actions">
+            <label class="mini-btn" style="cursor:pointer;">
+              UPLOAD IMAGE
+              <input type="file" id="cfg-drone-img-file" accept="image/*" style="display:none;" />
+            </label>
+            <button class="mini-btn" id="cfg-drone-clear-img">CLEAR IMAGE</button>
+          </div>
+        </div>
+
+        <div class="footer-row">
+          <button class="mini-btn" id="drone-apply-all">APPLY TO ALL 3 SKY ADS</button>
+        </div>
+
+        <div class="info-box">
+          <strong>Priority Open-Sky Fleet (3x):</strong> Three separate Quad-Drone fleets lift colossal <strong>64m × 25m</strong> double-sided LED screens in the wide-open sky zones where road bridges are absent!
+        </div>
+      </div>
+
+      <!-- TAB 2: OVERHEAD STRAIGHT-ROAD BILLBOARDS (9) -->
+      <div class="tab-pane" id="pane-billboards">
+        <div class="field-group">
+          <label class="field-label">
+            <span>Select Overhead Road Bridge</span>
             <span id="bb-index-badge">1 / 9</span>
           </label>
           <select class="editor-select" id="bb-select">
@@ -900,8 +1027,8 @@
             <option value="3">#4 — North Straight Bridge 2</option>
             <option value="4">#5 — East Straight Bridge 1</option>
             <option value="5">#6 — East Straight Bridge 2</option>
-            <option value="6">#7 — Southeast Straight Bridge</option>
-            <option value="7">#8 — South Straight Bridge</option>
+            <option value="6">#7 — East Straight Bridge 3</option>
+            <option value="7">#8 — Southeast Straight Bridge</option>
             <option value="8">#9 — Final Straight Bridge</option>
           </select>
         </div>
@@ -955,13 +1082,9 @@
           <button class="mini-btn" id="bb-apply-all">APPLY TO ALL 9</button>
           <button class="mini-btn" id="bb-reset-all">RESET SIGNS</button>
         </div>
-
-        <div class="info-box">
-          <strong>Overhead Straight-Road Bridges (9x):</strong> All 9 billboards span directly across straight road stretches with 7.0m clearance so cars drive right underneath!
-        </div>
       </div>
 
-      <!-- TAB 2: OVERHEAD DIGITAL LED GANTRY -->
+      <!-- TAB 3: OVERHEAD DIGITAL LED GANTRY -->
       <div class="tab-pane" id="pane-overhead">
         <div class="preview-box">
           <canvas id="led-preview-canvas" width="512" height="96"></canvas>
@@ -998,64 +1121,6 @@
         </div>
 
         <button class="mini-btn" id="led-sync-offer-btn">AUTO-FILL FROM SHOP OFFER &amp; CODE ⚡</button>
-
-        <div class="info-box">
-          <strong>Overhead Road LED Tickers (2x):</strong> Mounted above straight road sections so racers drive cleanly underneath while reading your scrolling marquee!
-        </div>
-      </div>
-
-      <!-- TAB 3: SKY DRONE LIFTING GIANT LED SCREEN ABOVE STRAIGHT ROAD -->
-      <div class="tab-pane" id="pane-drone">
-        <div class="preview-box">
-          <canvas id="drone-preview-canvas" width="768" height="336"></canvas>
-        </div>
-
-        <div class="field-group">
-          <label class="field-label">Sky Banner Headline</label>
-          <input class="editor-input" id="cfg-drone-title" type="text" maxlength="22" placeholder="e.g. MEGA WEEKEND SALE" />
-        </div>
-
-        <div class="field-group">
-          <label class="field-label">Moving Sky Ticker Text</label>
-          <input class="editor-input" id="cfg-drone-ticker" type="text" maxlength="140" placeholder="★ FLAT 20% OFF TODAY • VISIT OUR STORE ★" />
-        </div>
-
-        <div class="field-group">
-          <label class="field-label">Drone LED Accent Color</label>
-          <div class="preset-swatches">
-            <button class="swatch-btn drone-swatch" data-c="#38bdf8" style="background:#0c4a6e;border-color:#38bdf8;color:#38bdf8;">CYAN</button>
-            <button class="swatch-btn drone-swatch" data-c="#facc15" style="background:#422006;border-color:#facc15;color:#facc15;">GOLD</button>
-            <button class="swatch-btn drone-swatch" data-c="#f472b6" style="background:#500724;border-color:#f472b6;color:#f472b6;">PINK</button>
-            <button class="swatch-btn drone-swatch" data-c="#4ade80" style="background:#052e16;border-color:#4ade80;color:#4ade80;">VOLT</button>
-          </div>
-        </div>
-
-        <div class="two-col">
-          <div class="field-group">
-            <label class="field-label">Custom LED Glow</label>
-            <label class="color-chip" style="height:38px;">Glow <input type="color" id="cfg-drone-color" /></label>
-          </div>
-          <div class="field-group">
-            <label class="field-label">Quick Sync</label>
-            <button class="mini-btn" id="drone-sync-offer-btn" style="height:38px;">SYNC OFFER ⚡</button>
-          </div>
-        </div>
-
-        <div class="field-group">
-          <label class="field-label">Aerial Backdrop Photo / Logo (Optional)</label>
-          <input class="editor-input" id="cfg-drone-img-url" type="text" placeholder="Paste image URL or upload below" />
-          <div class="img-actions">
-            <label class="mini-btn" style="cursor:pointer;">
-              UPLOAD IMAGE
-              <input type="file" id="cfg-drone-img-file" accept="image/*" style="display:none;" />
-            </label>
-            <button class="mini-btn" id="cfg-drone-clear-img">CLEAR IMAGE</button>
-          </div>
-        </div>
-
-        <div class="info-box">
-          <strong>High-Altitude Sky Display:</strong> 4 heavy-lift drones suspend a colossal <strong>62m × 24m</strong> double-sided LED screen at <strong>36.5m altitude</strong> above the far end of the main straight—visible from far away!
-        </div>
       </div>
 
       <!-- TAB 4: SHOP BRANDING & COUPON REWARD -->
@@ -1101,7 +1166,6 @@
 
   <!-- MOBILE TWO-THUMB / GYRO CONTROLS -->
   <div id="touch-controls">
-    <!-- Left Thumb: Drift button when Tilt-to-Steer is ON, or Left/Right Arrows if Tilt is OFF -->
     <div class="touch-group" id="touch-left-arrows">
       <div class="touch-btn" id="t-left">◀</div>
       <div class="touch-btn" id="t-right">▶</div>
@@ -1110,7 +1174,6 @@
       <div class="touch-btn touch-btn-big" id="t-drift-gyro">DRIFT</div>
     </div>
 
-    <!-- Right Thumb: Auto-Gas is active on mobile, so right thumb controls Drift/Brake + Nitro -->
     <div class="touch-group">
       <div class="touch-btn" id="t-drift-fallback" style="font-size:12px;">DRIFT</div>
       <div class="touch-btn" id="t-brake">BRAKE</div>
@@ -1131,12 +1194,29 @@
       ledText: '★ WELCOME TO APEX HORIZON 3D • SCORE 5,000+ PTS FOR 15% OFF (CODE: RACE15) • TILT & DRIFT FOR NITRO ★',
       ledColor: '#38bdf8',
       ledSpeed: 125,
-      droneTitle: 'SKY ARENA LIVE',
-      droneTicker: '★ SCORE 5,000+ PTS TO UNLOCK 15% OFF • USE CODE: RACE15 AT COUNTER ★',
-      droneColor: '#facc15',
-      droneImageUrl: '',
       lockEditor: false
     };
+
+    const DEFAULT_SKY_DRONES = [
+      {
+        title: 'SKY ARENA LIVE',
+        ticker: '★ SCORE 5,000+ PTS TO UNLOCK 15% OFF • USE CODE: RACE15 AT COUNTER ★',
+        color: '#facc15',
+        imageUrl: ''
+      },
+      {
+        title: 'MEGA COMBO DEAL',
+        ticker: '★ GRAB GOLD COINS & DRIFT CORNERS FOR 10X MULTIPLIER BONUS ★',
+        color: '#38bdf8',
+        imageUrl: ''
+      },
+      {
+        title: 'FINAL LAP SPRINT',
+        ticker: '★ HIT NITRO ⚡ ON THE STRAIGHT TO CLAIM YOUR REWARD VOUCHER ★',
+        color: '#f472b6',
+        imageUrl: ''
+      }
+    ];
 
     const DEFAULT_BILLBOARDS = [
       { title: 'HYPER NITRO', subtitle: 'BOOST BEYOND LIMITS ⚡', bg1: '#0f172a', bg2: '#0369a1', accent: '#38bdf8', imageUrl: '' },
@@ -1152,6 +1232,7 @@
 
     // === CLIENT_CONFIG_START ===
     const BAKED_CLIENT_CONFIG = null;
+    const BAKED_SKY_DRONES = null;
     const BAKED_BILLBOARDS = null;
     // === CLIENT_CONFIG_END ===
 
@@ -1168,12 +1249,25 @@
         return { ...DEFAULT_CLIENT_CONFIG, ...BAKED_CLIENT_CONFIG };
       }
       try {
-        const saved = JSON.parse(localStorage.getItem('apex_horizon_client_cfg_v3'));
+        const saved = JSON.parse(localStorage.getItem('apex_horizon_client_cfg_v4'));
         if (saved && typeof saved === 'object') {
           return { ...DEFAULT_CLIENT_CONFIG, ...saved };
         }
       } catch (e) {}
       return { ...DEFAULT_CLIENT_CONFIG };
+    }
+
+    function loadSkyDroneData() {
+      if (Array.isArray(BAKED_SKY_DRONES) && BAKED_SKY_DRONES.length === 3) {
+        return BAKED_SKY_DRONES.map((d, i) => ({ ...DEFAULT_SKY_DRONES[i], ...d }));
+      }
+      try {
+        const saved = JSON.parse(localStorage.getItem('apex_horizon_sky_drones_v1'));
+        if (Array.isArray(saved) && saved.length === 3) {
+          return saved.map((d, i) => ({ ...DEFAULT_SKY_DRONES[i], ...d }));
+        }
+      } catch (e) {}
+      return DEFAULT_SKY_DRONES.map(d => ({ ...d }));
     }
 
     function loadBillboardData() {
@@ -1190,13 +1284,15 @@
     }
 
     let clientConfig = loadClientConfig();
+    let skyDroneData = loadSkyDroneData();
     let billboardData = loadBillboardData();
     const IS_LOCKED_CLIENT = Boolean(clientConfig.lockEditor);
 
     function persistStudioState() {
       if (IS_LOCKED_CLIENT) return;
       try {
-        localStorage.setItem('apex_horizon_client_cfg_v3', JSON.stringify(clientConfig));
+        localStorage.setItem('apex_horizon_client_cfg_v4', JSON.stringify(clientConfig));
+        localStorage.setItem('apex_horizon_sky_drones_v1', JSON.stringify(skyDroneData));
         localStorage.setItem('apex_horizon_billboards_v1', JSON.stringify(billboardData));
       } catch (e) {}
     }
@@ -1259,9 +1355,9 @@
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x87ceeb);
-    scene.fog = new THREE.Fog(0x9bd5f0, 180, 660);
+    scene.fog = new THREE.Fog(0x9bd5f0, 200, 700);
 
-    const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.8, 720);
+    const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.8, 760);
 
     const _v1 = new THREE.Vector3();
     const _v2 = new THREE.Vector3();
@@ -1274,9 +1370,9 @@
     scene.add(dirLight);
 
     const QUALITY_LEVELS = [
-      { name: 'SMOOTH', dprCap: 1.0, far: 660, shadows: false },
-      { name: 'BALANCED', dprCap: 1.35, far: 760, shadows: false },
-      { name: 'HIGH', dprCap: 1.75, far: 880, shadows: true }
+      { name: 'SMOOTH', dprCap: 1.0, far: 700, shadows: false },
+      { name: 'BALANCED', dprCap: 1.35, far: 800, shadows: false },
+      { name: 'HIGH', dprCap: 1.75, far: 920, shadows: true }
     ];
     let currentQuality = 0;
 
@@ -1302,7 +1398,7 @@
         dirLight.shadow.camera.bottom = -d;
       }
 
-      document.getElementById('gfx-btn').textContent = `GFX: ${q.name}`;
+      document.getElementById('gfx-btn').textContent = q.name;
       document.querySelectorAll('.q-btn').forEach((btn, idx) => {
         btn.classList.toggle('active', idx === currentQuality);
       });
@@ -1473,7 +1569,7 @@
     const carShadowTex = createShadowBlobTexture();
 
     // ==========================================
-    // 3. CIRCUIT TRACK, OVERHEAD BILLBOARDS, LED & SKY DRONE
+    // 3. CIRCUIT TRACK, COLLECTIBLES, SKY DRONES & BRIDGES
     // ==========================================
     const controlPoints = [
       new THREE.Vector3(0, 0, 0),
@@ -1605,14 +1701,13 @@
     })();
 
     // ==========================================
-    // 3B. COLLECTIBLE GOLD SCORE COINS & CYAN NITRO ORBS (2 INSTANCED DRAW CALLS!)
+    // 3B. COLLECTIBLE GOLD SCORE COINS & CYAN NITRO ORBS
     // ==========================================
     const collectibles = [];
     const coinList = [];
     const orbList = [];
 
     (function createTrackCollectibles() {
-      // Scatter weaving lines of Gold Score Coins and Cyan Nitro Orbs across the entire track
       for (let idx = 16; idx < N - 18; idx += 11) {
         const wave = Math.sin(idx * 0.055) * 7.8;
         const isNitroOrb = (idx % 33 === 0);
@@ -1671,7 +1766,6 @@
           }
         }
 
-        // Check player pickup
         if (gameState === 'RACING') {
           const dx = player.pos.x - c.x;
           const dz = player.pos.z - c.z;
@@ -1785,7 +1879,7 @@
     const overheadGantries = [];
 
     (function createOverheadLedGantries() {
-      const gantryIndices = [52, 298];
+      const gantryIndices = [48, 292];
       const pillarGeo = new THREE.CylinderGeometry(0.55, 0.68, 9.5, 8);
       const baseFootGeo = new THREE.BoxGeometry(1.8, 0.7, 1.8);
       const steelMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
@@ -1897,52 +1991,41 @@
     ledTex.needsUpdate = true;
 
     // ==========================================
-    // 3D. HIGH-ALTITUDE GIANT SKY DRONE LED BILLBOARD
+    // 3D. 3 GIANT QUAD-DRONE SKY LED BILLBOARDS IN OPEN AREAS (PRIORITY SKY ADS!)
     // ==========================================
-    const droneLedCanvas = document.createElement('canvas');
-    droneLedCanvas.width = 768;
-    droneLedCanvas.height = 336;
-    const droneLedTex = new THREE.CanvasTexture(droneLedCanvas);
-    droneLedTex.anisotropy = 4;
+    const skyDroneSystems = [];
 
-    let droneCachedBgImg = null;
-    let droneCachedBgUrl = '';
-    let droneScrollX = 768;
-    let droneTickerWidth = 950;
-    let cachedDroneMeasureStr = '';
-
-    function refreshDroneBackdropImage() {
-      const url = (clientConfig.droneImageUrl || '').trim();
-      if (url === droneCachedBgUrl) return;
-      droneCachedBgUrl = url;
-      droneCachedBgImg = null;
+    function loadDroneImageForSlot(slot) {
+      const url = (skyDroneData[slot.index].imageUrl || '').trim();
+      if (url === slot.cachedBgUrl) return;
+      slot.cachedBgUrl = url;
+      slot.cachedBgImg = null;
       if (!url) return;
 
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.onload = () => {
-        if (droneCachedBgUrl === url) droneCachedBgImg = img;
+        if (slot.cachedBgUrl === url) slot.cachedBgImg = img;
       };
       img.onerror = () => {
         const fallbackImg = new Image();
         fallbackImg.onload = () => {
-          if (droneCachedBgUrl === url) droneCachedBgImg = fallbackImg;
+          if (slot.cachedBgUrl === url) slot.cachedBgImg = fallbackImg;
         };
         fallbackImg.src = url;
       };
       img.src = url;
     }
 
-    refreshDroneBackdropImage();
-
-    function renderSkyDroneCanvas(targetCanvas, dt) {
-      if (!targetCanvas) return;
+    function renderSkyDroneSlotCanvas(targetCanvas, slot, dt) {
+      if (!targetCanvas || !slot) return;
+      const cfg = skyDroneData[slot.index];
       const ctx = targetCanvas.getContext('2d');
       const w = targetCanvas.width;
       const h = targetCanvas.height;
-      const glowColor = clientConfig.droneColor || '#facc15';
-      const titleText = (clientConfig.droneTitle || 'SKY ARENA LIVE').trim();
-      const rawTicker = (clientConfig.droneTicker || 'WELCOME TO APEX HORIZON 3D').trim() || 'WELCOME TO APEX HORIZON 3D';
+      const glowColor = cfg.color || '#facc15';
+      const titleText = (cfg.title || 'SKY ARENA LIVE').trim();
+      const rawTicker = (cfg.ticker || 'WELCOME TO APEX HORIZON 3D').trim() || 'WELCOME TO APEX HORIZON 3D';
       const tickerMsg = `${rawTicker}     ★     `;
 
       const grad = ctx.createLinearGradient(0, 0, w, h);
@@ -1952,11 +2035,11 @@
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, w, h);
 
-      if (droneCachedBgImg) {
-        const scale = Math.max(w / droneCachedBgImg.width, h / droneCachedBgImg.height);
-        const iw = droneCachedBgImg.width * scale;
-        const ih = droneCachedBgImg.height * scale;
-        ctx.drawImage(droneCachedBgImg, (w - iw) * 0.5, (h - ih) * 0.5, iw, ih);
+      if (slot.cachedBgImg) {
+        const scale = Math.max(w / slot.cachedBgImg.width, h / slot.cachedBgImg.height);
+        const iw = slot.cachedBgImg.width * scale;
+        const ih = slot.cachedBgImg.height * scale;
+        ctx.drawImage(slot.cachedBgImg, (w - iw) * 0.5, (h - ih) * 0.5, iw, ih);
         ctx.fillStyle = 'rgba(2, 6, 23, 0.48)';
         ctx.fillRect(0, 0, w, h);
       }
@@ -1967,7 +2050,7 @@
       ctx.font = '900 18px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('● LIVE AERIAL SKY SCREEN ●', w * 0.5, 33);
+      ctx.fillText(`● AERIAL SKY SCREEN #${slot.index + 1} ●`, w * 0.5, 33);
 
       if (titleText) {
         ctx.fillStyle = '#ffffff';
@@ -1988,25 +2071,25 @@
       ctx.fillRect(14, bandY, w - 28, 4);
 
       ctx.font = '900 36px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
-      if (cachedDroneMeasureStr !== tickerMsg) {
-        cachedDroneMeasureStr = tickerMsg;
-        droneTickerWidth = Math.max(300, ctx.measureText(tickerMsg).width);
+      if (slot.cachedMeasureStr !== tickerMsg) {
+        slot.cachedMeasureStr = tickerMsg;
+        slot.tickerWidth = Math.max(300, ctx.measureText(tickerMsg).width);
       }
 
       if (dt > 0) {
-        droneScrollX -= 165 * dt;
-        if (droneScrollX <= -droneTickerWidth) {
-          droneScrollX += droneTickerWidth;
+        slot.scrollX -= 165 * dt;
+        if (slot.scrollX <= -slot.tickerWidth) {
+          slot.scrollX += slot.tickerWidth;
         }
       }
 
       ctx.fillStyle = glowColor;
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
-      let drawX = Math.floor(droneScrollX);
+      let drawX = Math.floor(slot.scrollX);
       while (drawX < w) {
         ctx.fillText(tickerMsg, drawX, bandY + 35);
-        drawX += droneTickerWidth;
+        drawX += slot.tickerWidth;
       }
 
       ctx.strokeStyle = glowColor;
@@ -2019,151 +2102,178 @@
       }
     }
 
-    renderSkyDroneCanvas(droneLedCanvas, 0);
-    droneLedTex.needsUpdate = true;
-
-    const skyDroneSystem = (function createSkyDroneRig() {
-      const rig = new THREE.Group();
-      const screenTiltGroup = new THREE.Group();
-      const rotors = [];
-
-      const straightIdx = 84;
-      const anchorPt = trackPoints[straightIdx];
-      const anchorTan = trackTangents[straightIdx];
-      const faceAngle = Math.atan2(-anchorTan.x, -anchorTan.z);
-      const normalX = Math.sin(faceAngle);
-      const normalZ = Math.cos(faceAngle);
-
-      const screenW = 62;
-      const screenH = 24;
-      const baseHeightY = 36.5;
-
-      const cabinetMat = new THREE.MeshLambertMaterial({ color: 0x070b14, fog: false });
-      const glowFrameMat = new THREE.MeshBasicMaterial({ color: clientConfig.droneColor || '#facc15', fog: false });
-      const screenMat = new THREE.MeshBasicMaterial({ map: droneLedTex, fog: false });
-
-      const cabinet = new THREE.Mesh(new THREE.BoxGeometry(screenW + 1.8, screenH + 1.8, 1.5), cabinetMat);
-      screenTiltGroup.add(cabinet);
-
-      const topTruss = new THREE.Mesh(new THREE.BoxGeometry(screenW + 3.2, 0.95, 2.2), glowFrameMat);
-      topTruss.position.y = screenH * 0.5 + 0.95;
-      const botTruss = topTruss.clone();
-      botTruss.position.y = -screenH * 0.5 - 0.95;
-      screenTiltGroup.add(topTruss, botTruss);
-
-      const faceGeo = new THREE.PlaneGeometry(screenW, screenH);
-      const frontFace = new THREE.Mesh(faceGeo, screenMat);
-      frontFace.position.z = 0.8;
-      const backFace = new THREE.Mesh(faceGeo, screenMat);
-      backFace.position.z = -0.8;
-      backFace.rotation.y = Math.PI;
-      screenTiltGroup.add(frontFace, backFace);
-
-      screenTiltGroup.rotation.x = 0.16;
-      rig.add(screenTiltGroup);
-
-      const droneOffsets = [
-        [-25, 18.2, 1.8],
-        [25, 18.2, 1.8],
-        [-25, 18.2, -1.8],
-        [25, 18.2, -1.8]
+    (function createAllSkyDroneRigs() {
+      // Three wide-open sky zones where road bridges are absent so Sky Ads dominate the skyline!
+      const skyPlacements = [
+        { idx: 84, heightY: 36.5 },  // #1: Main Straight Open Sky (into Turn 1)
+        { idx: 416, heightY: 37.5 }, // #2: Wide-Open South Panorama Sky (zero bridges!)
+        { idx: 486, heightY: 37.0 }  // #3: Wide-Open Southwest Return Sky (zero bridges!)
       ];
 
+      const screenW = 64;
+      const screenH = 25;
+
+      const cabinetGeo = new THREE.BoxGeometry(screenW + 1.8, screenH + 1.8, 1.5);
+      const trussGeo = new THREE.BoxGeometry(screenW + 3.2, 0.95, 2.2);
+      const faceGeo = new THREE.PlaneGeometry(screenW, screenH);
       const droneBodyGeo = new THREE.BoxGeometry(4.2, 1.25, 4.2);
       const droneArmGeo = new THREE.BoxGeometry(7.8, 0.3, 0.36);
       const rotorDiscGeo = new THREE.CylinderGeometry(2.1, 2.1, 0.08, 12);
       const cableGeo = new THREE.CylinderGeometry(0.1, 0.1, 6.2, 5);
+      const beaconGeo = new THREE.SphereGeometry(0.4, 6, 6);
 
+      const cabinetMat = new THREE.MeshLambertMaterial({ color: 0x070b14, fog: false });
       const droneMat = new THREE.MeshLambertMaterial({ color: 0x1e293b, fog: false });
       const rotorMat = new THREE.MeshBasicMaterial({ color: 0xe2e8f0, transparent: true, opacity: 0.65, fog: false });
       const cableMat = new THREE.MeshBasicMaterial({ color: 0xcbd5e1, fog: false });
       const beaconRedMat = new THREE.MeshBasicMaterial({ color: 0xef4444, fog: false });
-      const beaconGeo = new THREE.SphereGeometry(0.4, 6, 6);
 
-      droneOffsets.forEach(([dx, dy, dz]) => {
-        const drone = new THREE.Group();
-        drone.position.set(dx, dy, dz);
+      const droneOffsets = [
+        [-26, 18.8, 1.8],
+        [26, 18.8, 1.8],
+        [-26, 18.8, -1.8],
+        [26, 18.8, -1.8]
+      ];
 
-        const body = new THREE.Mesh(droneBodyGeo, droneMat);
-        drone.add(body);
+      const rotorCoords = [
+        [-2.7, 0.38, -2.7],
+        [2.7, 0.38, -2.7],
+        [-2.7, 0.38, 2.7],
+        [2.7, 0.38, 2.7]
+      ];
 
-        const bellyLight = new THREE.Mesh(beaconGeo, glowFrameMat);
-        bellyLight.position.y = -0.75;
-        const topBeacon = new THREE.Mesh(beaconGeo, beaconRedMat);
-        topBeacon.position.y = 0.82;
-        drone.add(bellyLight, topBeacon);
+      skyPlacements.forEach((place, i) => {
+        const dCanvas = document.createElement('canvas');
+        dCanvas.width = 768;
+        dCanvas.height = 336;
+        const dTex = new THREE.CanvasTexture(dCanvas);
+        dTex.anisotropy = 4;
 
-        const arm1 = new THREE.Mesh(droneArmGeo, droneMat);
-        arm1.rotation.y = Math.PI / 4;
-        const arm2 = new THREE.Mesh(droneArmGeo, droneMat);
-        arm2.rotation.y = -Math.PI / 4;
-        drone.add(arm1, arm2);
+        const glowFrameMat = new THREE.MeshBasicMaterial({ color: skyDroneData[i].color || '#facc15', fog: false });
+        const screenMat = new THREE.MeshBasicMaterial({ map: dTex, fog: false });
 
-        const rotorCoords = [
-          [-2.7, 0.38, -2.7],
-          [2.7, 0.38, -2.7],
-          [-2.7, 0.38, 2.7],
-          [2.7, 0.38, 2.7]
-        ];
-        rotorCoords.forEach(([rx, ry, rz]) => {
-          const rotor = new THREE.Mesh(rotorDiscGeo, rotorMat);
-          rotor.position.set(rx, ry, rz);
-          drone.add(rotor);
-          rotors.push(rotor);
+        const rig = new THREE.Group();
+        const screenTiltGroup = new THREE.Group();
+        const rotors = [];
+
+        const cabinet = new THREE.Mesh(cabinetGeo, cabinetMat);
+        screenTiltGroup.add(cabinet);
+
+        const topTruss = new THREE.Mesh(trussGeo, glowFrameMat);
+        topTruss.position.y = screenH * 0.5 + 0.95;
+        const botTruss = topTruss.clone();
+        botTruss.position.y = -screenH * 0.5 - 0.95;
+        screenTiltGroup.add(topTruss, botTruss);
+
+        const frontFace = new THREE.Mesh(faceGeo, screenMat);
+        frontFace.position.z = 0.8;
+        const backFace = new THREE.Mesh(faceGeo, screenMat);
+        backFace.position.z = -0.8;
+        backFace.rotation.y = Math.PI;
+        screenTiltGroup.add(frontFace, backFace);
+
+        screenTiltGroup.rotation.x = 0.16;
+        rig.add(screenTiltGroup);
+
+        droneOffsets.forEach(([dx, dy, dz]) => {
+          const drone = new THREE.Group();
+          drone.position.set(dx, dy, dz);
+
+          drone.add(new THREE.Mesh(droneBodyGeo, droneMat));
+
+          const bellyLight = new THREE.Mesh(beaconGeo, glowFrameMat);
+          bellyLight.position.y = -0.75;
+          const topBeacon = new THREE.Mesh(beaconGeo, beaconRedMat);
+          topBeacon.position.y = 0.82;
+          drone.add(bellyLight, topBeacon);
+
+          const arm1 = new THREE.Mesh(droneArmGeo, droneMat);
+          arm1.rotation.y = Math.PI / 4;
+          const arm2 = new THREE.Mesh(droneArmGeo, droneMat);
+          arm2.rotation.y = -Math.PI / 4;
+          drone.add(arm1, arm2);
+
+          rotorCoords.forEach(([rx, ry, rz]) => {
+            const rotor = new THREE.Mesh(rotorDiscGeo, rotorMat);
+            rotor.position.set(rx, ry, rz);
+            drone.add(rotor);
+            rotors.push(rotor);
+          });
+
+          const cable = new THREE.Mesh(cableGeo, cableMat);
+          cable.position.set(dx, dy - 3.1, dz * 0.45);
+          cable.rotation.x = -dz * 0.14;
+          rig.add(cable);
+          rig.add(drone);
         });
 
-        const cable = new THREE.Mesh(cableGeo, cableMat);
-        cable.position.set(dx, dy - 3.1, dz * 0.45);
-        cable.rotation.x = -dz * 0.14;
-        rig.add(cable);
+        const anchorPt = trackPoints[place.idx];
+        const anchorTan = trackTangents[place.idx];
+        const faceAngle = Math.atan2(-anchorTan.x, -anchorTan.z);
+        const normalX = Math.sin(faceAngle);
+        const normalZ = Math.cos(faceAngle);
 
-        rig.add(drone);
+        rig.position.set(anchorPt.x, place.heightY, anchorPt.z);
+        rig.rotation.y = faceAngle;
+        scene.add(rig);
+
+        const previewCamPos = new THREE.Vector3(anchorPt.x + normalX * 88, 18.5, anchorPt.z + normalZ * 88);
+        const previewLookAt = new THREE.Vector3(anchorPt.x, place.heightY + 2.0, anchorPt.z);
+
+        const slot = {
+          index: i,
+          canvas: dCanvas,
+          texture: dTex,
+          rig,
+          rotors,
+          glowFrameMat,
+          anchorPt,
+          anchorRight: trackRights[place.idx],
+          baseHeightY: place.heightY,
+          faceAngle,
+          previewCamPos,
+          previewLookAt,
+          hoverTime: i * 1.7,
+          scrollX: 768 - i * 180,
+          tickerWidth: 950,
+          cachedMeasureStr: '',
+          cachedBgImg: null,
+          cachedBgUrl: ''
+        };
+
+        loadDroneImageForSlot(slot);
+        renderSkyDroneSlotCanvas(dCanvas, slot, 0);
+        dTex.needsUpdate = true;
+        skyDroneSystems.push(slot);
       });
-
-      rig.position.set(anchorPt.x, baseHeightY, anchorPt.z);
-      rig.rotation.y = faceAngle;
-      scene.add(rig);
-
-      const previewCamPos = new THREE.Vector3(anchorPt.x + normalX * 86, 18.0, anchorPt.z + normalZ * 86);
-      const previewLookAt = new THREE.Vector3(anchorPt.x, baseHeightY + 2.0, anchorPt.z);
-
-      return {
-        rig,
-        rotors,
-        glowFrameMat,
-        anchorPt,
-        anchorRight: trackRights[straightIdx],
-        baseHeightY,
-        faceAngle,
-        previewCamPos,
-        previewLookAt,
-        hoverTime: 0
-      };
     })();
 
-    function updateSkyDroneRig(dt) {
-      skyDroneSystem.hoverTime += dt;
-      const t = skyDroneSystem.hoverTime;
-
-      const bobY = Math.sin(t * 2.1) * 0.85;
-      const swayLateral = Math.sin(t * 0.9) * 1.2;
-
-      skyDroneSystem.rig.position.set(
-        skyDroneSystem.anchorPt.x + skyDroneSystem.anchorRight.x * swayLateral,
-        skyDroneSystem.baseHeightY + bobY,
-        skyDroneSystem.anchorPt.z + skyDroneSystem.anchorRight.z * swayLateral
-      );
-      skyDroneSystem.rig.rotation.y = skyDroneSystem.faceAngle;
-      skyDroneSystem.rig.rotation.z = Math.cos(t * 0.9) * 0.018;
-
+    function updateAllSkyDroneRigs(dt) {
       const spinStep = dt * 38;
-      for (let i = 0; i < skyDroneSystem.rotors.length; i++) {
-        skyDroneSystem.rotors[i].rotation.y += spinStep;
+      for (let s = 0; s < skyDroneSystems.length; s++) {
+        const slot = skyDroneSystems[s];
+        slot.hoverTime += dt;
+        const t = slot.hoverTime;
+
+        const bobY = Math.sin(t * 2.1) * 0.85;
+        const swayLateral = Math.sin(t * 0.9) * 1.2;
+
+        slot.rig.position.set(
+          slot.anchorPt.x + slot.anchorRight.x * swayLateral,
+          slot.baseHeightY + bobY,
+          slot.anchorPt.z + slot.anchorRight.z * swayLateral
+        );
+        slot.rig.rotation.y = slot.faceAngle;
+        slot.rig.rotation.z = Math.cos(t * 0.9) * 0.018;
+
+        for (let r = 0; r < slot.rotors.length; r++) {
+          slot.rotors[r].rotation.y += spinStep;
+        }
       }
     }
 
     // ==========================================
-    // 3E. ALL 9 BILLBOARDS ON STRAIGHT ROADS — CARS PASS UNDERNEATH!
+    // 3E. OVERHEAD STRAIGHT-ROAD BRIDGES (SPACED TO LEAVE OPEN SKY ZONES!)
     // ==========================================
     const billboardInstances = [];
     let jumbotronCanvas, jumbotronCtx, jumbotronTex;
@@ -2183,16 +2293,17 @@
       const metalMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
       const darkHousingMat = new THREE.MeshLambertMaterial({ color: 0x090d16 });
 
+      // Concentrated on North/East straights so South & Southwest remain wide-open Sky Ad zones!
       const straightRoadIndices = [
         22,  // #1 — Main Straight Bridge
         118, // #2 — Northwest Straight Bridge
         148, // #3 — North Straight Bridge 1
         178, // #4 — North Straight Bridge 2
-        222, // #5 — East Straight Bridge 1
-        262, // #6 — East Straight Bridge 2
-        335, // #7 — Southeast Straight Bridge
-        395, // #8 — South Straight Bridge
-        528  // #9 — Final Straight Bridge
+        218, // #5 — East Straight Bridge 1
+        252, // #6 — East Straight Bridge 2
+        318, // #7 — East Straight Bridge 3
+        355, // #8 — Southeast Straight Bridge
+        534  // #9 — Final Straight Bridge
       ];
 
       straightRoadIndices.forEach((trackIdx, i) => {
@@ -2765,9 +2876,10 @@
     // 8. COMMERCIAL STUDIO EDITOR & LOCKED CLIENT EXPORTER
     // ==========================================
     const editorDrawer = document.getElementById('editor-drawer');
+    let selectedDroneIdx = 0;
     let selectedBillboardIdx = 0;
     let editorOpen = false;
-    let activeEditorTab = 'billboards';
+    let activeEditorTab = 'drone';
 
     const THEME_PRESETS = [
       { bg1: '#0f172a', bg2: '#0369a1', accent: '#38bdf8' },
@@ -2799,6 +2911,15 @@
     let dronePreviewCanvas = null;
 
     if (!IS_LOCKED_CLIENT && editorDrawer) {
+      const droneSelect = document.getElementById('drone-select');
+      const droneIndexBadge = document.getElementById('drone-index-badge');
+      dronePreviewCanvas = document.getElementById('drone-preview-canvas');
+      const cfgDroneTitle = document.getElementById('cfg-drone-title');
+      const cfgDroneTicker = document.getElementById('cfg-drone-ticker');
+      const cfgDroneColor = document.getElementById('cfg-drone-color');
+      const cfgDroneImgUrl = document.getElementById('cfg-drone-img-url');
+      const cfgDroneImgFile = document.getElementById('cfg-drone-img-file');
+
       const bbSelect = document.getElementById('bb-select');
       const bbIndexBadge = document.getElementById('bb-index-badge');
       const bbTitleInput = document.getElementById('bb-title');
@@ -2815,13 +2936,6 @@
       const cfgLedColor = document.getElementById('cfg-led-color');
       const cfgLedSpeed = document.getElementById('cfg-led-speed');
 
-      dronePreviewCanvas = document.getElementById('drone-preview-canvas');
-      const cfgDroneTitle = document.getElementById('cfg-drone-title');
-      const cfgDroneTicker = document.getElementById('cfg-drone-ticker');
-      const cfgDroneColor = document.getElementById('cfg-drone-color');
-      const cfgDroneImgUrl = document.getElementById('cfg-drone-img-url');
-      const cfgDroneImgFile = document.getElementById('cfg-drone-img-file');
-
       const cfgShopTitle = document.getElementById('cfg-shop-title');
       const cfgShopSubtitle = document.getElementById('cfg-shop-subtitle');
       const cfgTargetScore = document.getElementById('cfg-target-score');
@@ -2829,6 +2943,15 @@
       const cfgRewardTitle = document.getElementById('cfg-reward-title');
 
       syncEditorFields = function () {
+        const dCfg = skyDroneData[selectedDroneIdx];
+        droneSelect.value = String(selectedDroneIdx);
+        droneIndexBadge.textContent = `${selectedDroneIdx + 1} / 3`;
+        cfgDroneTitle.value = dCfg.title || '';
+        cfgDroneTicker.value = dCfg.ticker || '';
+        cfgDroneColor.value = dCfg.color || '#facc15';
+        cfgDroneImgUrl.value = (dCfg.imageUrl && dCfg.imageUrl.startsWith('data:')) ? '[Uploaded Local Image]' : (dCfg.imageUrl || '');
+        renderSkyDroneSlotCanvas(dronePreviewCanvas, skyDroneSystems[selectedDroneIdx], 0);
+
         const cfg = billboardData[selectedBillboardIdx];
         bbSelect.value = String(selectedBillboardIdx);
         bbIndexBadge.textContent = `${selectedBillboardIdx + 1} / 9`;
@@ -2845,18 +2968,30 @@
         cfgLedSpeed.value = String(clientConfig.ledSpeed || 125);
         renderOverheadLedCanvas(ledPreviewCanvas, 0);
 
-        cfgDroneTitle.value = clientConfig.droneTitle || '';
-        cfgDroneTicker.value = clientConfig.droneTicker || '';
-        cfgDroneColor.value = clientConfig.droneColor || '#facc15';
-        cfgDroneImgUrl.value = (clientConfig.droneImageUrl && clientConfig.droneImageUrl.startsWith('data:')) ? '[Uploaded Local Image]' : (clientConfig.droneImageUrl || '');
-        renderSkyDroneCanvas(dronePreviewCanvas, 0);
-
         cfgShopTitle.value = clientConfig.shopTitle || '';
         cfgShopSubtitle.value = clientConfig.shopSubtitle || '';
         cfgTargetScore.value = clientConfig.targetScore ?? 5000;
         cfgPromoCode.value = clientConfig.promoCode || '';
         cfgRewardTitle.value = clientConfig.rewardTitle || '';
       };
+
+      function applyDroneEdit() {
+        const dCfg = skyDroneData[selectedDroneIdx];
+        const slot = skyDroneSystems[selectedDroneIdx];
+        dCfg.title = cfgDroneTitle.value;
+        dCfg.ticker = cfgDroneTicker.value;
+        dCfg.color = cfgDroneColor.value;
+        const rawUrl = cfgDroneImgUrl.value.trim();
+        if (rawUrl !== '[Uploaded Local Image]') {
+          dCfg.imageUrl = rawUrl;
+          loadDroneImageForSlot(slot);
+        }
+        slot.glowFrameMat.color.set(dCfg.color);
+        persistStudioState();
+        renderSkyDroneSlotCanvas(slot.canvas, slot, 0);
+        slot.texture.needsUpdate = true;
+        renderSkyDroneSlotCanvas(dronePreviewCanvas, slot, 0);
+      }
 
       function applyBillboardEdit() {
         const cfg = billboardData[selectedBillboardIdx];
@@ -2885,22 +3020,6 @@
         renderOverheadLedCanvas(ledPreviewCanvas, 0);
       }
 
-      function applyDroneEdit() {
-        clientConfig.droneTitle = cfgDroneTitle.value;
-        clientConfig.droneTicker = cfgDroneTicker.value;
-        clientConfig.droneColor = cfgDroneColor.value;
-        const rawUrl = cfgDroneImgUrl.value.trim();
-        if (rawUrl !== '[Uploaded Local Image]') {
-          clientConfig.droneImageUrl = rawUrl;
-          refreshDroneBackdropImage();
-        }
-        skyDroneSystem.glowFrameMat.color.set(clientConfig.droneColor);
-        persistStudioState();
-        renderSkyDroneCanvas(droneLedCanvas, 0);
-        droneLedTex.needsUpdate = true;
-        renderSkyDroneCanvas(dronePreviewCanvas, 0);
-      }
-
       function applyShopEdit() {
         clientConfig.shopTitle = cfgShopTitle.value;
         clientConfig.shopSubtitle = cfgShopSubtitle.value;
@@ -2926,9 +3045,18 @@
       document.getElementById('edit-ads-hud-btn').addEventListener('click', openStudioEditor);
       document.getElementById('close-editor-btn').addEventListener('click', closeStudioEditor);
 
+      droneSelect.addEventListener('change', () => {
+        selectedDroneIdx = Number(droneSelect.value);
+        syncEditorFields();
+      });
+
       bbSelect.addEventListener('change', () => {
         selectedBillboardIdx = Number(bbSelect.value);
         syncEditorFields();
+      });
+
+      [cfgDroneTitle, cfgDroneTicker, cfgDroneColor, cfgDroneImgUrl].forEach(el => {
+        el.addEventListener('input', applyDroneEdit);
       });
 
       [bbTitleInput, bbSubtitleInput, bbBg1Input, bbBg2Input, bbAccentInput, bbImgUrlInput].forEach(el => {
@@ -2938,10 +3066,6 @@
       [cfgLedText, cfgLedColor, cfgLedSpeed].forEach(el => {
         el.addEventListener('input', applyLedEdit);
         el.addEventListener('change', applyLedEdit);
-      });
-
-      [cfgDroneTitle, cfgDroneTicker, cfgDroneColor, cfgDroneImgUrl].forEach(el => {
-        el.addEventListener('input', applyDroneEdit);
       });
 
       document.querySelectorAll('.led-swatch').forEach(btn => {
@@ -2979,6 +3103,20 @@
         triggerCallout('SKY DRONE LED SYNCED!', '#facc15');
       });
 
+      document.getElementById('drone-apply-all').addEventListener('click', () => {
+        const src = skyDroneData[selectedDroneIdx];
+        for (let i = 0; i < 3; i++) {
+          skyDroneData[i] = { ...src };
+          const slot = skyDroneSystems[i];
+          slot.glowFrameMat.color.set(src.color);
+          loadDroneImageForSlot(slot);
+          renderSkyDroneSlotCanvas(slot.canvas, slot, 0);
+          slot.texture.needsUpdate = true;
+        }
+        persistStudioState();
+        triggerCallout('APPLIED TO ALL 3 SKY ADS!', '#4ade80');
+      });
+
       cfgDroneImgFile.addEventListener('change', (e) => {
         const file = e.target.files && e.target.files[0];
         if (!file) return;
@@ -2994,8 +3132,8 @@
             const w = img.width * scale;
             const h = img.height * scale;
             tCtx.drawImage(img, (768 - w) * 0.5, (336 - h) * 0.5, w, h);
-            clientConfig.droneImageUrl = tempCanvas.toDataURL('image/jpeg', 0.82);
-            refreshDroneBackdropImage();
+            skyDroneData[selectedDroneIdx].imageUrl = tempCanvas.toDataURL('image/jpeg', 0.82);
+            loadDroneImageForSlot(skyDroneSystems[selectedDroneIdx]);
             persistStudioState();
             syncEditorFields();
           };
@@ -3006,9 +3144,9 @@
       });
 
       document.getElementById('cfg-drone-clear-img').addEventListener('click', () => {
-        clientConfig.droneImageUrl = '';
+        skyDroneData[selectedDroneIdx].imageUrl = '';
         cfgDroneImgUrl.value = '';
-        refreshDroneBackdropImage();
+        loadDroneImageForSlot(skyDroneSystems[selectedDroneIdx]);
         persistStudioState();
         syncEditorFields();
       });
@@ -3068,7 +3206,7 @@
           refreshBillboard3D(i);
         }
         persistStudioState();
-        triggerCallout('APPLIED TO ALL 9 BILLBOARDS!', '#4ade80');
+        triggerCallout('APPLIED TO ALL 9 BRIDGES!', '#4ade80');
       });
 
       document.getElementById('bb-reset-all').addEventListener('click', () => {
@@ -3076,7 +3214,7 @@
         persistStudioState();
         for (let i = 0; i < 9; i++) refreshBillboard3D(i);
         syncEditorFields();
-        triggerCallout('BILLBOARDS RESET', '#facc15');
+        triggerCallout('BRIDGES RESET', '#facc15');
       });
 
       // Export Locked Client HTML File
@@ -3141,7 +3279,7 @@
         if (cloneFeed) cloneFeed.innerHTML = '';
 
         const cloneCombo = clone.querySelector('#combo-box');
-        if (cloneCombo) cloneCombo.style.display = 'none';
+        if (cloneCombo) cloneCombo.classList.remove('active');
 
         const resetMap = {
           '#hud-score': '0',
@@ -3165,7 +3303,7 @@
         const mainScript = scripts[scripts.length - 1];
         if (mainScript) {
           const markerRegex = /\/\/ === CLIENT_CONFIG_START ===[\s\S]*?\/\/ === CLIENT_CONFIG_END ===/;
-          const bakedBlock = `// === CLIENT_CONFIG_START ===\n    const BAKED_CLIENT_CONFIG = ${safeJson(exportedClientCfg)};\n    const BAKED_BILLBOARDS = ${safeJson(billboardData)};\n    // === CLIENT_CONFIG_END ===`;
+          const bakedBlock = `// === CLIENT_CONFIG_START ===\n    const BAKED_CLIENT_CONFIG = ${safeJson(exportedClientCfg)};\n    const BAKED_SKY_DRONES = ${safeJson(skyDroneData)};\n    const BAKED_BILLBOARDS = ${safeJson(billboardData)};\n    // === CLIENT_CONFIG_END ===`;
           mainScript.textContent = mainScript.textContent.replace(markerRegex, () => bakedBlock);
         }
 
@@ -3302,14 +3440,12 @@
         gyroState.baselineTilt = rawTilt;
       }
 
-      // Gently re-center tiny posture drift while staying responsive
       const deltaTilt = rawTilt - gyroState.baselineTilt;
       const deadzone = 2.4;
       let effective = 0;
       if (Math.abs(deltaTilt) > deadzone) {
         effective = (deltaTilt - Math.sign(deltaTilt) * deadzone) / 21;
       }
-      // Negative tilt (phone tilted left) -> positive steerInput (left turn)
       gyroState.rawSteer = Math.max(-1, Math.min(1, -effective));
     }
 
@@ -3511,8 +3647,8 @@
     const minimapCanvas = document.getElementById('minimap');
     const mCtx = minimapCanvas.getContext('2d');
     const minimapBg = document.createElement('canvas');
-    minimapBg.width = 112;
-    minimapBg.height = 112;
+    minimapBg.width = 106;
+    minimapBg.height = 106;
     const bgCtx = minimapBg.getContext('2d');
 
     let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
@@ -3522,9 +3658,9 @@
       if (p.z < minZ) minZ = p.z;
       if (p.z > maxZ) maxZ = p.z;
     });
-    const mapScale = 84 / Math.max(maxX - minX, maxZ - minZ);
-    const mapOffsetX = (112 - (maxX - minX) * mapScale) * 0.5;
-    const mapOffsetZ = (112 - (maxZ - minZ) * mapScale) * 0.5;
+    const mapScale = 80 / Math.max(maxX - minX, maxZ - minZ);
+    const mapOffsetX = (106 - (maxX - minX) * mapScale) * 0.5;
+    const mapOffsetZ = (106 - (maxZ - minZ) * mapScale) * 0.5;
 
     bgCtx.beginPath();
     trackPoints.forEach((p, i) => {
@@ -3539,7 +3675,7 @@
     bgCtx.stroke();
 
     function drawMinimap() {
-      mCtx.clearRect(0, 0, 112, 112);
+      mCtx.clearRect(0, 0, 106, 106);
       mCtx.drawImage(minimapBg, 0, 0);
 
       for (let i = racers.length - 1; i >= 0; i--) {
@@ -3547,7 +3683,7 @@
         const x = (r.pos.x - minX) * mapScale + mapOffsetX;
         const y = (r.pos.z - minZ) * mapScale + mapOffsetZ;
         mCtx.beginPath();
-        mCtx.arc(x, y, r.isPlayer ? 4.2 : 3.0, 0, Math.PI * 2);
+        mCtx.arc(x, y, r.isPlayer ? 4.0 : 2.8, 0, Math.PI * 2);
         mCtx.fillStyle = r.isPlayer ? '#38bdf8' : '#' + r.color.toString(16).padStart(6, '0');
         mCtx.fill();
       }
@@ -3563,7 +3699,18 @@
     const elFps = document.getElementById('fps-badge');
     const elVignette = document.getElementById('nitro-vignette');
 
-    const hudCache = { pos: -1, lap: -1, time: '', speed: -1, nitro: -1, score: -1, best: -1 };
+    const hudCache = {
+      pos: -1,
+      lap: -1,
+      time: '',
+      speed: -1,
+      nitro: -1,
+      score: -1,
+      best: -1,
+      comboActive: false,
+      comboMult: -1,
+      comboPts: -1
+    };
 
     function formatTime(sec) {
       const m = (sec / 60) | 0;
@@ -3594,7 +3741,6 @@
 
     async function startRaceSequence() {
       sound.init();
-      // Auto-enable gyroscope tilt steering on mobile/tablets upon user gesture
       if (isTouchDevice && !gyroState.enabled) {
         await enableGyroscope(true);
       } else if (gyroState.enabled) {
@@ -3730,21 +3876,24 @@
         fpsAccum = 0;
       }
 
-      updateSkyDroneRig(dt);
+      updateAllSkyDroneRigs(dt);
 
       ledTimer += dt;
-      if (ledTimer >= 0.033) {
+      if (ledTimer >= 0.036) {
         renderOverheadLedCanvas(ledCanvas, ledTimer);
         ledTex.needsUpdate = true;
 
-        renderSkyDroneCanvas(droneLedCanvas, ledTimer);
-        droneLedTex.needsUpdate = true;
+        for (let s = 0; s < skyDroneSystems.length; s++) {
+          const slot = skyDroneSystems[s];
+          renderSkyDroneSlotCanvas(slot.canvas, slot, ledTimer);
+          slot.texture.needsUpdate = true;
+        }
 
         if (editorOpen) {
           if (activeEditorTab === 'overhead' && ledPreviewCanvas) {
             renderOverheadLedCanvas(ledPreviewCanvas, 0);
           } else if (activeEditorTab === 'drone' && dronePreviewCanvas) {
-            renderSkyDroneCanvas(dronePreviewCanvas, 0);
+            renderSkyDroneSlotCanvas(dronePreviewCanvas, skyDroneSystems[selectedDroneIdx], 0);
           }
         }
         ledTimer = 0;
@@ -3802,11 +3951,9 @@
 
           if (r.isPlayer && gameState === 'RACING') {
             const brake = (keys['KeyS'] || keys['ArrowDown']) ? 1 : 0;
-            // Automatic acceleration on touch/mobile devices unless braking
             const manualThrottle = (keys['KeyW'] || keys['ArrowUp']) ? 1 : 0;
             const throttle = brake > 0 ? 0 : (isTouchDevice ? 1 : manualThrottle);
 
-            // Smooth Gyroscope Tilt Steering + Keyboard/Touch Fallback
             gyroState.smoothSteer += (gyroState.rawSteer - gyroState.smoothSteer) * (1 - Math.exp(-14 * dt));
             const keySteer = ((keys['KeyA'] || keys['ArrowLeft']) ? 1 : 0) - ((keys['KeyD'] || keys['ArrowRight']) ? 1 : 0);
             const steerInput = gyroState.enabled ? Math.max(-1, Math.min(1, gyroState.smoothSteer + keySteer)) : keySteer;
@@ -3827,7 +3974,6 @@
               r.nitro = Math.min(100, r.nitro + rechargeRate * dt);
             }
 
-            // Slipstream Drafting Check behind AI rivals
             let inSlipstream = false;
             const sinP = Math.sin(r.heading);
             const cosP = Math.cos(r.heading);
@@ -3921,7 +4067,6 @@
 
             sound.update(Math.abs(r.speed) / 86, isBoosting, wantsDrift, true);
           } else {
-            // AI Controller with Smart Rubber-Banding to keep races competitive & fun
             const lookAheadIdx = (r.closestIdx + 14) % N;
             r.aiWeavePhase += dt * 0.7;
             const dynamicLane = r.isPlayer ? 0 : r.aiLaneOffset + Math.sin(r.aiWeavePhase) * 2.4;
@@ -3944,7 +4089,6 @@
             r.visual.flames[0].visible = aiBoosting;
             r.visual.flames[1].visible = aiBoosting;
 
-            // Rubber-banding based on gap to player
             let rubberBandBonus = 0;
             if (!r.isPlayer && gameState === 'RACING') {
               const gap = playerRef.totalProgress - r.totalProgress;
@@ -4065,13 +4209,22 @@
         elBest.textContent = bestScore.toLocaleString();
       }
 
-      if (scoreState.comboPts > 0 && scoreState.comboTimer > 0) {
-        comboBox.style.display = 'flex';
-        comboMultEl.textContent = `${scoreState.comboMult}x`;
-        comboPtsEl.textContent = `+${Math.round(scoreState.comboPts)}`;
+      const comboActive = scoreState.comboPts > 0 && scoreState.comboTimer > 0;
+      if (hudCache.comboActive !== comboActive) {
+        hudCache.comboActive = comboActive;
+        comboBox.classList.toggle('active', comboActive);
+      }
+      if (comboActive) {
+        const roundedPts = Math.round(scoreState.comboPts);
+        if (hudCache.comboMult !== scoreState.comboMult) {
+          hudCache.comboMult = scoreState.comboMult;
+          comboMultEl.textContent = `${scoreState.comboMult}x`;
+        }
+        if (hudCache.comboPts !== roundedPts) {
+          hudCache.comboPts = roundedPts;
+          comboPtsEl.textContent = `+${roundedPts}`;
+        }
         comboTimerFill.style.transform = `scaleX(${Math.max(0, scoreState.comboTimer / scoreState.maxComboTimer)})`;
-      } else {
-        comboBox.style.display = 'none';
       }
 
       elVignette.style.opacity = playerBoosting ? '1' : '0';
@@ -4083,9 +4236,10 @@
       }
 
       // Camera Control
-      if (editorOpen && activeEditorTab === 'drone') {
-        smoothCamPos.lerp(skyDroneSystem.previewCamPos, 1 - Math.exp(-8 * dt));
-        smoothCamLook.lerp(skyDroneSystem.previewLookAt, 1 - Math.exp(-10 * dt));
+      if (editorOpen && activeEditorTab === 'drone' && skyDroneSystems[selectedDroneIdx]) {
+        const slot = skyDroneSystems[selectedDroneIdx];
+        smoothCamPos.lerp(slot.previewCamPos, 1 - Math.exp(-8 * dt));
+        smoothCamLook.lerp(slot.previewLookAt, 1 - Math.exp(-10 * dt));
         camera.position.copy(smoothCamPos);
         camera.lookAt(smoothCamLook);
         camera.fov += (58 - camera.fov) * (1 - Math.exp(-8 * dt));
