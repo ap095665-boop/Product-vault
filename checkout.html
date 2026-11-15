@@ -90,6 +90,7 @@ let knownPaymentId = "";
 let terminalFailure = false;
 
 const PENDING_KEY = "sindora_pending_payment";
+const AUTO_CHECK_KEY = "sindora_payment_auto_check_state";
 const RECEIPT_KEY = "sindora_receipt_data";
 const MAX_RECOVERY_AGE = 24 * 60 * 60 * 1000;
 // One immediate check plus seven scheduled checks, completed within about one minute.
@@ -110,9 +111,28 @@ function savePending(value) {
   try { sessionStorage.setItem(PENDING_KEY, raw); } catch (_) {}
   try { localStorage.setItem(PENDING_KEY, raw); } catch (_) {}
 }
+function readAutoCheckState(orderId) {
+  try {
+    const state = JSON.parse(localStorage.getItem(AUTO_CHECK_KEY) || "null");
+    if (state && state.order_id === orderId) {
+      return Math.max(0, Math.min(8, Number(state.count) || 0));
+    }
+  } catch (_) {}
+  return 0;
+}
+function saveAutoCheckState() {
+  if (!pending || !pending.order_id) return;
+  try {
+    localStorage.setItem(AUTO_CHECK_KEY, JSON.stringify({
+      order_id: pending.order_id,
+      count: pollCount
+    }));
+  } catch (_) {}
+}
 function clearPending() {
   try { sessionStorage.removeItem(PENDING_KEY); } catch (_) {}
   try { localStorage.removeItem(PENDING_KEY); } catch (_) {}
+  try { localStorage.removeItem(AUTO_CHECK_KEY); } catch (_) {}
   clearTimeout(pollTimer);
   autoPolling = false;
 }
@@ -158,27 +178,28 @@ function goThankYou(paymentId, orderId) {
 }
 function scheduleNextCheck() {
   clearTimeout(pollTimer);
-  if (!autoPolling) {
+  if (!pending) return;
+
+  if (!autoPolling || pollCount >= 8) {
+    autoPolling = false;
+    saveAutoCheckState();
     spinner.classList.add("done");
     verifyTitle.textContent = "Payment status pending";
-    verifyMessage.textContent = "All 8 automatic checks are complete. You can now check the payment status manually, or start a new order if you understand the duplicate-payment risk.";
-    verifyStatus.textContent = "Automatic verification has stopped. Your pending order is still saved in this browser.";
+    verifyMessage.textContent = "All 8 automatic checks for this order are complete. You can check the payment status manually, or start a new order if you understand the duplicate-payment risk.";
+    verifyStatus.textContent = "Automatic verification has stopped and will not restart if you refresh this page. Your pending order remains saved.";
     checkNow.disabled = false;
     checkNow.textContent = "Check payment status";
     newOrderButton.hidden = false;
     return;
   }
-  if (!pending || document.visibilityState === "hidden") return;
-  if (pollCount >= POLL_DELAYS.length) {
-    autoPolling = false;
-    scheduleNextCheck();
-    return;
-  }
+
+  if (document.visibilityState === "hidden") return;
   checkNow.disabled = true;
   checkNow.textContent = "Automatic checking…";
-  const delay = POLL_DELAYS[pollCount++];
-  pollTimer = setTimeout(checkUntilResolved, delay);
+  const delay = POLL_DELAYS[Math.max(0, pollCount - 1)];
+  pollTimer = setTimeout(() => checkUntilResolved(true), delay);
 }
+
 async function checkOnce() {
   if (!pending || !pending.order_id) return "unknown";
   const {data, error} = await supabaseClient.functions.invoke(
@@ -214,9 +235,22 @@ async function checkOnce() {
     : (autoPolling ? "Payment is not yet confirmed. We will check again automatically." : "Payment is not yet confirmed. You can check again manually.");
   return status;
 }
-async function checkUntilResolved() {
+async function checkUntilResolved(isAutomatic = autoPolling) {
   if (!pending || busy) return;
   if (document.visibilityState === "hidden") return;
+
+  const automaticAttempt = !!(isAutomatic && autoPolling && pollCount < 8);
+  if (isAutomatic && !automaticAttempt) {
+    autoPolling = false;
+    scheduleNextCheck();
+    return;
+  }
+
+  if (automaticAttempt) {
+    pollCount++;
+    saveAutoCheckState(); // Persist before the request so refreshes cannot reset the total.
+  }
+
   busy = true;
   showVerification();
   checkNow.disabled = true;
@@ -233,18 +267,21 @@ async function checkUntilResolved() {
       : "Connection issue. Automatic checks have stopped. Please try the manual check again.";
   } finally {
     busy = false;
-    if (pending && verification.style.display !== "none") {
-      // Keep manual checking disabled while automatic retries remain.
-      // Once all 8 checks finish, scheduleNextCheck enables manual checking.
-      if (result !== "paid") scheduleNextCheck();
+    if (pending && verification.style.display !== "none" && result !== "paid") {
+      if (autoPolling && pollCount < 8) {
+        scheduleNextCheck();
+      } else {
+        autoPolling = false;
+        scheduleNextCheck();
+      }
     }
   }
 }
 checkNow.addEventListener("click", () => {
   if (autoPolling || busy) return;
-  // A manual check never restarts automatic polling.
+  // Manual checks never consume or restart the 8 automatic attempts.
   clearTimeout(pollTimer);
-  checkUntilResolved();
+  checkUntilResolved(false);
 });
 
 newOrderButton.addEventListener("click", () => {
@@ -273,22 +310,27 @@ function recoverPending(reason) {
   const saved = readPending();
   if (!saved || !saved.order_id) return;
   if (pending && pending.order_id) return;
+
   pending = saved;
   knownPaymentId = saved.payment_id || knownPaymentId;
-  pollCount = 0;
-  autoPolling = true;
-  newOrderButton.hidden = true;
-  const age = Date.now() - Number(saved.created_at || 0);
-  const message = age > MAX_RECOVERY_AGE
-    ? "We found an older unfinished order. We will check its current server status before allowing another payment."
-    : (reason || "Welcome back. We are checking your existing order before you continue.");
-  showVerification(message);
-  checkUntilResolved();
+  pollCount = readAutoCheckState(saved.order_id);
+  autoPolling = pollCount < 8;
+  newOrderButton.hidden = autoPolling;
+  showVerification(reason || "Welcome back. Checking your saved payment order…");
+
+  if (autoPolling) {
+    checkUntilResolved(true);
+  } else {
+    scheduleNextCheck();
+  }
 }
+
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible") {
-    if (pending && autoPolling && pollCount < POLL_DELAYS.length) scheduleNextCheck();
-    else recoverPending("Welcome back. Checking your payment status…");
+  if (document.visibilityState === "visible" && pending && autoPolling && pollCount < 8 && !busy) {
+    clearTimeout(pollTimer);
+    checkUntilResolved(true);
+  } else if (document.visibilityState === "visible") {
+    recoverPending("Welcome back. Checking your payment status…");
   }
 });
 window.addEventListener("pageshow", () => recoverPending("Your checkout has reopened. Checking the saved order…"));
@@ -309,11 +351,12 @@ const restored = readPending();
 if (restored && restored.order_id) {
   pending = restored;
   knownPaymentId = restored.payment_id || "";
-  pollCount = 0;
-  autoPolling = true;
-  newOrderButton.hidden = true;
-  showVerification("We found an unfinished checkout. We will verify that order before allowing another payment.");
-  setTimeout(checkUntilResolved, 250);
+  pollCount = readAutoCheckState(restored.order_id);
+  autoPolling = pollCount < 8;
+  newOrderButton.hidden = autoPolling;
+  showVerification("We found an unfinished checkout. We will check its saved automatic-check allowance before continuing.");
+  if (autoPolling) setTimeout(() => checkUntilResolved(true), 250);
+  else scheduleNextCheck();
 }
 
 form.addEventListener("submit", async event => {
@@ -374,6 +417,7 @@ form.addEventListener("submit", async event => {
     });
     pollCount = 0;
     autoPolling = true;
+    saveAutoCheckState();
     newOrderButton.hidden = true;
     showVerification("Your order is ready. Complete payment in Razorpay. When you return, this page will verify the saved order automatically.");
 
@@ -390,8 +434,7 @@ form.addEventListener("submit", async event => {
       modal: {
         ondismiss: function() {
           verifyMessage.textContent = "Checkout was closed or you returned from your UPI app. We are checking the saved order; please do not pay again yet.";
-          pollCount = 0;
-          checkUntilResolved();
+          checkUntilResolved(autoPolling);
         }
       },
       handler: async function(response) {
@@ -418,8 +461,7 @@ form.addEventListener("submit", async event => {
         }
         // Deliberately do not redirect based on the browser callback or its response.
         // The existing status endpoint must independently return status=paid.
-        pollCount = 0;
-        checkUntilResolved();
+        checkUntilResolved(autoPolling);
       }
     });
     rzp.on("payment.failed", function(response) {
@@ -428,8 +470,7 @@ form.addEventListener("submit", async event => {
       verifyTitle.textContent = "Checking payment status";
       verifyMessage.textContent = "Razorpay reported an unsuccessful attempt. If your UPI app shows a debit, do not pay again while the saved order is checked.";
       verifyStatus.textContent = reason;
-      pollCount = 0;
-      checkUntilResolved();
+      checkUntilResolved(autoPolling);
     });
     rzp.open();
   } catch (e) {
