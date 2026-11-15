@@ -819,8 +819,8 @@
             <span id="bb-index-badge">1 / 9</span>
           </label>
           <select class="editor-select" id="bb-select">
-            <option value="0">#1 — Main Straight Bridge 1</option>
-            <option value="1">#2 — Main Straight Bridge 2</option>
+            <option value="0">#1 — Main Straight Bridge</option>
+            <option value="1">#2 — Northwest Straight Bridge</option>
             <option value="2">#3 — North Straight Bridge 1</option>
             <option value="3">#4 — North Straight Bridge 2</option>
             <option value="4">#5 — East Straight Bridge 1</option>
@@ -979,7 +979,7 @@
         </div>
 
         <div class="info-box">
-          <strong>Straight-Road Sky Display:</strong> 4 heavy-lift drones suspend a monumental <strong>54m × 22m</strong> double-sided LED screen high above the main straight road, facing oncoming drivers!
+          <strong>High-Altitude Sky Display:</strong> 4 heavy-lift drones suspend a colossal <strong>62m × 24m</strong> double-sided LED screen at <strong>35m altitude</strong> above the far end of the main straight—towering cleanly above all road bridges so it's visible from far away!
         </div>
       </div>
 
@@ -1549,16 +1549,17 @@
     const overheadGantries = [];
 
     (function createOverheadLedGantries() {
-      const gantryIndices = [38, 236];
-      const pillarGeo = new THREE.CylinderGeometry(0.55, 0.68, 9.8, 8);
+      // Positioned cleanly so they never obstruct the Sky Drone LED screen behind them
+      const gantryIndices = [52, 298];
+      const pillarGeo = new THREE.CylinderGeometry(0.55, 0.68, 9.5, 8);
       const baseFootGeo = new THREE.BoxGeometry(1.8, 0.7, 1.8);
       const steelMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
       const darkCabinetMat = new THREE.MeshLambertMaterial({ color: 0x090d16 });
       const screenMat = new THREE.MeshBasicMaterial({ map: ledTex, fog: false });
 
       const spanWidth = ROAD_HALF_WIDTH * 2 + 5.2;
-      const cabinetGeo = new THREE.BoxGeometry(spanWidth + 1.4, 3.1, 1.15);
-      const screenGeo = new THREE.PlaneGeometry(spanWidth, 2.55);
+      const cabinetGeo = new THREE.BoxGeometry(spanWidth + 1.4, 2.9, 1.15);
+      const screenGeo = new THREE.PlaneGeometry(spanWidth, 2.4);
       const beaconGeo = new THREE.SphereGeometry(0.28, 6, 6);
       const beaconMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, fog: false });
 
@@ -1574,7 +1575,7 @@
         const pillarOffset = ROAD_HALF_WIDTH + 2.4;
 
         const leftPillar = new THREE.Mesh(pillarGeo, steelMat);
-        leftPillar.position.set(-pillarOffset, 4.9, 0);
+        leftPillar.position.set(-pillarOffset, 4.75, 0);
         const rightPillar = leftPillar.clone();
         rightPillar.position.x = pillarOffset;
 
@@ -1584,17 +1585,17 @@
         rightFoot.position.x = pillarOffset;
 
         const cabinet = new THREE.Mesh(cabinetGeo, darkCabinetMat);
-        cabinet.position.set(0, 8.1, 0);
+        cabinet.position.set(0, 7.8, 0);
 
         const frontScreen = new THREE.Mesh(screenGeo, screenMat);
-        frontScreen.position.set(0, 8.1, 0.6);
+        frontScreen.position.set(0, 7.8, 0.6);
 
         const rearScreen = new THREE.Mesh(screenGeo, screenMat);
-        rearScreen.position.set(0, 8.1, -0.6);
+        rearScreen.position.set(0, 7.8, -0.6);
         rearScreen.rotation.y = Math.PI;
 
         const beaconL = new THREE.Mesh(beaconGeo, beaconMat);
-        beaconL.position.set(-spanWidth * 0.48, 9.85, 0);
+        beaconL.position.set(-spanWidth * 0.48, 9.45, 0);
         const beaconR = beaconL.clone();
         beaconR.position.x = spanWidth * 0.48;
 
@@ -1604,7 +1605,7 @@
         const normalX = Math.sin(faceAngle);
         const normalZ = Math.cos(faceAngle);
         const camPos = new THREE.Vector3(pt.x + normalX * 26, 4.8, pt.z + normalZ * 26);
-        const lookAt = new THREE.Vector3(pt.x, 7.6, pt.z);
+        const lookAt = new THREE.Vector3(pt.x, 7.5, pt.z);
         overheadGantries.push({ camPos, lookAt, beaconMat });
       });
     })();
@@ -1661,7 +1662,7 @@
     ledTex.needsUpdate = true;
 
     // ==========================================
-    // 3C. GIANT SKY DRONE LED BILLBOARD DIRECTLY ABOVE STRAIGHT ROAD
+    // 3C. HIGH-ALTITUDE GIANT SKY DRONE LED BILLBOARD (UNOBSTRUCTED IN SKY)
     // ==========================================
     const droneLedCanvas = document.createElement('canvas');
     droneLedCanvas.width = 768;
@@ -1788,57 +1789,65 @@
 
     const skyDroneSystem = (function createSkyDroneRig() {
       const rig = new THREE.Group();
+      const screenTiltGroup = new THREE.Group();
       const rotors = [];
 
-      const straightIdx = 70;
+      // Placed at the far end of the main straight (idx = 84) and lifted to y = 36.5m
+      // so it towers completely unobstructed in the open sky above all road bridges!
+      const straightIdx = 84;
       const anchorPt = trackPoints[straightIdx];
       const anchorTan = trackTangents[straightIdx];
       const faceAngle = Math.atan2(-anchorTan.x, -anchorTan.z);
       const normalX = Math.sin(faceAngle);
       const normalZ = Math.cos(faceAngle);
 
-      const screenW = 54;
-      const screenH = 22;
-      const baseHeightY = 27.5;
+      const screenW = 62;
+      const screenH = 24;
+      const baseHeightY = 36.5;
 
       const cabinetMat = new THREE.MeshLambertMaterial({ color: 0x070b14, fog: false });
       const glowFrameMat = new THREE.MeshBasicMaterial({ color: clientConfig.droneColor || '#facc15', fog: false });
       const screenMat = new THREE.MeshBasicMaterial({ map: droneLedTex, fog: false });
 
-      const cabinet = new THREE.Mesh(new THREE.BoxGeometry(screenW + 1.6, screenH + 1.6, 1.4), cabinetMat);
-      rig.add(cabinet);
+      const cabinet = new THREE.Mesh(new THREE.BoxGeometry(screenW + 1.8, screenH + 1.8, 1.5), cabinetMat);
+      screenTiltGroup.add(cabinet);
 
-      const topTruss = new THREE.Mesh(new THREE.BoxGeometry(screenW + 2.8, 0.85, 2.0), glowFrameMat);
-      topTruss.position.y = screenH * 0.5 + 0.85;
+      const topTruss = new THREE.Mesh(new THREE.BoxGeometry(screenW + 3.2, 0.95, 2.2), glowFrameMat);
+      topTruss.position.y = screenH * 0.5 + 0.95;
       const botTruss = topTruss.clone();
-      botTruss.position.y = -screenH * 0.5 - 0.85;
-      rig.add(topTruss, botTruss);
+      botTruss.position.y = -screenH * 0.5 - 0.95;
+      screenTiltGroup.add(topTruss, botTruss);
 
       const faceGeo = new THREE.PlaneGeometry(screenW, screenH);
       const frontFace = new THREE.Mesh(faceGeo, screenMat);
-      frontFace.position.z = 0.75;
+      frontFace.position.z = 0.8;
       const backFace = new THREE.Mesh(faceGeo, screenMat);
-      backFace.position.z = -0.75;
+      backFace.position.z = -0.8;
       backFace.rotation.y = Math.PI;
-      rig.add(frontFace, backFace);
+      screenTiltGroup.add(frontFace, backFace);
 
+      // Angle screen 9 degrees downward toward oncoming drivers on the road
+      screenTiltGroup.rotation.x = 0.16;
+      rig.add(screenTiltGroup);
+
+      // 4 Heavy-Lift Industrial Drones Hovering Above the Giant Screen
       const droneOffsets = [
-        [-22, 16.8, 1.8],
-        [22, 16.8, 1.8],
-        [-22, 16.8, -1.8],
-        [22, 16.8, -1.8]
+        [-25, 18.2, 1.8],
+        [25, 18.2, 1.8],
+        [-25, 18.2, -1.8],
+        [25, 18.2, -1.8]
       ];
 
-      const droneBodyGeo = new THREE.BoxGeometry(3.8, 1.15, 3.8);
-      const droneArmGeo = new THREE.BoxGeometry(7.2, 0.28, 0.34);
-      const rotorDiscGeo = new THREE.CylinderGeometry(1.9, 1.9, 0.08, 12);
-      const cableGeo = new THREE.CylinderGeometry(0.09, 0.09, 5.8, 5);
+      const droneBodyGeo = new THREE.BoxGeometry(4.2, 1.25, 4.2);
+      const droneArmGeo = new THREE.BoxGeometry(7.8, 0.3, 0.36);
+      const rotorDiscGeo = new THREE.CylinderGeometry(2.1, 2.1, 0.08, 12);
+      const cableGeo = new THREE.CylinderGeometry(0.1, 0.1, 6.2, 5);
 
       const droneMat = new THREE.MeshLambertMaterial({ color: 0x1e293b, fog: false });
-      const rotorMat = new THREE.MeshBasicMaterial({ color: 0xe2e8f0, transparent: true, opacity: 0.62, fog: false });
+      const rotorMat = new THREE.MeshBasicMaterial({ color: 0xe2e8f0, transparent: true, opacity: 0.65, fog: false });
       const cableMat = new THREE.MeshBasicMaterial({ color: 0xcbd5e1, fog: false });
       const beaconRedMat = new THREE.MeshBasicMaterial({ color: 0xef4444, fog: false });
-      const beaconGeo = new THREE.SphereGeometry(0.36, 6, 6);
+      const beaconGeo = new THREE.SphereGeometry(0.4, 6, 6);
 
       droneOffsets.forEach(([dx, dy, dz]) => {
         const drone = new THREE.Group();
@@ -1848,9 +1857,9 @@
         drone.add(body);
 
         const bellyLight = new THREE.Mesh(beaconGeo, glowFrameMat);
-        bellyLight.position.y = -0.7;
+        bellyLight.position.y = -0.75;
         const topBeacon = new THREE.Mesh(beaconGeo, beaconRedMat);
-        topBeacon.position.y = 0.78;
+        topBeacon.position.y = 0.82;
         drone.add(bellyLight, topBeacon);
 
         const arm1 = new THREE.Mesh(droneArmGeo, droneMat);
@@ -1860,10 +1869,10 @@
         drone.add(arm1, arm2);
 
         const rotorCoords = [
-          [-2.5, 0.35, -2.5],
-          [2.5, 0.35, -2.5],
-          [-2.5, 0.35, 2.5],
-          [2.5, 0.35, 2.5]
+          [-2.7, 0.38, -2.7],
+          [2.7, 0.38, -2.7],
+          [-2.7, 0.38, 2.7],
+          [2.7, 0.38, 2.7]
         ];
         rotorCoords.forEach(([rx, ry, rz]) => {
           const rotor = new THREE.Mesh(rotorDiscGeo, rotorMat);
@@ -1873,7 +1882,7 @@
         });
 
         const cable = new THREE.Mesh(cableGeo, cableMat);
-        cable.position.set(dx, dy - 2.9, dz * 0.45);
+        cable.position.set(dx, dy - 3.1, dz * 0.45);
         cable.rotation.x = -dz * 0.14;
         rig.add(cable);
 
@@ -1884,8 +1893,8 @@
       rig.rotation.y = faceAngle;
       scene.add(rig);
 
-      const previewCamPos = new THREE.Vector3(anchorPt.x + normalX * 72, 13.5, anchorPt.z + normalZ * 72);
-      const previewLookAt = new THREE.Vector3(anchorPt.x, baseHeightY - 1.0, anchorPt.z);
+      const previewCamPos = new THREE.Vector3(anchorPt.x + normalX * 86, 18.0, anchorPt.z + normalZ * 86);
+      const previewLookAt = new THREE.Vector3(anchorPt.x, baseHeightY + 2.0, anchorPt.z);
 
       return {
         rig,
@@ -1905,8 +1914,8 @@
       skyDroneSystem.hoverTime += dt;
       const t = skyDroneSystem.hoverTime;
 
-      const bobY = Math.sin(t * 2.1) * 0.75;
-      const swayLateral = Math.sin(t * 0.9) * 1.1;
+      const bobY = Math.sin(t * 2.1) * 0.85;
+      const swayLateral = Math.sin(t * 0.9) * 1.2;
 
       skyDroneSystem.rig.position.set(
         skyDroneSystem.anchorPt.x + skyDroneSystem.anchorRight.x * swayLateral,
@@ -1929,8 +1938,7 @@
     let jumbotronCanvas, jumbotronCtx, jumbotronTex;
 
     (function createOverheadStraightBillboards() {
-      // Full-span overhead gantry bridges mounted directly over straight road segments
-      const spanWidth = ROAD_HALF_WIDTH * 2 + 4.4; // 30.4m full road bridge span
+      const spanWidth = ROAD_HALF_WIDTH * 2 + 4.4;
       const boardWidth = 24;
       const boardHeight = 8.4;
       const boardCenterY = 11.4; // Bottom beam at y = 7.0m -> cars & chase camera pass cleanly underneath!
@@ -1944,16 +1952,16 @@
       const metalMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
       const darkHousingMat = new THREE.MeshLambertMaterial({ color: 0x090d16 });
 
-      // 9 straight-road indices evenly distributed around the circuit
+      // 9 straight-road indices spaced cleanly around the circuit (with wide gap before the Sky Drone at idx 84)
       const straightRoadIndices = [
-        22,  // #1 — Main Straight Bridge 1
-        54,  // #2 — Main Straight Bridge 2
-        128, // #3 — North Straight Bridge 1
-        154, // #4 — North Straight Bridge 2
-        218, // #5 — East Straight Bridge 1
-        254, // #6 — East Straight Bridge 2
-        305, // #7 — Southeast Straight Bridge
-        385, // #8 — South Straight Bridge
+        22,  // #1 — Main Straight Bridge (well ahead of Sky Drone at idx 84)
+        118, // #2 — Northwest Straight Bridge
+        148, // #3 — North Straight Bridge 1
+        178, // #4 — North Straight Bridge 2
+        222, // #5 — East Straight Bridge 1
+        262, // #6 — East Straight Bridge 2
+        335, // #7 — Southeast Straight Bridge
+        395, // #8 — South Straight Bridge
         528  // #9 — Final Straight Bridge
       ];
 
@@ -1964,13 +1972,11 @@
         const group = new THREE.Group();
         group.position.copy(pt);
 
-        // Orient perpendicular across the straight road, facing oncoming traffic head-on
         const faceAngle = Math.atan2(-tan.x, -tan.z);
         group.rotation.y = faceAngle;
 
         const pillarOffset = ROAD_HALF_WIDTH + 2.2;
 
-        // Left & Right Support Pillars outside the curbs
         const postL = new THREE.Mesh(pillarGeo, metalMat);
         postL.position.set(-pillarOffset, 7.9, 0);
         const postR = postL.clone();
@@ -1981,13 +1987,11 @@
         const footR = footL.clone();
         footR.position.x = pillarOffset;
 
-        // Upper & Lower Overhead Bridge Cross-Beams
         const topBeam = new THREE.Mesh(crossBeamGeo, metalMat);
         topBeam.position.set(0, boardCenterY + boardHeight * 0.5 + 0.55, 0);
         const botBeam = new THREE.Mesh(crossBeamGeo, metalMat);
         botBeam.position.set(0, boardCenterY - boardHeight * 0.5 - 0.55, 0);
 
-        // Central Billboard Cabinet
         const cabinet = new THREE.Mesh(cabinetGeo, darkHousingMat);
         cabinet.position.set(0, boardCenterY, 0);
 
@@ -2003,7 +2007,6 @@
 
         const faceMat = new THREE.MeshBasicMaterial({ map: bTex, fog: false });
 
-        // Front Face (oncoming traffic view) & Rear Face (viewable from behind too)
         const frontFace = new THREE.Mesh(boardGeo, faceMat);
         frontFace.position.set(0, boardCenterY, 0.45);
         const rearFace = new THREE.Mesh(boardGeo, faceMat);
@@ -2013,7 +2016,6 @@
         group.add(postL, postR, footL, footR, topBeam, botBeam, cabinet, frontFace, rearFace);
         scene.add(group);
 
-        // Camera preview vantage point down the center of the straight road looking at the overhead sign
         const normalX = Math.sin(faceAngle);
         const normalZ = Math.cos(faceAngle);
         const camPos = new THREE.Vector3(pt.x + normalX * 34, 6.4, pt.z + normalZ * 34);
@@ -3228,7 +3230,7 @@
     let ledTimer = 0;
 
     const smoothCamPos = new THREE.Vector3(0, 8, 16);
-    const smoothCamLook = new THREE.Vector3(0, 1.5, -10);
+    const smoothCamLook = new THREE.Vector3(0, 2.2, -10);
     const sortedRacers = [...racers];
 
     const overlay = document.getElementById('overlay');
@@ -3252,7 +3254,7 @@
       const sinH = Math.sin(p.heading);
       const cosH = Math.cos(p.heading);
       smoothCamPos.set(p.pos.x - sinH * 10, 4.3, p.pos.z - cosH * 10);
-      smoothCamLook.set(p.pos.x + sinH * 14, 1.4, p.pos.z + cosH * 14);
+      smoothCamLook.set(p.pos.x + sinH * 14, 2.2, p.pos.z + cosH * 14);
       updateJumbotron('PLAYER', 0, 0, bestScore);
     }
 
@@ -3715,7 +3717,7 @@
           );
           _v2.set(
             player.pos.x + sinP * 14,
-            1.3,
+            2.2,
             player.pos.z + cosP * 14
           );
 
@@ -3725,7 +3727,7 @@
           camera.lookAt(smoothCamLook);
         } else {
           camera.position.set(player.pos.x + sinP * 0.7 + shakeX, 1.55 + shakeY, player.pos.z + cosP * 0.7);
-          camera.lookAt(player.pos.x + sinP * 24, 1.2, player.pos.z + cosP * 24);
+          camera.lookAt(player.pos.x + sinP * 24, 2.2, player.pos.z + cosP * 24);
         }
 
         const targetFov = 62 + speedRatio * 19 + (playerBoosting ? 5 : 0);
