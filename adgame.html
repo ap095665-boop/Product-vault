@@ -698,6 +698,11 @@
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    if (typeof THREE === 'undefined') {
+      document.write('<script src="https://unpkg.com/three@0.128.0/build/three.min.js"><\/script>');
+    }
+  </script>
 </head>
 <body>
   <canvas id="game-canvas"></canvas>
@@ -806,23 +811,23 @@
     </div>
 
     <div class="editor-body">
-      <!-- TAB 1: SIDE BILLBOARDS -->
+      <!-- TAB 1: OVERHEAD STRAIGHT-ROAD BILLBOARDS (9) -->
       <div class="tab-pane active" id="pane-billboards">
         <div class="field-group">
           <label class="field-label">
-            <span>Select Trackside Sign</span>
+            <span>Select Overhead Road Billboard</span>
             <span id="bb-index-badge">1 / 9</span>
           </label>
           <select class="editor-select" id="bb-select">
-            <option value="0">#1 — Opening Straight (Right)</option>
-            <option value="1">#2 — North Approach (Left)</option>
-            <option value="2">#3 — Fast Sweeper (Right)</option>
-            <option value="3">#4 — East Apex (Left)</option>
-            <option value="4">#5 — Backstretch Entry (Right)</option>
-            <option value="5">#6 — Chicane Bend (Left)</option>
-            <option value="6">#7 — South Hairpin (Right)</option>
-            <option value="7">#8 — West Curve (Left)</option>
-            <option value="8">#9 — Final Corner (Right)</option>
+            <option value="0">#1 — Main Straight Bridge 1</option>
+            <option value="1">#2 — Main Straight Bridge 2</option>
+            <option value="2">#3 — North Straight Bridge 1</option>
+            <option value="3">#4 — North Straight Bridge 2</option>
+            <option value="4">#5 — East Straight Bridge 1</option>
+            <option value="5">#6 — East Straight Bridge 2</option>
+            <option value="6">#7 — Southeast Straight Bridge</option>
+            <option value="7">#8 — South Straight Bridge</option>
+            <option value="8">#9 — Final Straight Bridge</option>
           </select>
         </div>
 
@@ -875,6 +880,10 @@
           <button class="mini-btn" id="bb-apply-all">APPLY TO ALL 9</button>
           <button class="mini-btn" id="bb-reset-all">RESET SIGNS</button>
         </div>
+
+        <div class="info-box">
+          <strong>Overhead Straight-Road Bridges (9x):</strong> All 9 billboards span directly across straight road stretches with 7.0m clearance so cars drive right underneath!
+        </div>
       </div>
 
       <!-- TAB 2: OVERHEAD DIGITAL LED GANTRY -->
@@ -916,7 +925,7 @@
         <button class="mini-btn" id="led-sync-offer-btn">AUTO-FILL FROM SHOP OFFER &amp; CODE ⚡</button>
 
         <div class="info-box">
-          <strong>Overhead Road Gantries (2x):</strong> Mounted 6.6m above the asphalt on two main straights so racers drive cleanly underneath!
+          <strong>Overhead Road LED Tickers (2x):</strong> Mounted above straight road sections so racers drive cleanly underneath while reading your scrolling marquee!
         </div>
       </div>
 
@@ -970,7 +979,7 @@
         </div>
 
         <div class="info-box">
-          <strong>Straight-Road Sky Display:</strong> 4 heavy-lift drones suspend a monumental <strong>54m × 22m</strong> double-sided LED screen directly above the main straight road, facing oncoming drivers so it is clearly readable from far away!
+          <strong>Straight-Road Sky Display:</strong> 4 heavy-lift drones suspend a monumental <strong>54m × 22m</strong> double-sided LED screen high above the main straight road, facing oncoming drivers!
         </div>
       </div>
 
@@ -1144,6 +1153,14 @@
     }
 
     applyBrandingToMenu();
+
+    if (typeof THREE === 'undefined') {
+      const m = document.getElementById('modal-content');
+      if (m) {
+        m.innerHTML = '<h1>3D ENGINE OFFLINE</h1><p>Please connect to the internet once to load the 3D WebGL library, then refresh.</p>';
+      }
+      throw new Error('Three.js failed to load');
+    }
 
     // ==========================================
     // 1. ENGINE, QUALITY PROFILES & SCRATCH VECTORS
@@ -1374,7 +1391,7 @@
     const carShadowTex = createShadowBlobTexture();
 
     // ==========================================
-    // 3. CIRCUIT TRACK, OVERHEAD LED & SKY DRONE BILLBOARD
+    // 3. CIRCUIT TRACK, OVERHEAD BILLBOARDS, LED & SKY DRONE
     // ==========================================
     const controlPoints = [
       new THREE.Vector3(0, 0, 0),
@@ -1506,7 +1523,7 @@
     })();
 
     // ==========================================
-    // 3B. OVERHEAD DIGITAL LED ROAD BILLBOARDS
+    // 3B. OVERHEAD DIGITAL LED ROAD BILLBOARDS (MOVING TICKER)
     // ==========================================
     const ledCanvas = document.createElement('canvas');
     ledCanvas.width = 512;
@@ -1532,7 +1549,7 @@
     const overheadGantries = [];
 
     (function createOverheadLedGantries() {
-      const gantryIndices = [42, 305];
+      const gantryIndices = [38, 236];
       const pillarGeo = new THREE.CylinderGeometry(0.55, 0.68, 9.8, 8);
       const baseFootGeo = new THREE.BoxGeometry(1.8, 0.7, 1.8);
       const steelMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
@@ -1692,7 +1709,6 @@
       const rawTicker = (clientConfig.droneTicker || 'WELCOME TO APEX HORIZON 3D').trim() || 'WELCOME TO APEX HORIZON 3D';
       const tickerMsg = `${rawTicker}     ★     `;
 
-      // High-contrast dark LED panel base
       const grad = ctx.createLinearGradient(0, 0, w, h);
       grad.addColorStop(0, '#040711');
       grad.addColorStop(0.5, '#0c1528');
@@ -1700,7 +1716,6 @@
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, w, h);
 
-      // Optional uploaded/URL shop backdrop image
       if (droneCachedBgImg) {
         const scale = Math.max(w / droneCachedBgImg.width, h / droneCachedBgImg.height);
         const iw = droneCachedBgImg.width * scale;
@@ -1710,7 +1725,6 @@
         ctx.fillRect(0, 0, w, h);
       }
 
-      // Top Aerial Broadcast Header Strip
       ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
       ctx.fillRect(16, 16, w - 32, 34);
       ctx.fillStyle = glowColor;
@@ -1719,7 +1733,6 @@
       ctx.textBaseline = 'middle';
       ctx.fillText('● LIVE AERIAL SKY SCREEN ●', w * 0.5, 33);
 
-      // Extra-Large Bold Main Headline visible from far down the straight
       if (titleText) {
         ctx.fillStyle = '#ffffff';
         ctx.font = '900 76px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
@@ -1731,7 +1744,6 @@
         ctx.shadowBlur = 0;
       }
 
-      // Bottom Digital Scrolling Ticker Band
       const bandY = h - 84;
       ctx.fillStyle = 'rgba(2, 6, 23, 0.92)';
       ctx.fillRect(14, bandY, w - 28, 66);
@@ -1761,12 +1773,10 @@
         drawX += droneTickerWidth;
       }
 
-      // Outer High-Visibility LED Cabinet Frame
       ctx.strokeStyle = glowColor;
       ctx.lineWidth = 12;
       ctx.strokeRect(8, 8, w - 16, h - 16);
 
-      // Dot-matrix pixel grid overlay
       if (ledDotPattern) {
         ctx.fillStyle = ledDotPattern;
         ctx.fillRect(0, 0, w, h);
@@ -1776,8 +1786,6 @@
     renderSkyDroneCanvas(droneLedCanvas, 0);
     droneLedTex.needsUpdate = true;
 
-    // Position the Giant Sky Drone LED Billboard directly above the end of the main Start/Finish straight
-    // (idx = 70 is dead-center above the straight road, towering above the 8.1m road gantry so it's visible from the starting line & far away)
     const skyDroneSystem = (function createSkyDroneRig() {
       const rig = new THREE.Group();
       const rotors = [];
@@ -1785,16 +1793,14 @@
       const straightIdx = 70;
       const anchorPt = trackPoints[straightIdx];
       const anchorTan = trackTangents[straightIdx];
-      const faceAngle = Math.atan2(-anchorTan.x, -anchorTan.z); // Faces oncoming traffic head-on!
+      const faceAngle = Math.atan2(-anchorTan.x, -anchorTan.z);
       const normalX = Math.sin(faceAngle);
       const normalZ = Math.cos(faceAngle);
 
-      // Monumental 54m wide x 22m tall screen (over 2x wider than the 26m highway!)
       const screenW = 54;
       const screenH = 22;
-      const baseHeightY = 27.5; // Bottom edge at 16.5m, top edge at 38.5m — cars & gantries pass cleanly underneath
+      const baseHeightY = 27.5;
 
-      // fog: false ensures the luminous LED screen punches vividly through distance fog from anywhere on the track
       const cabinetMat = new THREE.MeshLambertMaterial({ color: 0x070b14, fog: false });
       const glowFrameMat = new THREE.MeshBasicMaterial({ color: clientConfig.droneColor || '#facc15', fog: false });
       const screenMat = new THREE.MeshBasicMaterial({ map: droneLedTex, fog: false });
@@ -1802,14 +1808,12 @@
       const cabinet = new THREE.Mesh(new THREE.BoxGeometry(screenW + 1.6, screenH + 1.6, 1.4), cabinetMat);
       rig.add(cabinet);
 
-      // Glowing top & bottom structural truss beams
       const topTruss = new THREE.Mesh(new THREE.BoxGeometry(screenW + 2.8, 0.85, 2.0), glowFrameMat);
       topTruss.position.y = screenH * 0.5 + 0.85;
       const botTruss = topTruss.clone();
       botTruss.position.y = -screenH * 0.5 - 0.85;
       rig.add(topTruss, botTruss);
 
-      // Front & Back Giant LED Display Faces
       const faceGeo = new THREE.PlaneGeometry(screenW, screenH);
       const frontFace = new THREE.Mesh(faceGeo, screenMat);
       frontFace.position.z = 0.75;
@@ -1818,7 +1822,6 @@
       backFace.rotation.y = Math.PI;
       rig.add(frontFace, backFace);
 
-      // 4 Heavy-Lift Industrial Drones Hovering Above the Giant Screen
       const droneOffsets = [
         [-22, 16.8, 1.8],
         [22, 16.8, 1.8],
@@ -1869,7 +1872,6 @@
           rotors.push(rotor);
         });
 
-        // Suspension Cable connecting each Drone to the Top Truss
         const cable = new THREE.Mesh(cableGeo, cableMat);
         cable.position.set(dx, dy - 2.9, dz * 0.45);
         cable.rotation.x = -dz * 0.14;
@@ -1882,7 +1884,6 @@
       rig.rotation.y = faceAngle;
       scene.add(rig);
 
-      // Studio camera preview vantage point down the straight road looking right up at the giant sky screen
       const previewCamPos = new THREE.Vector3(anchorPt.x + normalX * 72, 13.5, anchorPt.z + normalZ * 72);
       const previewLookAt = new THREE.Vector3(anchorPt.x, baseHeightY - 1.0, anchorPt.z);
 
@@ -1904,7 +1905,6 @@
       skyDroneSystem.hoverTime += dt;
       const t = skyDroneSystem.hoverTime;
 
-      // Keep the giant screen centered directly above the straight road with gentle aerodynamic hover
       const bobY = Math.sin(t * 2.1) * 0.75;
       const swayLateral = Math.sin(t * 0.9) * 1.1;
 
@@ -1916,7 +1916,6 @@
       skyDroneSystem.rig.rotation.y = skyDroneSystem.faceAngle;
       skyDroneSystem.rig.rotation.z = Math.cos(t * 0.9) * 0.018;
 
-      // Spin all 16 heavy-lift rotors
       const spinStep = dt * 38;
       for (let i = 0; i < skyDroneSystem.rotors.length; i++) {
         skyDroneSystem.rotors[i].rotation.y += spinStep;
@@ -1924,52 +1923,73 @@
     }
 
     // ==========================================
-    // 3D. TRACKSIDE BILLBOARDS & JUMBOTRON
+    // 3D. ALL 9 BILLBOARDS ON STRAIGHT ROADS — CARS PASS UNDERNEATH!
     // ==========================================
     const billboardInstances = [];
     let jumbotronCanvas, jumbotronCtx, jumbotronTex;
 
-    (function createBillboards() {
-      const boardGeo = new THREE.PlaneGeometry(16, 8);
-      const frameGeo = new THREE.BoxGeometry(16.6, 8.6, 0.5);
-      const postGeo = new THREE.CylinderGeometry(0.35, 0.42, 7.5, 6);
-      const metalMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
+    (function createOverheadStraightBillboards() {
+      // Full-span overhead gantry bridges mounted directly over straight road segments
+      const spanWidth = ROAD_HALF_WIDTH * 2 + 4.4; // 30.4m full road bridge span
+      const boardWidth = 24;
+      const boardHeight = 8.4;
+      const boardCenterY = 11.4; // Bottom beam at y = 7.0m -> cars & chase camera pass cleanly underneath!
 
-      const placements = [
-        { idx: 42, side: 1 },
-        { idx: 92, side: -1 },
-        { idx: 145, side: 1 },
-        { idx: 205, side: -1 },
-        { idx: 260, side: 1 },
-        { idx: 325, side: -1 },
-        { idx: 385, side: 1 },
-        { idx: 445, side: -1 },
-        { idx: 500, side: 1 }
+      const boardGeo = new THREE.PlaneGeometry(boardWidth, boardHeight);
+      const cabinetGeo = new THREE.BoxGeometry(boardWidth + 0.8, boardHeight + 0.8, 0.85);
+      const crossBeamGeo = new THREE.BoxGeometry(spanWidth + 1.2, 0.75, 1.1);
+      const pillarGeo = new THREE.CylinderGeometry(0.55, 0.7, 15.8, 8);
+      const baseFootGeo = new THREE.BoxGeometry(1.9, 0.75, 1.9);
+
+      const metalMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
+      const darkHousingMat = new THREE.MeshLambertMaterial({ color: 0x090d16 });
+
+      // 9 straight-road indices evenly distributed around the circuit
+      const straightRoadIndices = [
+        22,  // #1 — Main Straight Bridge 1
+        54,  // #2 — Main Straight Bridge 2
+        128, // #3 — North Straight Bridge 1
+        154, // #4 — North Straight Bridge 2
+        218, // #5 — East Straight Bridge 1
+        254, // #6 — East Straight Bridge 2
+        305, // #7 — Southeast Straight Bridge
+        385, // #8 — South Straight Bridge
+        528  // #9 — Final Straight Bridge
       ];
 
-      placements.forEach((pInfo, i) => {
-        const pt = trackPoints[pInfo.idx];
-        const rt = trackRights[pInfo.idx];
-        const tan = trackTangents[pInfo.idx];
+      straightRoadIndices.forEach((trackIdx, i) => {
+        const pt = trackPoints[trackIdx];
+        const tan = trackTangents[trackIdx];
 
         const group = new THREE.Group();
-        const lateralDist = ROAD_HALF_WIDTH + 9.5;
-        group.position.set(
-          pt.x + rt.x * pInfo.side * lateralDist,
-          0,
-          pt.z + rt.z * pInfo.side * lateralDist
-        );
+        group.position.copy(pt);
 
-        const faceAngle = Math.atan2(-tan.x, -tan.z) - pInfo.side * 0.36;
+        // Orient perpendicular across the straight road, facing oncoming traffic head-on
+        const faceAngle = Math.atan2(-tan.x, -tan.z);
         group.rotation.y = faceAngle;
 
-        const postL = new THREE.Mesh(postGeo, metalMat);
-        postL.position.set(-5.5, 3.75, -0.3);
-        const postR = new THREE.Mesh(postGeo, metalMat);
-        postR.position.set(5.5, 3.75, -0.3);
+        const pillarOffset = ROAD_HALF_WIDTH + 2.2;
 
-        const frame = new THREE.Mesh(frameGeo, metalMat);
-        frame.position.set(0, 8.2, -0.26);
+        // Left & Right Support Pillars outside the curbs
+        const postL = new THREE.Mesh(pillarGeo, metalMat);
+        postL.position.set(-pillarOffset, 7.9, 0);
+        const postR = postL.clone();
+        postR.position.x = pillarOffset;
+
+        const footL = new THREE.Mesh(baseFootGeo, metalMat);
+        footL.position.set(-pillarOffset, 0.38, 0);
+        const footR = footL.clone();
+        footR.position.x = pillarOffset;
+
+        // Upper & Lower Overhead Bridge Cross-Beams
+        const topBeam = new THREE.Mesh(crossBeamGeo, metalMat);
+        topBeam.position.set(0, boardCenterY + boardHeight * 0.5 + 0.55, 0);
+        const botBeam = new THREE.Mesh(crossBeamGeo, metalMat);
+        botBeam.position.set(0, boardCenterY - boardHeight * 0.5 - 0.55, 0);
+
+        // Central Billboard Cabinet
+        const cabinet = new THREE.Mesh(cabinetGeo, darkHousingMat);
+        cabinet.position.set(0, boardCenterY, 0);
 
         const bCanvas = document.createElement('canvas');
         bCanvas.width = 512;
@@ -1981,40 +2001,46 @@
           bTex.needsUpdate = true;
         });
 
-        const faceMat = new THREE.MeshBasicMaterial({ map: bTex });
-        const face = new THREE.Mesh(boardGeo, faceMat);
-        face.position.set(0, 8.2, 0.02);
+        const faceMat = new THREE.MeshBasicMaterial({ map: bTex, fog: false });
 
-        group.add(postL, postR, frame, face);
+        // Front Face (oncoming traffic view) & Rear Face (viewable from behind too)
+        const frontFace = new THREE.Mesh(boardGeo, faceMat);
+        frontFace.position.set(0, boardCenterY, 0.45);
+        const rearFace = new THREE.Mesh(boardGeo, faceMat);
+        rearFace.position.set(0, boardCenterY, -0.45);
+        rearFace.rotation.y = Math.PI;
+
+        group.add(postL, postR, footL, footR, topBeam, botBeam, cabinet, frontFace, rearFace);
         scene.add(group);
 
+        // Camera preview vantage point down the center of the straight road looking at the overhead sign
         const normalX = Math.sin(faceAngle);
         const normalZ = Math.cos(faceAngle);
-        const camPos = new THREE.Vector3(group.position.x + normalX * 22, 8.5, group.position.z + normalZ * 22);
-        const lookAt = new THREE.Vector3(group.position.x, 8.0, group.position.z);
+        const camPos = new THREE.Vector3(pt.x + normalX * 34, 6.4, pt.z + normalZ * 34);
+        const lookAt = new THREE.Vector3(pt.x, boardCenterY - 0.8, pt.z);
 
         billboardInstances.push({ canvas: bCanvas, texture: bTex, camPos, lookAt });
       });
 
-      // Live Jumbotron near Finish Straight
+      // Live Telemetry Jumbotron on side of Start Straight
       jumbotronCanvas = document.createElement('canvas');
       jumbotronCanvas.width = 512;
       jumbotronCanvas.height = 256;
       jumbotronCtx = jumbotronCanvas.getContext('2d');
       jumbotronTex = new THREE.CanvasTexture(jumbotronCanvas);
 
-      const jumboIdx = 22;
+      const jumboIdx = 12;
       const jPt = trackPoints[jumboIdx];
       const jRt = trackRights[jumboIdx];
       const jTan = trackTangents[jumboIdx];
 
       const jumboGroup = new THREE.Group();
       jumboGroup.position.set(
-        jPt.x - jRt.x * (ROAD_HALF_WIDTH + 11),
+        jPt.x - jRt.x * (ROAD_HALF_WIDTH + 11.5),
         0,
-        jPt.z - jRt.z * (ROAD_HALF_WIDTH + 11)
+        jPt.z - jRt.z * (ROAD_HALF_WIDTH + 11.5)
       );
-      jumboGroup.rotation.y = Math.atan2(-jTan.x, -jTan.z) + 0.38;
+      jumboGroup.rotation.y = Math.atan2(-jTan.x, -jTan.z) + 0.36;
 
       const jPostL = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.55, 9, 6), metalMat);
       jPostL.position.set(-7, 4.5, -0.3);
@@ -2501,7 +2527,7 @@
     const editorDrawer = document.getElementById('editor-drawer');
     let selectedBillboardIdx = 0;
     let editorOpen = false;
-    let activeEditorTab = 'billboards'; // 'billboards' | 'overhead' | 'drone' | 'shop'
+    let activeEditorTab = 'billboards';
 
     const THEME_PRESETS = [
       { bg1: '#0f172a', bg2: '#0369a1', accent: '#38bdf8' },
@@ -2646,7 +2672,6 @@
         updateJumbotron('PLAYER', 0, 0, bestScore);
       }
 
-      // Tabs
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -2824,16 +2849,44 @@
         const cloneHudStudioBtn = clone.querySelector('#edit-ads-hud-btn');
         if (cloneHudStudioBtn) cloneHudStudioBtn.remove();
 
-        const cloneMenuStudioBtn = clone.querySelector('#open-editor-menu-btn');
-        if (cloneMenuStudioBtn) cloneMenuStudioBtn.remove();
-
         const cloneShortcutHint = clone.querySelector('#studio-shortcut-hint');
         if (cloneShortcutHint) {
           cloneShortcutHint.innerHTML = '<span class="key">C</span> Camera &nbsp; <span class="key">R</span> Reset &nbsp; <span class="key">G</span> Graphics';
         }
 
+        const cloneCanvas = clone.querySelector('#game-canvas');
+        if (cloneCanvas) {
+          cloneCanvas.removeAttribute('width');
+          cloneCanvas.removeAttribute('height');
+          cloneCanvas.removeAttribute('style');
+        }
+
+        const target = Number(clientConfig.targetScore) || 0;
+        const reward = (clientConfig.rewardTitle || '').trim();
+        const code = (clientConfig.promoCode || '').trim();
+        const challengeBannerHtml = (target > 0 && reward && code)
+          ? `<div class="challenge-banner" id="menu-challenge-banner">🏆 Score <strong>${target.toLocaleString()}+ pts</strong> to unlock <strong>${escapeHtml(reward)}</strong></div>`
+          : `<div class="challenge-banner" id="menu-challenge-banner" style="display:none;"></div>`;
+
         const cloneOverlay = clone.querySelector('#overlay');
         if (cloneOverlay) cloneOverlay.style.display = 'flex';
+
+        const cloneModal = clone.querySelector('#modal-content');
+        if (cloneModal) {
+          cloneModal.innerHTML = `
+            <h1 id="menu-title">${escapeHtml(clientConfig.shopTitle || 'APEX HORIZON 3D')}</h1>
+            <p id="menu-subtitle">${escapeHtml(clientConfig.shopSubtitle || '')}</p>
+            ${challengeBannerHtml}
+            <div class="quality-picker" id="quality-picker">
+              <button class="q-btn active" data-q="0">ULTRA SMOOTH</button>
+              <button class="q-btn" data-q="1">BALANCED</button>
+              <button class="q-btn" data-q="2">HIGH</button>
+            </div>
+            <div class="modal-actions">
+              <button class="btn" id="start-btn">START RACE</button>
+            </div>
+          `;
+        }
 
         const cloneCountdown = clone.querySelector('#countdown');
         if (cloneCountdown) {
@@ -2873,7 +2926,7 @@
         if (mainScript) {
           const markerRegex = /\/\/ === CLIENT_CONFIG_START ===[\s\S]*?\/\/ === CLIENT_CONFIG_END ===/;
           const bakedBlock = `// === CLIENT_CONFIG_START ===\n    const BAKED_CLIENT_CONFIG = ${safeJson(exportedClientCfg)};\n    const BAKED_BILLBOARDS = ${safeJson(billboardData)};\n    // === CLIENT_CONFIG_END ===`;
-          mainScript.textContent = mainScript.textContent.replace(markerRegex, bakedBlock);
+          mainScript.textContent = mainScript.textContent.replace(markerRegex, () => bakedBlock);
         }
 
         const slug = (clientConfig.shopTitle || 'shop-race')
@@ -2986,6 +3039,7 @@
 
     function bindTouch(id, code) {
       const el = document.getElementById(id);
+      if (!el) return;
       el.addEventListener('touchstart', e => { e.preventDefault(); keys[code] = true; }, { passive: false });
       el.addEventListener('touchend', e => { e.preventDefault(); keys[code] = false; }, { passive: false });
     }
@@ -3202,7 +3256,10 @@
       updateJumbotron('PLAYER', 0, 0, bestScore);
     }
 
-    document.getElementById('start-btn').addEventListener('click', startRaceSequence);
+    const initialStartBtn = document.getElementById('start-btn');
+    if (initialStartBtn) {
+      initialStartBtn.addEventListener('click', startRaceSequence);
+    }
 
     function showFinishScreen(playerRank) {
       bankComboScore();
@@ -3307,10 +3364,8 @@
         fpsAccum = 0;
       }
 
-      // Update Sky Drone Rig hovering directly over the straight road
       updateSkyDroneRig(dt);
 
-      // Smooth 30Hz Digital Overhead & Sky Drone LED Marquee Ticker Updates
       ledTimer += dt;
       if (ledTimer >= 0.033) {
         renderOverheadLedCanvas(ledCanvas, ledTimer);
@@ -3637,7 +3692,7 @@
         smoothCamLook.lerp(bb.lookAt, 1 - Math.exp(-10 * dt));
         camera.position.copy(smoothCamPos);
         camera.lookAt(smoothCamLook);
-        camera.fov += (54 - camera.fov) * (1 - Math.exp(-8 * dt));
+        camera.fov += (56 - camera.fov) * (1 - Math.exp(-8 * dt));
         camera.updateProjectionMatrix();
       } else {
         const sinP = Math.sin(player.heading);
