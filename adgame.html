@@ -155,7 +155,7 @@
       text-transform: uppercase;
       padding: 4px 14px;
       border-radius: 999px;
-      background: rgba(15, 23, 42, 0.86);
+      background: rgba(15, 23, 42, 0.88);
       border: 1px solid rgba(255, 255, 255, 0.25);
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
       animation: popFloat 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -178,6 +178,8 @@
       align-items: center;
       gap: 6px;
       pointer-events: auto;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
     .pill-btn {
       font-size: 11px;
@@ -192,6 +194,11 @@
     .pill-btn:hover {
       border-color: #38bdf8;
       color: #fff;
+    }
+    .pill-btn.active-tilt {
+      background: rgba(16, 185, 129, 0.26);
+      border-color: #34d399;
+      color: #6ee7b7;
     }
     #edit-ads-hud-btn {
       background: rgba(14, 165, 233, 0.25);
@@ -215,6 +222,37 @@
       border-radius: 12px;
       background: rgba(15, 23, 42, 0.86);
       border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    /* Live Gyroscope Horizon Tilt Meter */
+    #gyro-meter {
+      display: none;
+      width: 130px;
+      height: 10px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(52, 211, 153, 0.45);
+      border-radius: 999px;
+      position: relative;
+      overflow: hidden;
+    }
+    #gyro-center-tick {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: rgba(255, 255, 255, 0.4);
+      transform: translateX(-50%);
+    }
+    #gyro-dot {
+      position: absolute;
+      top: 1px;
+      left: 50%;
+      width: 14px;
+      height: 6px;
+      border-radius: 999px;
+      background: #34d399;
+      transform: translateX(-50%);
     }
 
     .hud-bottom {
@@ -663,38 +701,70 @@
       gap: 8px;
     }
 
+    /* Mobile Ergonomic Two-Thumb Controls */
     #touch-controls {
       display: none;
       position: fixed;
-      bottom: 16px;
-      left: 16px;
-      right: 16px;
+      bottom: 18px;
+      left: 18px;
+      right: 18px;
       justify-content: space-between;
+      align-items: flex-end;
       z-index: 15;
       pointer-events: none;
     }
     .touch-group {
       display: flex;
-      gap: 10px;
+      gap: 12px;
+      align-items: center;
       pointer-events: auto;
     }
     .touch-btn {
-      width: 58px;
-      height: 58px;
+      width: 66px;
+      height: 66px;
       border-radius: 50%;
-      background: rgba(15, 23, 42, 0.82);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(15, 23, 42, 0.84);
+      border: 2px solid rgba(255, 255, 255, 0.28);
       color: #fff;
-      font-size: 18px;
-      font-weight: 800;
+      font-size: 15px;
+      font-weight: 900;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
     }
+    .touch-btn:active {
+      transform: scale(0.93);
+      border-color: #38bdf8;
+    }
+    .touch-btn-big {
+      width: 78px;
+      height: 78px;
+      font-size: 14px;
+      letter-spacing: 0.6px;
+    }
+    #t-drift-gyro {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.35), rgba(239, 68, 68, 0.35));
+      border-color: rgba(251, 191, 36, 0.65);
+      color: #fef08a;
+    }
+    #t-nitro {
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.4), rgba(79, 70, 229, 0.4));
+      border-color: rgba(56, 189, 248, 0.75);
+      font-size: 24px;
+    }
+    #t-brake {
+      width: 52px;
+      height: 52px;
+      font-size: 11px;
+      color: #fca5a5;
+      border-color: rgba(248, 113, 113, 0.45);
+    }
+
     @media (pointer: coarse) {
       #touch-controls { display: flex; }
       .controls-hint { display: none; }
-      .speed-cluster { margin-bottom: 70px; }
+      .speed-cluster { margin-bottom: 92px; }
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -750,9 +820,14 @@
 
       <div class="top-right-cluster">
         <div class="perf-bar">
+          <button class="pill-btn" id="gyro-btn" title="Toggle Tilt-to-Steer Gyroscope">TILT: OFF</button>
           <button class="pill-btn" id="edit-ads-hud-btn" title="Open Shop & Billboard Studio (B)">STUDIO</button>
           <div id="fps-badge">60 FPS</div>
           <button class="pill-btn" id="gfx-btn" title="Switch Graphics Quality (G)">GFX: SMOOTH</button>
+        </div>
+        <div id="gyro-meter" title="Tilt Balance">
+          <div id="gyro-center-tick"></div>
+          <div id="gyro-dot"></div>
         </div>
         <canvas id="minimap" width="112" height="112"></canvas>
       </div>
@@ -780,7 +855,7 @@
   <div id="overlay">
     <div class="modal" id="modal-content">
       <h1 id="menu-title">APEX HORIZON 3D</h1>
-      <p id="menu-subtitle">Drift corners to charge Nitro, thread near-misses past rivals, and beat the target score!</p>
+      <p id="menu-subtitle">Tilt your phone to steer, grab gold coins, drift corners for Nitro, and beat the target score!</p>
       <div class="challenge-banner" id="menu-challenge-banner">
         🏆 Score <strong>5,000+ pts</strong> to unlock <strong>15% OFF YOUR ORDER</strong>
       </div>
@@ -979,7 +1054,7 @@
         </div>
 
         <div class="info-box">
-          <strong>High-Altitude Sky Display:</strong> 4 heavy-lift drones suspend a colossal <strong>62m × 24m</strong> double-sided LED screen at <strong>35m altitude</strong> above the far end of the main straight—towering cleanly above all road bridges so it's visible from far away!
+          <strong>High-Altitude Sky Display:</strong> 4 heavy-lift drones suspend a colossal <strong>62m × 24m</strong> double-sided LED screen at <strong>36.5m altitude</strong> above the far end of the main straight—visible from far away!
         </div>
       </div>
 
@@ -1024,15 +1099,22 @@
     </div>
   </aside>
 
+  <!-- MOBILE TWO-THUMB / GYRO CONTROLS -->
   <div id="touch-controls">
-    <div class="touch-group">
+    <!-- Left Thumb: Drift button when Tilt-to-Steer is ON, or Left/Right Arrows if Tilt is OFF -->
+    <div class="touch-group" id="touch-left-arrows">
       <div class="touch-btn" id="t-left">◀</div>
       <div class="touch-btn" id="t-right">▶</div>
     </div>
+    <div class="touch-group" id="touch-left-gyro" style="display:none;">
+      <div class="touch-btn touch-btn-big" id="t-drift-gyro">DRIFT</div>
+    </div>
+
+    <!-- Right Thumb: Auto-Gas is active on mobile, so right thumb controls Drift/Brake + Nitro -->
     <div class="touch-group">
-      <div class="touch-btn" id="t-drift" style="font-size:12px;">DRIFT</div>
-      <div class="touch-btn" id="t-nitro">⚡</div>
-      <div class="touch-btn" id="t-gas">▲</div>
+      <div class="touch-btn" id="t-drift-fallback" style="font-size:12px;">DRIFT</div>
+      <div class="touch-btn" id="t-brake">BRAKE</div>
+      <div class="touch-btn touch-btn-big" id="t-nitro">⚡</div>
     </div>
   </div>
 
@@ -1042,11 +1124,11 @@
     // ==========================================
     const DEFAULT_CLIENT_CONFIG = {
       shopTitle: 'APEX HORIZON 3D',
-      shopSubtitle: 'Drift corners to charge Nitro, thread near-misses past rivals, and beat the target score!',
+      shopSubtitle: 'Tilt your phone to steer, grab gold coins, drift corners for Nitro, and beat the target score!',
       targetScore: 5000,
       rewardTitle: '15% OFF YOUR ORDER',
       promoCode: 'RACE15',
-      ledText: '★ WELCOME TO APEX HORIZON 3D • SCORE 5,000+ PTS FOR 15% OFF (CODE: RACE15) • DRIFT CORNERS TO CHARGE NITRO ★',
+      ledText: '★ WELCOME TO APEX HORIZON 3D • SCORE 5,000+ PTS FOR 15% OFF (CODE: RACE15) • TILT & DRIFT FOR NITRO ★',
       ledColor: '#38bdf8',
       ledSpeed: 125,
       droneTitle: 'SKY ARENA LIVE',
@@ -1063,8 +1145,8 @@
       { title: 'SOLAR VOLT', subtitle: '100% ELECTRIC TORQUE', bg1: '#064e3b', bg2: '#0f172a', accent: '#34d399', imageUrl: '' },
       { title: 'NEAR MISS!', subtitle: 'PASS CLOSE FOR +250 PTS', bg1: '#31102f', bg2: '#9a3412', accent: '#fb923c', imageUrl: '' },
       { title: 'APEX HORIZON', subtitle: 'COASTAL GRAND PRIX', bg1: '#0f172a', bg2: '#1d4ed8', accent: '#60a5fa', imageUrl: '' },
-      { title: 'TURBO CHARGE', subtitle: 'HOLD SPACE FOR MAX SPEED', bg1: '#171717', bg2: '#b91c1c', accent: '#fde047', imageUrl: '' },
-      { title: 'COMBO RUSH', subtitle: 'CHAIN DRIFTS FOR 10X', bg1: '#2e1065', bg2: '#be185d', accent: '#f9a8d4', imageUrl: '' },
+      { title: 'TURBO CHARGE', subtitle: 'COLLECT ORBS FOR MAX SPEED', bg1: '#171717', bg2: '#b91c1c', accent: '#fde047', imageUrl: '' },
+      { title: 'COMBO RUSH', subtitle: 'CHAIN COINS & DRIFTS 10X', bg1: '#2e1065', bg2: '#be185d', accent: '#f9a8d4', imageUrl: '' },
       { title: 'PODIUM CLUB', subtitle: 'BEAT THE TRACK RECORD', bg1: '#042f2e', bg2: '#115e59', accent: '#2dd4bf', imageUrl: '' }
     ];
 
@@ -1523,7 +1605,161 @@
     })();
 
     // ==========================================
-    // 3B. OVERHEAD DIGITAL LED ROAD BILLBOARDS (MOVING TICKER)
+    // 3B. COLLECTIBLE GOLD SCORE COINS & CYAN NITRO ORBS (2 INSTANCED DRAW CALLS!)
+    // ==========================================
+    const collectibles = [];
+    const coinList = [];
+    const orbList = [];
+
+    (function createTrackCollectibles() {
+      // Scatter weaving lines of Gold Score Coins and Cyan Nitro Orbs across the entire track
+      for (let idx = 16; idx < N - 18; idx += 11) {
+        const wave = Math.sin(idx * 0.055) * 7.8;
+        const isNitroOrb = (idx % 33 === 0);
+        const pt = trackPoints[idx];
+        const rt = trackRights[idx];
+
+        const item = {
+          x: pt.x + rt.x * wave,
+          y: 0.95,
+          z: pt.z + rt.z * wave,
+          type: isNitroOrb ? 'orb' : 'coin',
+          active: true,
+          respawnTimer: 0,
+          phase: idx * 0.25
+        };
+        collectibles.push(item);
+        if (isNitroOrb) orbList.push(item);
+        else coinList.push(item);
+      }
+    })();
+
+    const coinGeo = new THREE.CylinderGeometry(0.75, 0.75, 0.24, 12);
+    coinGeo.rotateX(Math.PI / 2);
+    const coinMat = new THREE.MeshBasicMaterial({ color: 0xfacc15 });
+    const coinInst = new THREE.InstancedMesh(coinGeo, coinMat, coinList.length);
+    coinInst.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    scene.add(coinInst);
+
+    const orbGeo = new THREE.OctahedronGeometry(0.85, 0);
+    const orbMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+    const orbInst = new THREE.InstancedMesh(orbGeo, orbMat, orbList.length);
+    orbInst.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    scene.add(orbInst);
+
+    const _cDummy = new THREE.Object3D();
+
+    function resetCollectibles() {
+      for (let i = 0; i < collectibles.length; i++) {
+        collectibles[i].active = true;
+        collectibles[i].respawnTimer = 0;
+      }
+    }
+
+    function updateCollectibles(dt, elapsed, player) {
+      let coinDirty = false;
+      let orbDirty = false;
+
+      for (let i = 0; i < coinList.length; i++) {
+        const c = coinList[i];
+        if (!c.active) {
+          c.respawnTimer -= dt;
+          if (c.respawnTimer <= 0) {
+            c.active = true;
+          } else {
+            continue;
+          }
+        }
+
+        // Check player pickup
+        if (gameState === 'RACING') {
+          const dx = player.pos.x - c.x;
+          const dz = player.pos.z - c.z;
+          if (dx * dx + dz * dz < 6.8) {
+            c.active = false;
+            c.respawnTimer = 14.0;
+            _cDummy.position.set(0, -100, 0);
+            _cDummy.scale.setScalar(0.001);
+            _cDummy.updateMatrix();
+            coinInst.setMatrixAt(i, _cDummy.matrix);
+            coinDirty = true;
+
+            scoreState.coinStreak++;
+            scoreState.comboTimer = scoreState.maxComboTimer;
+            const bonus = 100 + Math.min(200, scoreState.coinStreak * 15);
+            addComboScore(bonus, scoreState.coinStreak % 3 === 0 ? `COIN STREAK x${scoreState.coinStreak}!` : null, '#facc15', false);
+            sound.playCoin(scoreState.coinStreak);
+
+            for (let k = 0; k < 4; k++) {
+              spawnParticle(
+                c.x, 1.0, c.z,
+                (Math.random() - 0.5) * 5, 2.5 + Math.random() * 3, (Math.random() - 0.5) * 5,
+                0.28, 0.45, 0.05, 0xfacc15
+              );
+            }
+            continue;
+          }
+        }
+
+        _cDummy.position.set(c.x, c.y + Math.sin(elapsed * 4 + c.phase) * 0.22, c.z);
+        _cDummy.rotation.set(0, elapsed * 3.2 + c.phase, 0);
+        _cDummy.scale.setScalar(1);
+        _cDummy.updateMatrix();
+        coinInst.setMatrixAt(i, _cDummy.matrix);
+        coinDirty = true;
+      }
+
+      for (let i = 0; i < orbList.length; i++) {
+        const o = orbList[i];
+        if (!o.active) {
+          o.respawnTimer -= dt;
+          if (o.respawnTimer <= 0) {
+            o.active = true;
+          } else {
+            continue;
+          }
+        }
+
+        if (gameState === 'RACING') {
+          const dx = player.pos.x - o.x;
+          const dz = player.pos.z - o.z;
+          if (dx * dx + dz * dz < 7.5) {
+            o.active = false;
+            o.respawnTimer = 14.0;
+            _cDummy.position.set(0, -100, 0);
+            _cDummy.scale.setScalar(0.001);
+            _cDummy.updateMatrix();
+            orbInst.setMatrixAt(i, _cDummy.matrix);
+            orbDirty = true;
+
+            player.nitro = Math.min(100, player.nitro + 28);
+            addComboScore(150, 'NITRO ORB! +28%', '#38bdf8', true);
+
+            for (let k = 0; k < 5; k++) {
+              spawnParticle(
+                o.x, 1.1, o.z,
+                (Math.random() - 0.5) * 6, 3 + Math.random() * 3, (Math.random() - 0.5) * 6,
+                0.3, 0.5, 0.05, 0x38bdf8
+              );
+            }
+            continue;
+          }
+        }
+
+        _cDummy.position.set(o.x, o.y + 0.15 + Math.sin(elapsed * 4.5 + o.phase) * 0.25, o.z);
+        _cDummy.rotation.set(elapsed * 2, elapsed * 3.5 + o.phase, 0);
+        _cDummy.scale.setScalar(1);
+        _cDummy.updateMatrix();
+        orbInst.setMatrixAt(i, _cDummy.matrix);
+        orbDirty = true;
+      }
+
+      if (coinDirty) coinInst.instanceMatrix.needsUpdate = true;
+      if (orbDirty) orbInst.instanceMatrix.needsUpdate = true;
+    }
+
+    // ==========================================
+    // 3C. OVERHEAD DIGITAL LED ROAD BILLBOARDS (MOVING TICKER)
     // ==========================================
     const ledCanvas = document.createElement('canvas');
     ledCanvas.width = 512;
@@ -1549,7 +1785,6 @@
     const overheadGantries = [];
 
     (function createOverheadLedGantries() {
-      // Positioned cleanly so they never obstruct the Sky Drone LED screen behind them
       const gantryIndices = [52, 298];
       const pillarGeo = new THREE.CylinderGeometry(0.55, 0.68, 9.5, 8);
       const baseFootGeo = new THREE.BoxGeometry(1.8, 0.7, 1.8);
@@ -1662,7 +1897,7 @@
     ledTex.needsUpdate = true;
 
     // ==========================================
-    // 3C. HIGH-ALTITUDE GIANT SKY DRONE LED BILLBOARD (UNOBSTRUCTED IN SKY)
+    // 3D. HIGH-ALTITUDE GIANT SKY DRONE LED BILLBOARD
     // ==========================================
     const droneLedCanvas = document.createElement('canvas');
     droneLedCanvas.width = 768;
@@ -1792,8 +2027,6 @@
       const screenTiltGroup = new THREE.Group();
       const rotors = [];
 
-      // Placed at the far end of the main straight (idx = 84) and lifted to y = 36.5m
-      // so it towers completely unobstructed in the open sky above all road bridges!
       const straightIdx = 84;
       const anchorPt = trackPoints[straightIdx];
       const anchorTan = trackTangents[straightIdx];
@@ -1826,11 +2059,9 @@
       backFace.rotation.y = Math.PI;
       screenTiltGroup.add(frontFace, backFace);
 
-      // Angle screen 9 degrees downward toward oncoming drivers on the road
       screenTiltGroup.rotation.x = 0.16;
       rig.add(screenTiltGroup);
 
-      // 4 Heavy-Lift Industrial Drones Hovering Above the Giant Screen
       const droneOffsets = [
         [-25, 18.2, 1.8],
         [25, 18.2, 1.8],
@@ -1932,7 +2163,7 @@
     }
 
     // ==========================================
-    // 3D. ALL 9 BILLBOARDS ON STRAIGHT ROADS — CARS PASS UNDERNEATH!
+    // 3E. ALL 9 BILLBOARDS ON STRAIGHT ROADS — CARS PASS UNDERNEATH!
     // ==========================================
     const billboardInstances = [];
     let jumbotronCanvas, jumbotronCtx, jumbotronTex;
@@ -1941,7 +2172,7 @@
       const spanWidth = ROAD_HALF_WIDTH * 2 + 4.4;
       const boardWidth = 24;
       const boardHeight = 8.4;
-      const boardCenterY = 11.4; // Bottom beam at y = 7.0m -> cars & chase camera pass cleanly underneath!
+      const boardCenterY = 11.4;
 
       const boardGeo = new THREE.PlaneGeometry(boardWidth, boardHeight);
       const cabinetGeo = new THREE.BoxGeometry(boardWidth + 0.8, boardHeight + 0.8, 0.85);
@@ -1952,9 +2183,8 @@
       const metalMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
       const darkHousingMat = new THREE.MeshLambertMaterial({ color: 0x090d16 });
 
-      // 9 straight-road indices spaced cleanly around the circuit (with wide gap before the Sky Drone at idx 84)
       const straightRoadIndices = [
-        22,  // #1 — Main Straight Bridge (well ahead of Sky Drone at idx 84)
+        22,  // #1 — Main Straight Bridge
         118, // #2 — Northwest Straight Bridge
         148, // #3 — North Straight Bridge 1
         178, // #4 — North Straight Bridge 2
@@ -2194,7 +2424,7 @@
     // ==========================================
     // 4. INSTANCED PARTICLE POOL
     // ==========================================
-    const MAX_PARTICLES = 90;
+    const MAX_PARTICLES = 100;
     const particleGeo = new THREE.BoxGeometry(0.45, 0.45, 0.45);
     const particleMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
     const particleInst = new THREE.InstancedMesh(particleGeo, particleMat, MAX_PARTICLES);
@@ -2441,6 +2671,11 @@
         this.playTone(note, 0.18, 'sine', 0.14);
       }
 
+      playCoin(streak) {
+        const base = 783.99 + Math.min(8, streak) * 45;
+        this.playTone(base, 0.11, 'sine', 0.11);
+      }
+
       playBump() {
         this.playTone(95, 0.12, 'sawtooth', 0.14);
       }
@@ -2471,8 +2706,9 @@
       comboPts: 0,
       comboMult: 1,
       comboTimer: 0,
-      maxComboTimer: 3.2,
+      maxComboTimer: 3.4,
       driftAccum: 0,
+      coinStreak: 0,
       lastCalloutTime: 0
     };
 
@@ -2513,6 +2749,7 @@
       scoreState.comboMult = 1;
       scoreState.comboTimer = 0;
       scoreState.driftAccum = 0;
+      scoreState.coinStreak = 0;
     }
 
     function resetScoreState() {
@@ -2521,6 +2758,7 @@
       scoreState.comboMult = 1;
       scoreState.comboTimer = 0;
       scoreState.driftAccum = 0;
+      scoreState.coinStreak = 0;
     }
 
     // ==========================================
@@ -3021,10 +3259,123 @@
     resetRacers();
 
     // ==========================================
-    // 10. INPUT HANDLING
+    // 10. GYROSCOPE TILT STEERING & INPUT HANDLING
     // ==========================================
     const keys = {};
     let cameraMode = 0;
+    const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.matchMedia('(pointer: coarse)').matches;
+
+    const gyroState = {
+      enabled: false,
+      listenerAttached: false,
+      rawSteer: 0,
+      smoothSteer: 0,
+      baselineTilt: null
+    };
+
+    const gyroBtn = document.getElementById('gyro-btn');
+    const gyroMeter = document.getElementById('gyro-meter');
+    const gyroDot = document.getElementById('gyro-dot');
+    const touchLeftArrows = document.getElementById('touch-left-arrows');
+    const touchLeftGyro = document.getElementById('touch-left-gyro');
+    const touchDriftFallback = document.getElementById('t-drift-fallback');
+
+    function getScreenOrientationAngle() {
+      if (window.screen && window.screen.orientation && typeof window.screen.orientation.angle === 'number') {
+        return window.screen.orientation.angle;
+      }
+      return typeof window.orientation === 'number' ? window.orientation : 0;
+    }
+
+    function handleDeviceOrientation(e) {
+      if (!gyroState.enabled) return;
+      if (e.gamma === null && e.beta === null) return;
+
+      const angle = getScreenOrientationAngle();
+      let rawTilt = 0;
+      if (angle === 90) rawTilt = e.beta || 0;
+      else if (angle === -90 || angle === 270) rawTilt = -(e.beta || 0);
+      else if (angle === 180) rawTilt = -(e.gamma || 0);
+      else rawTilt = e.gamma || 0;
+
+      if (gyroState.baselineTilt === null) {
+        gyroState.baselineTilt = rawTilt;
+      }
+
+      // Gently re-center tiny posture drift while staying responsive
+      const deltaTilt = rawTilt - gyroState.baselineTilt;
+      const deadzone = 2.4;
+      let effective = 0;
+      if (Math.abs(deltaTilt) > deadzone) {
+        effective = (deltaTilt - Math.sign(deltaTilt) * deadzone) / 21;
+      }
+      // Negative tilt (phone tilted left) -> positive steerInput (left turn)
+      gyroState.rawSteer = Math.max(-1, Math.min(1, -effective));
+    }
+
+    function updateGyroUI() {
+      if (!gyroBtn) return;
+      gyroBtn.textContent = gyroState.enabled ? 'TILT: ON' : 'TILT: OFF';
+      gyroBtn.classList.toggle('active-tilt', gyroState.enabled);
+      if (gyroMeter) gyroMeter.style.display = gyroState.enabled ? 'block' : 'none';
+
+      if (touchLeftArrows && touchLeftGyro && touchDriftFallback) {
+        touchLeftArrows.style.display = gyroState.enabled ? 'none' : 'flex';
+        touchLeftGyro.style.display = gyroState.enabled ? 'flex' : 'none';
+        touchDriftFallback.style.display = gyroState.enabled ? 'none' : 'flex';
+      }
+    }
+
+    async function enableGyroscope(silent = false) {
+      if (typeof window.DeviceOrientationEvent === 'undefined') {
+        if (!silent) triggerCallout('GYROSCOPE NOT AVAILABLE', '#f87171');
+        return false;
+      }
+
+      try {
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+          const perm = await DeviceOrientationEvent.requestPermission();
+          if (perm !== 'granted') {
+            if (!silent) triggerCallout('TILT PERMISSION DENIED', '#f87171');
+            return false;
+          }
+        }
+      } catch (err) {
+        if (!silent) triggerCallout('TAP TILT: ON TO ENABLE', '#facc15');
+        return false;
+      }
+
+      if (!gyroState.listenerAttached) {
+        window.addEventListener('deviceorientation', handleDeviceOrientation);
+        gyroState.listenerAttached = true;
+      }
+      gyroState.enabled = true;
+      gyroState.baselineTilt = null;
+      gyroState.rawSteer = 0;
+      gyroState.smoothSteer = 0;
+      updateGyroUI();
+      if (!silent) triggerCallout('TILT STEERING ON! 📱', '#34d399');
+      return true;
+    }
+
+    function disableGyroscope() {
+      gyroState.enabled = false;
+      gyroState.rawSteer = 0;
+      gyroState.smoothSteer = 0;
+      updateGyroUI();
+      triggerCallout('TOUCH ARROWS ON', '#38bdf8');
+    }
+
+    if (gyroBtn) {
+      gyroBtn.addEventListener('click', () => {
+        if (gyroState.enabled) disableGyroscope();
+        else enableGyroscope(false);
+      });
+    }
+
+    window.addEventListener('orientationchange', () => {
+      gyroState.baselineTilt = null;
+    });
 
     window.addEventListener('keydown', e => {
       if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT')) return;
@@ -3044,11 +3395,13 @@
       if (!el) return;
       el.addEventListener('touchstart', e => { e.preventDefault(); keys[code] = true; }, { passive: false });
       el.addEventListener('touchend', e => { e.preventDefault(); keys[code] = false; }, { passive: false });
+      el.addEventListener('touchcancel', e => { e.preventDefault(); keys[code] = false; }, { passive: false });
     }
     bindTouch('t-left', 'ArrowLeft');
     bindTouch('t-right', 'ArrowRight');
-    bindTouch('t-gas', 'ArrowUp');
-    bindTouch('t-drift', 'ShiftLeft');
+    bindTouch('t-drift-gyro', 'ShiftLeft');
+    bindTouch('t-drift-fallback', 'ShiftLeft');
+    bindTouch('t-brake', 'ArrowDown');
     bindTouch('t-nitro', 'Space');
 
     function resetPlayerToTrack() {
@@ -3059,6 +3412,7 @@
       player.heading = Math.atan2(tan.x, tan.z);
       player.driftSlipAngle = 0;
       player.speed = 0;
+      gyroState.baselineTilt = null;
     }
 
     // ==========================================
@@ -3228,6 +3582,7 @@
     let cameraShake = 0;
     let jumboTimer = 0;
     let ledTimer = 0;
+    let slipstreamTimer = 0;
 
     const smoothCamPos = new THREE.Vector3(0, 8, 16);
     const smoothCamLook = new THREE.Vector3(0, 2.2, -10);
@@ -3237,16 +3592,25 @@
     const modalContent = document.getElementById('modal-content');
     const countdownEl = document.getElementById('countdown');
 
-    function startRaceSequence() {
+    async function startRaceSequence() {
       sound.init();
+      // Auto-enable gyroscope tilt steering on mobile/tablets upon user gesture
+      if (isTouchDevice && !gyroState.enabled) {
+        await enableGyroscope(true);
+      } else if (gyroState.enabled) {
+        gyroState.baselineTilt = null;
+      }
+
       closeStudioEditor();
       resetRacers();
+      resetCollectibles();
       resetScoreState();
       gameState = 'COUNTDOWN';
       countdownTimer = 3.1;
       lastCountdownBeep = 4;
       raceElapsed = 0;
       cameraShake = 0;
+      slipstreamTimer = 0;
       overlay.style.display = 'none';
       countdownEl.style.opacity = '1';
 
@@ -3301,7 +3665,7 @@
             <div class="coupon-card coupon-locked">
               <div class="coupon-badge" style="color:#facc15;">🔒 ${ptsNeeded.toLocaleString()} PTS AWAY FROM REWARD</div>
               <div class="coupon-offer" style="font-size:15px;">Score ${targetScore.toLocaleString()}+ pts to unlock: ${escapeHtml(rewardTitle)}</div>
-              <div class="coupon-note">Tip: Hold SHIFT around corners to drift &amp; build 10x combos!</div>
+              <div class="coupon-note">Tip: Grab gold coins &amp; hold DRIFT around corners for 10x combos!</div>
             </div>
           `;
         }
@@ -3406,12 +3770,16 @@
       if ((gameState === 'RACING' || gameState === 'FINISHED') && !editorOpen) {
         if (gameState === 'RACING') raceElapsed += dt;
 
+        updateCollectibles(dt, raceElapsed, racers[0]);
+
         if (scoreState.comboTimer > 0) {
           scoreState.comboTimer -= dt;
           if (scoreState.comboTimer <= 0) {
             bankComboScore();
           }
         }
+
+        const playerRef = racers[0];
 
         for (let i = 0; i < racers.length; i++) {
           const r = racers[i];
@@ -3433,11 +3801,23 @@
           if (r.boostTimer > 0) r.boostTimer -= dt;
 
           if (r.isPlayer && gameState === 'RACING') {
-            const throttle = (keys['KeyW'] || keys['ArrowUp']) ? 1 : 0;
             const brake = (keys['KeyS'] || keys['ArrowDown']) ? 1 : 0;
-            const steerInput = ((keys['KeyA'] || keys['ArrowLeft']) ? 1 : 0) - ((keys['KeyD'] || keys['ArrowRight']) ? 1 : 0);
+            // Automatic acceleration on touch/mobile devices unless braking
+            const manualThrottle = (keys['KeyW'] || keys['ArrowUp']) ? 1 : 0;
+            const throttle = brake > 0 ? 0 : (isTouchDevice ? 1 : manualThrottle);
+
+            // Smooth Gyroscope Tilt Steering + Keyboard/Touch Fallback
+            gyroState.smoothSteer += (gyroState.rawSteer - gyroState.smoothSteer) * (1 - Math.exp(-14 * dt));
+            const keySteer = ((keys['KeyA'] || keys['ArrowLeft']) ? 1 : 0) - ((keys['KeyD'] || keys['ArrowRight']) ? 1 : 0);
+            const steerInput = gyroState.enabled ? Math.max(-1, Math.min(1, gyroState.smoothSteer + keySteer)) : keySteer;
+
+            if (gyroState.enabled && gyroDot) {
+              const pct = 50 - gyroState.smoothSteer * 44;
+              gyroDot.style.left = `${pct}%`;
+            }
+
             const wantsNitro = keys['Space'] && r.nitro > 1 && throttle > 0;
-            const wantsDrift = (keys['ShiftLeft'] || keys['ShiftRight']) && Math.abs(steerInput) > 0 && r.speed > 36;
+            const wantsDrift = (keys['ShiftLeft'] || keys['ShiftRight']) && Math.abs(steerInput) > 0.14 && r.speed > 36;
 
             if (wantsNitro) {
               r.nitro = Math.max(0, r.nitro - 32 * dt);
@@ -3447,9 +3827,34 @@
               r.nitro = Math.min(100, r.nitro + rechargeRate * dt);
             }
 
+            // Slipstream Drafting Check behind AI rivals
+            let inSlipstream = false;
+            const sinP = Math.sin(r.heading);
+            const cosP = Math.cos(r.heading);
+            for (let k = 1; k < racers.length; k++) {
+              const ai = racers[k];
+              const dx = ai.pos.x - r.pos.x;
+              const dz = ai.pos.z - r.pos.z;
+              const forwardDist = dx * sinP + dz * cosP;
+              const sideDist = Math.abs(dx * cosP - dz * sinP);
+              if (forwardDist > 4.5 && forwardDist < 20 && sideDist < 2.3 && r.speed > 42) {
+                inSlipstream = true;
+                break;
+              }
+            }
+            if (inSlipstream) {
+              slipstreamTimer += dt;
+              if (slipstreamTimer > 0.85) {
+                slipstreamTimer = 0;
+                addComboScore(120, 'SLIPSTREAM!', '#38bdf8', true);
+              }
+            } else {
+              slipstreamTimer = 0;
+            }
+
             const isBoosting = wantsNitro || r.boostTimer > 0;
             playerBoosting = isBoosting;
-            const maxSpeed = isBoosting ? 86 : wantsDrift ? 61 : 66;
+            const maxSpeed = (isBoosting ? 86 : wantsDrift ? 62 : 66) + (inSlipstream ? 6 : 0);
             const accel = isBoosting ? 54 : 34;
 
             if (throttle > 0) {
@@ -3483,13 +3888,11 @@
               }
 
               if (Math.random() < 0.65) {
-                const sinH = Math.sin(r.heading);
-                const cosH = Math.cos(r.heading);
                 const side = Math.random() < 0.5 ? -0.95 : 0.95;
                 spawnParticle(
-                  r.pos.x - sinH * 1.4 + cosH * side,
+                  r.pos.x - sinP * 1.4 + cosP * side,
                   0.22,
-                  r.pos.z - cosH * 1.4 - sinH * side,
+                  r.pos.z - cosP * 1.4 - sinP * side,
                   (Math.random() - 0.5) * 1.6,
                   1.2 + Math.random() * 1.2,
                   (Math.random() - 0.5) * 1.6,
@@ -3505,11 +3908,9 @@
               r.visual.flames[0].scale.set(1, 1, fScale);
               r.visual.flames[1].scale.set(1, 1, fScale);
               if (Math.random() < 0.5) {
-                const sinH = Math.sin(r.heading);
-                const cosH = Math.cos(r.heading);
                 spawnParticle(
-                  r.pos.x - sinH * 2.4, 0.45, r.pos.z - cosH * 2.4,
-                  -sinH * 8 + (Math.random() - 0.5) * 2, 0.5, -cosH * 8 + (Math.random() - 0.5) * 2,
+                  r.pos.x - sinP * 2.4, 0.45, r.pos.z - cosP * 2.4,
+                  -sinP * 8 + (Math.random() - 0.5) * 2, 0.5, -cosP * 8 + (Math.random() - 0.5) * 2,
                   0.22, 0.4, 0.05, 0x38bdf8
                 );
               }
@@ -3520,6 +3921,7 @@
 
             sound.update(Math.abs(r.speed) / 86, isBoosting, wantsDrift, true);
           } else {
+            // AI Controller with Smart Rubber-Banding to keep races competitive & fun
             const lookAheadIdx = (r.closestIdx + 14) % N;
             r.aiWeavePhase += dt * 0.7;
             const dynamicLane = r.isPlayer ? 0 : r.aiLaneOffset + Math.sin(r.aiWeavePhase) * 2.4;
@@ -3542,7 +3944,15 @@
             r.visual.flames[0].visible = aiBoosting;
             r.visual.flames[1].visible = aiBoosting;
 
-            const targetAiSpeed = (r.isPlayer ? 48 : r.baseSpeed) + (aiBoosting ? 16 : 0);
+            // Rubber-banding based on gap to player
+            let rubberBandBonus = 0;
+            if (!r.isPlayer && gameState === 'RACING') {
+              const gap = playerRef.totalProgress - r.totalProgress;
+              if (gap > 0.03) rubberBandBonus = Math.min(8.5, gap * 55);
+              else if (gap < -0.05) rubberBandBonus = Math.max(-5.5, gap * 40);
+            }
+
+            const targetAiSpeed = (r.isPlayer ? 48 : (r.baseSpeed + rubberBandBonus)) + (aiBoosting ? 16 : 0);
             r.speed += (targetAiSpeed - r.speed) * (1 - Math.exp(-2.5 * dt));
 
             r.pos.x += Math.sin(r.heading) * r.speed * dt;
