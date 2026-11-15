@@ -459,7 +459,7 @@
       top: 0;
       right: 0;
       bottom: 0;
-      width: 385px;
+      width: 395px;
       max-width: 95vw;
       background: rgba(15, 23, 42, 0.97);
       border-left: 1px solid rgba(56, 189, 248, 0.35);
@@ -503,12 +503,12 @@
     }
     .tab-btn {
       flex: 1;
-      padding: 10px;
+      padding: 10px 6px;
       background: none;
       border: none;
       border-bottom: 2px solid transparent;
       color: #94a3b8;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 800;
       cursor: pointer;
     }
@@ -577,7 +577,7 @@
       border: 1px solid rgba(255, 255, 255, 0.2);
       background: #020617;
     }
-    #editor-preview-canvas {
+    #editor-preview-canvas, #led-preview-canvas {
       display: block;
       width: 100%;
       height: auto;
@@ -612,7 +612,7 @@
     }
     .swatch-btn {
       flex: 1;
-      min-width: 56px;
+      min-width: 54px;
       padding: 6px 6px;
       border-radius: 7px;
       border: 1px solid rgba(255, 255, 255, 0.22);
@@ -631,7 +631,7 @@
       border: 1px solid rgba(255, 255, 255, 0.2);
       color: #e2e8f0;
       border-radius: 8px;
-      padding: 7px 10px;
+      padding: 8px 10px;
       font-size: 11.5px;
       font-weight: 700;
       cursor: pointer;
@@ -798,12 +798,13 @@
     </div>
 
     <div class="editor-tabs">
-      <button class="tab-btn active" data-tab="billboards">1. BILLBOARDS (9)</button>
-      <button class="tab-btn" data-tab="shop">2. SHOP &amp; COUPON</button>
+      <button class="tab-btn active" data-tab="billboards">1. SIGNS (9)</button>
+      <button class="tab-btn" data-tab="overhead">2. OVERHEAD LED</button>
+      <button class="tab-btn" data-tab="shop">3. SHOP &amp; COUPON</button>
     </div>
 
     <div class="editor-body">
-      <!-- TAB 1: BILLBOARDS -->
+      <!-- TAB 1: SIDE BILLBOARDS -->
       <div class="tab-pane active" id="pane-billboards">
         <div class="field-group">
           <label class="field-label">
@@ -874,7 +875,50 @@
         </div>
       </div>
 
-      <!-- TAB 2: SHOP BRANDING & COUPON REWARD -->
+      <!-- TAB 2: OVERHEAD DIGITAL LED GANTRY -->
+      <div class="tab-pane" id="pane-overhead">
+        <div class="preview-box">
+          <canvas id="led-preview-canvas" width="512" height="96"></canvas>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Moving Digital Ticker Message</label>
+          <input class="editor-input" id="cfg-led-text" type="text" maxlength="150" placeholder="★ WELCOME TO APEX HORIZON • DRIFT FOR NITRO ★" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">LED Glow Color</label>
+          <div class="preset-swatches">
+            <button class="swatch-btn led-swatch" data-c="#38bdf8" style="background:#0c4a6e;border-color:#38bdf8;color:#38bdf8;">CYAN</button>
+            <button class="swatch-btn led-swatch" data-c="#facc15" style="background:#422006;border-color:#facc15;color:#facc15;">AMBER</button>
+            <button class="swatch-btn led-swatch" data-c="#4ade80" style="background:#052e16;border-color:#4ade80;color:#4ade80;">GREEN</button>
+            <button class="swatch-btn led-swatch" data-c="#f472b6" style="background:#500724;border-color:#f472b6;color:#f472b6;">PINK</button>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="field-group">
+            <label class="field-label">Custom LED Color</label>
+            <label class="color-chip" style="height:38px;">LED Hue <input type="color" id="cfg-led-color" /></label>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Scroll Speed</label>
+            <select class="editor-select" id="cfg-led-speed">
+              <option value="75">Slow &amp; Readable</option>
+              <option value="125" selected>Normal Ticker</option>
+              <option value="190">Fast Express</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="mini-btn" id="led-sync-offer-btn">AUTO-FILL FROM SHOP OFFER &amp; CODE ⚡</button>
+
+        <div class="info-box">
+          <strong>Overhead Road Gantries (2x):</strong> Mounted 6.6m above the asphalt on two main straights so racers and cameras drive cleanly underneath while reading your live scrolling ticker!
+        </div>
+      </div>
+
+      <!-- TAB 3: SHOP BRANDING & COUPON REWARD -->
       <div class="tab-pane" id="pane-shop">
         <div class="field-group">
           <label class="field-label">Shop / Event Title (Start Screen &amp; Jumbotron)</label>
@@ -903,7 +947,7 @@
         </div>
 
         <div class="info-box">
-          <strong>Client Lock Protection:</strong> When you click <em>Export Client HTML</em> below, the Studio Editor is automatically <strong>removed &amp; locked</strong> so customers can play and unlock coupons without editing the shop's ads.
+          <strong>Client Lock Protection:</strong> When you click <em>Export Locked Client HTML</em> below, the Studio Editor is automatically <strong>removed &amp; locked</strong> so customers can play and unlock coupons without editing the shop's ads.
         </div>
       </div>
     </div>
@@ -937,6 +981,9 @@
       targetScore: 5000,
       rewardTitle: '15% OFF YOUR ORDER',
       promoCode: 'RACE15',
+      ledText: '★ WELCOME TO APEX HORIZON 3D • SCORE 5,000+ PTS FOR 15% OFF (CODE: RACE15) • DRIFT CORNERS TO CHARGE NITRO ★',
+      ledColor: '#38bdf8',
+      ledSpeed: 125,
       lockEditor: false
     };
 
@@ -970,7 +1017,7 @@
         return { ...DEFAULT_CLIENT_CONFIG, ...BAKED_CLIENT_CONFIG };
       }
       try {
-        const saved = JSON.parse(localStorage.getItem('apex_horizon_client_cfg_v1'));
+        const saved = JSON.parse(localStorage.getItem('apex_horizon_client_cfg_v2'));
         if (saved && typeof saved === 'object') {
           return { ...DEFAULT_CLIENT_CONFIG, ...saved };
         }
@@ -998,7 +1045,7 @@
     function persistStudioState() {
       if (IS_LOCKED_CLIENT) return;
       try {
-        localStorage.setItem('apex_horizon_client_cfg_v1', JSON.stringify(clientConfig));
+        localStorage.setItem('apex_horizon_client_cfg_v2', JSON.stringify(clientConfig));
         localStorage.setItem('apex_horizon_billboards_v1', JSON.stringify(billboardData));
       } catch (e) {}
     }
@@ -1110,7 +1157,7 @@
     });
 
     // ==========================================
-    // 2. PROCEDURAL TEXTURES & DYNAMIC BILLBOARD PAINTER
+    // 2. PROCEDURAL TEXTURES & BILLBOARD PAINTER
     // ==========================================
     function createRoadTexture() {
       const c = document.createElement('canvas');
@@ -1267,7 +1314,7 @@
     const carShadowTex = createShadowBlobTexture();
 
     // ==========================================
-    // 3. CIRCUIT TRACK, BILLBOARDS & SCENERY
+    // 3. CIRCUIT TRACK, BILLBOARDS & OVERHEAD LED GANTRIES
     // ==========================================
     const controlPoints = [
       new THREE.Vector3(0, 0, 0),
@@ -1399,7 +1446,155 @@
     })();
 
     // ==========================================
-    // 3B. DYNAMIC TRACKSIDE BILLBOARDS & JUMBOTRON
+    // 3B. OVERHEAD DIGITAL LED ROAD BILLBOARDS (CARS CROSS UNDERNEATH)
+    // ==========================================
+    const ledCanvas = document.createElement('canvas');
+    ledCanvas.width = 512;
+    ledCanvas.height = 96;
+    const ledCtx = ledCanvas.getContext('2d');
+    const ledTex = new THREE.CanvasTexture(ledCanvas);
+    ledTex.anisotropy = 4;
+
+    // Pre-bake subtle 4x4 LED matrix grid pattern once (near-zero runtime cost)
+    const ledDotPattern = (function createLedMatrixPattern() {
+      const pCanvas = document.createElement('canvas');
+      pCanvas.width = 4;
+      pCanvas.height = 4;
+      const pCtx = pCanvas.getContext('2d');
+      pCtx.fillStyle = 'rgba(2, 6, 23, 0.34)';
+      pCtx.fillRect(0, 0, 4, 1);
+      pCtx.fillRect(0, 0, 1, 4);
+      return ledCtx.createPattern(pCanvas, 'repeat');
+    })();
+
+    let ledScrollX = 512;
+    let ledTextWidth = 800;
+    let cachedLedMeasureStr = '';
+    const overheadGantries = [];
+
+    (function createOverheadLedGantries() {
+      // Two overhead highway LED bridges on key straights so racers pass underneath twice per lap
+      const gantryIndices = [55, 305];
+      const pillarGeo = new THREE.CylinderGeometry(0.55, 0.68, 9.8, 8);
+      const baseFootGeo = new THREE.BoxGeometry(1.8, 0.7, 1.8);
+      const steelMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
+      const darkCabinetMat = new THREE.MeshLambertMaterial({ color: 0x090d16 });
+      const screenMat = new THREE.MeshBasicMaterial({ map: ledTex });
+
+      const spanWidth = ROAD_HALF_WIDTH * 2 + 5.2; // 31.2m full road span
+      const cabinetGeo = new THREE.BoxGeometry(spanWidth + 1.4, 3.1, 1.15);
+      const screenGeo = new THREE.PlaneGeometry(spanWidth, 2.55);
+      const beaconGeo = new THREE.SphereGeometry(0.28, 6, 6);
+      const beaconMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+
+      gantryIndices.forEach((idx) => {
+        const pt = trackPoints[idx];
+        const tan = trackTangents[idx];
+
+        const group = new THREE.Group();
+        group.position.copy(pt);
+        // Face local +Z toward oncoming traffic (-tan)
+        const faceAngle = Math.atan2(-tan.x, -tan.z);
+        group.rotation.y = faceAngle;
+
+        const pillarOffset = ROAD_HALF_WIDTH + 2.4;
+
+        const leftPillar = new THREE.Mesh(pillarGeo, steelMat);
+        leftPillar.position.set(-pillarOffset, 4.9, 0);
+        const rightPillar = leftPillar.clone();
+        rightPillar.position.x = pillarOffset;
+
+        const leftFoot = new THREE.Mesh(baseFootGeo, steelMat);
+        leftFoot.position.set(-pillarOffset, 0.35, 0);
+        const rightFoot = leftFoot.clone();
+        rightFoot.position.x = pillarOffset;
+
+        // Elevated LED Cabinet (bottom edge at y = 6.55m -> cars & chase cam pass cleanly underneath!)
+        const cabinet = new THREE.Mesh(cabinetGeo, darkCabinetMat);
+        cabinet.position.set(0, 8.1, 0);
+
+        // Front LED Screen facing oncoming racers
+        const frontScreen = new THREE.Mesh(screenGeo, screenMat);
+        frontScreen.position.set(0, 8.1, 0.6);
+
+        // Rear LED Screen so it remains viewable from behind as well
+        const rearScreen = new THREE.Mesh(screenGeo, screenMat);
+        rearScreen.position.set(0, 8.1, -0.6);
+        rearScreen.rotation.y = Math.PI;
+
+        // Top corner safety beacons
+        const beaconL = new THREE.Mesh(beaconGeo, beaconMat);
+        beaconL.position.set(-spanWidth * 0.48, 9.85, 0);
+        const beaconR = beaconL.clone();
+        beaconR.position.x = spanWidth * 0.48;
+
+        group.add(leftPillar, rightPillar, leftFoot, rightFoot, cabinet, frontScreen, rearScreen, beaconL, beaconR);
+        scene.add(group);
+
+        // Ideal preview camera vantage point on the road looking up at the overhead sign
+        const normalX = Math.sin(faceAngle);
+        const normalZ = Math.cos(faceAngle);
+        const camPos = new THREE.Vector3(pt.x + normalX * 26, 4.8, pt.z + normalZ * 26);
+        const lookAt = new THREE.Vector3(pt.x, 7.6, pt.z);
+        overheadGantries.push({ camPos, lookAt, beaconMat });
+      });
+    })();
+
+    function renderOverheadLedCanvas(targetCanvas, dt) {
+      const ctx = targetCanvas.getContext('2d');
+      const w = targetCanvas.width;
+      const h = targetCanvas.height;
+      const ledColor = clientConfig.ledColor || '#38bdf8';
+      const rawMsg = (clientConfig.ledText || 'APEX HORIZON 3D').trim() || 'APEX HORIZON 3D';
+      const tickerMsg = `${rawMsg}     •     `;
+
+      ctx.fillStyle = '#050811';
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.font = '900 44px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+      if (cachedLedMeasureStr !== tickerMsg) {
+        cachedLedMeasureStr = tickerMsg;
+        ledTextWidth = Math.max(220, ctx.measureText(tickerMsg).width);
+      }
+
+      if (dt > 0) {
+        const speed = Number(clientConfig.ledSpeed) || 125;
+        ledScrollX -= speed * dt;
+        if (ledScrollX <= -ledTextWidth) {
+          ledScrollX += ledTextWidth;
+        }
+      }
+
+      ctx.fillStyle = ledColor;
+      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'left';
+      ctx.shadowColor = ledColor;
+      ctx.shadowBlur = 12;
+
+      let drawX = Math.floor(ledScrollX);
+      while (drawX < w) {
+        ctx.fillText(tickerMsg, drawX, h * 0.52);
+        drawX += ledTextWidth;
+      }
+      ctx.shadowBlur = 0;
+
+      // Top & bottom glowing LED trim bars
+      ctx.fillStyle = ledColor;
+      ctx.fillRect(0, 0, w, 5);
+      ctx.fillRect(0, h - 5, w, 5);
+
+      // Apply dot-matrix pixel grid overlay
+      if (ledDotPattern) {
+        ctx.fillStyle = ledDotPattern;
+        ctx.fillRect(0, 0, w, h);
+      }
+    }
+
+    renderOverheadLedCanvas(ledCanvas, 0);
+    ledTex.needsUpdate = true;
+
+    // ==========================================
+    // 3C. TRACKSIDE BILLBOARDS & JUMBOTRON
     // ==========================================
     const billboardInstances = [];
     let jumbotronCanvas, jumbotronCtx, jumbotronTex;
@@ -1976,6 +2171,7 @@
     const editorDrawer = document.getElementById('editor-drawer');
     let selectedBillboardIdx = 0;
     let editorOpen = false;
+    let activeEditorTab = 'billboards'; // 'billboards' | 'overhead' | 'shop'
 
     const THEME_PRESETS = [
       { bg1: '#0f172a', bg2: '#0369a1', accent: '#38bdf8' },
@@ -2003,6 +2199,7 @@
     }
 
     let syncEditorFields = () => {};
+    let ledPreviewCanvas = null;
 
     if (!IS_LOCKED_CLIENT && editorDrawer) {
       const bbSelect = document.getElementById('bb-select');
@@ -2015,6 +2212,11 @@
       const bbImgUrlInput = document.getElementById('bb-img-url');
       const bbImgFileInput = document.getElementById('bb-img-file');
       const editorPreviewCanvas = document.getElementById('editor-preview-canvas');
+
+      ledPreviewCanvas = document.getElementById('led-preview-canvas');
+      const cfgLedText = document.getElementById('cfg-led-text');
+      const cfgLedColor = document.getElementById('cfg-led-color');
+      const cfgLedSpeed = document.getElementById('cfg-led-speed');
 
       const cfgShopTitle = document.getElementById('cfg-shop-title');
       const cfgShopSubtitle = document.getElementById('cfg-shop-subtitle');
@@ -2033,6 +2235,11 @@
         bbAccentInput.value = cfg.accent || '#38bdf8';
         bbImgUrlInput.value = (cfg.imageUrl && cfg.imageUrl.startsWith('data:')) ? '[Uploaded Local Image]' : (cfg.imageUrl || '');
         paintBillboardCanvas(editorPreviewCanvas, cfg);
+
+        cfgLedText.value = clientConfig.ledText || '';
+        cfgLedColor.value = clientConfig.ledColor || '#38bdf8';
+        cfgLedSpeed.value = String(clientConfig.ledSpeed || 125);
+        renderOverheadLedCanvas(ledPreviewCanvas, 0);
 
         cfgShopTitle.value = clientConfig.shopTitle || '';
         cfgShopSubtitle.value = clientConfig.shopSubtitle || '';
@@ -2057,6 +2264,17 @@
         refreshBillboard3D(selectedBillboardIdx);
       }
 
+      function applyLedEdit() {
+        clientConfig.ledText = cfgLedText.value;
+        clientConfig.ledColor = cfgLedColor.value;
+        clientConfig.ledSpeed = Number(cfgLedSpeed.value) || 125;
+        overheadGantries.forEach(g => g.beaconMat.color.set(clientConfig.ledColor));
+        persistStudioState();
+        renderOverheadLedCanvas(ledCanvas, 0);
+        ledTex.needsUpdate = true;
+        renderOverheadLedCanvas(ledPreviewCanvas, 0);
+      }
+
       function applyShopEdit() {
         clientConfig.shopTitle = cfgShopTitle.value;
         clientConfig.shopSubtitle = cfgShopSubtitle.value;
@@ -2068,13 +2286,14 @@
         updateJumbotron('PLAYER', 0, 0, bestScore);
       }
 
-      // Tabs
+      // Tabs (automatically glides 3D camera to Side Sign or Overhead Road Gantry!)
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
           document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
           btn.classList.add('active');
-          document.getElementById(`pane-${btn.dataset.tab}`).classList.add('active');
+          activeEditorTab = btn.dataset.tab;
+          document.getElementById(`pane-${activeEditorTab}`).classList.add('active');
         });
       });
 
@@ -2091,11 +2310,33 @@
         el.addEventListener('input', applyBillboardEdit);
       });
 
+      [cfgLedText, cfgLedColor, cfgLedSpeed].forEach(el => {
+        el.addEventListener('input', applyLedEdit);
+        el.addEventListener('change', applyLedEdit);
+      });
+
+      document.querySelectorAll('.led-swatch').forEach(btn => {
+        btn.addEventListener('click', () => {
+          cfgLedColor.value = btn.dataset.c;
+          applyLedEdit();
+        });
+      });
+
+      document.getElementById('led-sync-offer-btn').addEventListener('click', () => {
+        const shop = (clientConfig.shopTitle || 'APEX HORIZON').toUpperCase();
+        const target = (Number(clientConfig.targetScore) || 5000).toLocaleString();
+        const reward = (clientConfig.rewardTitle || '15% OFF').toUpperCase();
+        const code = (clientConfig.promoCode || 'RACE15').toUpperCase();
+        cfgLedText.value = `★ ${shop} • SCORE ${target}+ PTS TO UNLOCK ${reward} (CODE: ${code}) • DRIFT FOR NITRO ★`;
+        applyLedEdit();
+        triggerCallout('LED TICKER SYNCED WITH OFFER!', '#38bdf8');
+      });
+
       [cfgShopTitle, cfgShopSubtitle, cfgTargetScore, cfgPromoCode, cfgRewardTitle].forEach(el => {
         el.addEventListener('input', applyShopEdit);
       });
 
-      document.querySelectorAll('.swatch-btn').forEach(btn => {
+      document.querySelectorAll('.swatch-btn:not(.led-swatch)').forEach(btn => {
         btn.addEventListener('click', () => {
           const p = THEME_PRESETS[Number(btn.dataset.p)];
           bbBg1Input.value = p.bg1;
@@ -2161,7 +2402,6 @@
       document.getElementById('export-html-btn').addEventListener('click', () => {
         const clone = document.documentElement.cloneNode(true);
 
-        // Strip Studio UI from exported client DOM
         const cloneEditorDrawer = clone.querySelector('#editor-drawer');
         if (cloneEditorDrawer) cloneEditorDrawer.remove();
 
@@ -2176,7 +2416,6 @@
           cloneShortcutHint.innerHTML = '<span class="key">C</span> Camera &nbsp; <span class="key">R</span> Reset &nbsp; <span class="key">G</span> Graphics';
         }
 
-        // Reset runtime HUD & modal elements
         const cloneOverlay = clone.querySelector('#overlay');
         if (cloneOverlay) cloneOverlay.style.display = 'flex';
 
@@ -2206,7 +2445,6 @@
           if (el) el.textContent = val;
         });
 
-        // Bake locked client config + custom billboards safely into inline script
         const exportedClientCfg = {
           ...clientConfig,
           lockEditor: true
@@ -2241,6 +2479,9 @@
         triggerCallout(`EXPORTED ${slug.toUpperCase()}.HTML!`, '#4ade80');
       });
     }
+
+    // Apply initial LED beacon hue
+    overheadGantries.forEach(g => g.beaconMat.color.set(clientConfig.ledColor || '#38bdf8'));
 
     // ==========================================
     // 9. RACERS STATE & RESET
@@ -2515,6 +2756,7 @@
     let raceElapsed = 0;
     let cameraShake = 0;
     let jumboTimer = 0;
+    let ledTimer = 0;
 
     const smoothCamPos = new THREE.Vector3(0, 8, 16);
     const smoothCamLook = new THREE.Vector3(0, 1.5, -10);
@@ -2561,7 +2803,6 @@
       setTimeout(() => sound.playTone(659.25, 0.16), 130);
       setTimeout(() => sound.playTone(783.99, 0.35), 260);
 
-      // Build Coupon Unlock / Progress Card
       const targetScore = Number(clientConfig.targetScore) || 0;
       const rewardTitle = (clientConfig.rewardTitle || '').trim();
       const promoCode = (clientConfig.promoCode || '').trim();
@@ -2649,6 +2890,17 @@
         elFps.style.color = fps >= 50 ? '#4ade80' : fps >= 30 ? '#facc15' : '#f87171';
         fpsFrames = 0;
         fpsAccum = 0;
+      }
+
+      // Smooth 30Hz Digital Overhead LED Marquee Ticker Update
+      ledTimer += dt;
+      if (ledTimer >= 0.033) {
+        renderOverheadLedCanvas(ledCanvas, ledTimer);
+        ledTex.needsUpdate = true;
+        if (editorOpen && activeEditorTab === 'overhead' && ledPreviewCanvas) {
+          renderOverheadLedCanvas(ledPreviewCanvas, 0);
+        }
+        ledTimer = 0;
       }
 
       if (gameState === 'COUNTDOWN' && !editorOpen) {
@@ -2938,7 +3190,15 @@
       }
 
       // Camera Control
-      if (editorOpen && billboardInstances[selectedBillboardIdx]) {
+      if (editorOpen && activeEditorTab === 'overhead' && overheadGantries[0]) {
+        const og = overheadGantries[0];
+        smoothCamPos.lerp(og.camPos, 1 - Math.exp(-8 * dt));
+        smoothCamLook.lerp(og.lookAt, 1 - Math.exp(-10 * dt));
+        camera.position.copy(smoothCamPos);
+        camera.lookAt(smoothCamLook);
+        camera.fov += (56 - camera.fov) * (1 - Math.exp(-8 * dt));
+        camera.updateProjectionMatrix();
+      } else if (editorOpen && billboardInstances[selectedBillboardIdx]) {
         const bb = billboardInstances[selectedBillboardIdx];
         smoothCamPos.lerp(bb.camPos, 1 - Math.exp(-8 * dt));
         smoothCamLook.lerp(bb.lookAt, 1 - Math.exp(-10 * dt));
