@@ -4105,6 +4105,191 @@
     });
 
     const playerCockpit = createFirstPersonCockpit(racers[0].visual.mesh);
+    // ==========================================
+    // DAY / NIGHT REALISTIC LIGHTING, STREETLIGHTS & STARFIELD
+    // ==========================================
+    let isNightMode = false;
+    const timeBtn = document.getElementById('time-btn');
+
+    // 1. Real 3D SpotLight mounted on Player Car for dynamic night illumination
+    const playerHeadlight = new THREE.SpotLight(0xfffbeb, 2.6, 115, 0.56, 0.65, 1.1);
+    playerHeadlight.position.set(0, 0.9, 2.1);
+    playerHeadlight.target.position.set(0, 0.15, 28);
+    playerHeadlight.visible = false;
+    racers[0].visual.mesh.add(playerHeadlight);
+    racers[0].visual.mesh.add(playerHeadlight.target);
+
+    // 2. Starfield Dome (Visible in Night Mode)
+    const starfield = (function createStarfield() {
+      const count = 420;
+      const positions = new Float32Array(count * 3);
+      for (let i = 0; i < count; i++) {
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(Math.random() * 0.88 + 0.08);
+        const r = 640;
+        positions[i * 3] = Math.sin(phi) * Math.cos(theta) * r + 120;
+        positions[i * 3 + 1] = Math.cos(phi) * r;
+        positions[i * 3 + 2] = Math.sin(phi) * Math.sin(theta) * r - 30;
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      const mat = new THREE.PointsMaterial({ color: 0xf8fafc, size: 2.4, fog: false });
+      const points = new THREE.Points(geo, mat);
+      points.visible = false;
+      scene.add(points);
+      return points;
+    })();
+
+    // 3. GPU-Instanced Trackside Highway Streetlights + Road Light Pools (3 draw calls)
+    const trackStreetlights = (function createTrackStreetlights() {
+      const lampIndices = [];
+      for (let idx = 10; idx < N - 8; idx += 15) {
+        lampIndices.push({ idx, side: (idx / 15) % 2 === 0 ? 1 : -1 });
+      }
+
+      const poleGeo = new THREE.CylinderGeometry(0.16, 0.24, 8.6, 6);
+      const armGeo = new THREE.BoxGeometry(3.2, 0.16, 0.16);
+      const headGeo = new THREE.BoxGeometry(1.1, 0.18, 0.45);
+      const poolGeo = new THREE.PlaneGeometry(14, 14).rotateX(-Math.PI / 2);
+
+      // Radial soft light pool texture
+      const pCan = document.createElement('canvas');
+      pCan.width = 64;
+      pCan.height = 64;
+      const pCtx = pCan.getContext('2d');
+      const grad = pCtx.createRadialGradient(32, 32, 2, 32, 32, 30);
+      grad.addColorStop(0, 'rgba(254, 240, 138, 0.34)');
+      grad.addColorStop(0.55, 'rgba(253, 224, 71, 0.12)');
+      grad.addColorStop(1, 'rgba(253, 224, 71, 0)');
+      pCtx.fillStyle = grad;
+      pCtx.fillRect(0, 0, 64, 64);
+      const poolTex = new THREE.CanvasTexture(pCan);
+
+      const poleMat = new THREE.MeshLambertMaterial({ color: 0x334155 });
+      const headMat = new THREE.MeshBasicMaterial({ color: 0x64748b, fog: false });
+      const poolMat = new THREE.MeshBasicMaterial({
+        map: poolTex,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+      });
+
+      const count = lampIndices.length;
+      const poleInst = new THREE.InstancedMesh(poleGeo, poleMat, count);
+      const armInst = new THREE.InstancedMesh(armGeo, poleMat, count);
+      const headInst = new THREE.InstancedMesh(headGeo, headMat, count);
+      const poolInst = new THREE.InstancedMesh(poolGeo, poolMat, count);
+      poolInst.visible = false;
+
+      const dummy = new THREE.Object3D();
+      lampIndices.forEach((item, i) => {
+        const pt = trackPoints[item.idx];
+        const rt = trackRights[item.idx];
+        const tan = trackTangents[item.idx];
+        const yaw = Math.atan2(tan.x, tan.z);
+        const sideOffset = item.side * (ROAD_HALF_WIDTH + 2.1);
+
+        const px = pt.x + rt.x * sideOffset;
+        const pz = pt.z + rt.z * sideOffset;
+
+        dummy.position.set(px, 4.3, pz);
+        dummy.rotation.set(0, yaw, 0);
+        dummy.scale.setScalar(1);
+        dummy.updateMatrix();
+        poleInst.setMatrixAt(i, dummy.matrix);
+
+        // Overhanging lamp arm reaching toward road
+        const armX = px - rt.x * item.side * 1.4;
+        const armZ = pz - rt.z * item.side * 1.4;
+        dummy.position.set(armX, 8.55, armZ);
+        dummy.rotation.set(0, yaw, 0);
+        dummy.updateMatrix();
+        armInst.setMatrixAt(i, dummy.matrix);
+
+        // Lamp fixture head
+        const headX = px - rt.x * item.side * 2.7;
+        const headZ = pz - rt.z * item.side * 2.7;
+        dummy.position.set(headX, 8.42, headZ);
+        dummy.updateMatrix();
+        headInst.setMatrixAt(i, dummy.matrix);
+
+        // Warm light pool projected on asphalt below lamp
+        dummy.position.set(headX, 0.032, headZ);
+        dummy.updateMatrix();
+        poolInst.setMatrixAt(i, dummy.matrix);
+      });
+
+      poleInst.instanceMatrix.needsUpdate = true;
+      armInst.instanceMatrix.needsUpdate = true;
+      headInst.instanceMatrix.needsUpdate = true;
+      poolInst.instanceMatrix.needsUpdate = true;
+      scene.add(poleInst, armInst, headInst, poolInst);
+
+      return { headMat, poolInst };
+    })();
+
+    function setDayNightMode(night, announce = true) {
+      isNightMode = Boolean(night);
+
+      if (isNightMode) {
+        scene.background.setHex(0x050914);
+        scene.fog.color.setHex(0x070d1c);
+        hemiLight.color.setHex(0x1e293b);
+        hemiLight.groundColor.setHex(0x090d16);
+        hemiLight.intensity = 0.34;
+        dirLight.color.setHex(0x93c5fd);
+        dirLight.intensity = 0.32;
+        ground.material.color.setHex(0x0a1608);
+
+        trackStreetlights.headMat.color.setHex(0xfef08a);
+        trackStreetlights.poolInst.visible = true;
+        starfield.visible = true;
+        playerHeadlight.visible = true;
+
+        // Warm internal night-glow on Hot Air Balloons
+        for (let i = 0; i < balloonInstances.length; i++) {
+          balloonInstances[i].envMat.emissive.setHex(0x3b1706);
+        }
+      } else {
+        scene.background.setHex(0x87ceeb);
+        scene.fog.color.setHex(0x9bd5f0);
+        hemiLight.color.setHex(0xe0f2fe);
+        hemiLight.groundColor.setHex(0x3f6212);
+        hemiLight.intensity = 0.95;
+        dirLight.color.setHex(0xfffbeb);
+        dirLight.intensity = 1.15;
+        ground.material.color.setHex(0x4d7c0f);
+
+        trackStreetlights.headMat.color.setHex(0x64748b);
+        trackStreetlights.poolInst.visible = false;
+        starfield.visible = false;
+        playerHeadlight.visible = false;
+
+        for (let i = 0; i < balloonInstances.length; i++) {
+          balloonInstances[i].envMat.emissive.setHex(0x000000);
+        }
+      }
+
+      for (let i = 0; i < racers.length; i++) {
+        if (racers[i].visual.nightLightsGroup) {
+          racers[i].visual.nightLightsGroup.visible = isNightMode;
+        }
+      }
+
+      if (timeBtn) {
+        timeBtn.textContent = isNightMode ? 'NIGHT 🌙' : 'DAY ☀️';
+        timeBtn.classList.toggle('active-tilt', isNightMode);
+      }
+      if (announce) {
+        triggerCallout(isNightMode ? 'NIGHT MODE 🌙' : 'DAY MODE ☀️', isNightMode ? '#fde047' : '#38bdf8');
+      }
+    }
+
+    setDayNightMode(clientConfig.defaultTime === 'night', false);
+
+    if (timeBtn) {
+      timeBtn.addEventListener('click', () => setDayNightMode(!isNightMode, true));
+    }
 
     function resetRacers() {
       racers.forEach(r => {
