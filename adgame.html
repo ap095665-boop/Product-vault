@@ -4488,6 +4488,8 @@
         else openStudioEditor();
       }
       if (e.code === 'KeyC') setCameraMode(cameraMode + 1, true);
+            if (e.code === 'KeyN') setDayNightMode(!isNightMode, true);
+
       if (e.code === 'KeyG') applyQuality(currentQuality + 1);
       if (e.code === 'KeyR' && gameState === 'RACING' && !editorOpen) resetPlayerToTrack();
     });
