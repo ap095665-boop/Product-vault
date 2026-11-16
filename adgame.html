@@ -46,7 +46,7 @@
       z-index: 4;
     }
 
-    /* Strictly Bounded Viewport HUD (Never overflows 100vw or triggers zoom) */
+    /* Strictly Bounded Viewport HUD */
     #hud {
       position: fixed;
       inset: 0;
@@ -130,7 +130,7 @@
       font-size: 15px;
     }
 
-    /* Fixed-Slot Combo Badge (Uses visibility instead of display:none so layout NEVER shifts or zooms!) */
+    /* Fixed-Slot Combo Badge (Zero layout shift) */
     #combo-box {
       visibility: hidden;
       opacity: 0;
@@ -207,12 +207,12 @@
       100% { opacity: 0; transform: translateY(-22px) scale(0.95); }
     }
 
-    /* Right Cluster: Constrained so Minimap & Controls ALWAYS stay inside screen */
+    /* Right Cluster */
     .top-right-cluster {
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 6px;
+      gap: 5px;
       flex-shrink: 0;
       width: 106px;
     }
@@ -224,12 +224,12 @@
       pointer-events: auto;
     }
     .pill-btn {
-      font-size: 9.5px;
+      font-size: 9px;
       font-weight: 800;
       color: #e2e8f0;
       background: rgba(30, 41, 59, 0.92);
       border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 4px 4px;
+      padding: 4px 3px;
       border-radius: 7px;
       cursor: pointer;
       text-align: center;
@@ -246,19 +246,23 @@
       border-color: #34d399;
       color: #6ee7b7;
     }
+    #cam-btn {
+      border-color: rgba(250, 204, 21, 0.5);
+      color: #fde047;
+    }
     #edit-ads-hud-btn {
       background: rgba(14, 165, 233, 0.28);
       border-color: rgba(56, 189, 248, 0.55);
       color: #7dd3fc;
     }
     #fps-badge {
-      font-size: 9.5px;
+      font-size: 9px;
       font-weight: 800;
       font-variant-numeric: tabular-nums;
       color: #4ade80;
       background: rgba(15, 23, 42, 0.86);
       border: 1px solid rgba(255, 255, 255, 0.14);
-      padding: 4px 4px;
+      padding: 4px 3px;
       border-radius: 7px;
       text-align: center;
       white-space: nowrap;
@@ -877,6 +881,7 @@
 
       <div class="top-right-cluster">
         <div class="perf-bar">
+          <button class="pill-btn" id="cam-btn" title="Switch Camera View (C)">CAM: CHASE</button>
           <button class="pill-btn" id="gyro-btn" title="Toggle Tilt-to-Steer Gyroscope">TILT: OFF</button>
           <button class="pill-btn" id="edit-ads-hud-btn" title="Open Shop & Billboard Studio (B)">STUDIO</button>
           <div id="fps-badge">60 FPS</div>
@@ -894,7 +899,7 @@
       <div class="hud-panel controls-hint" id="controls-hint-box">
         <div><span class="key">W</span>/<span class="key">↑</span> Gas &nbsp; <span class="key">S</span>/<span class="key">↓</span> Brake &nbsp; <span class="key">A</span><span class="key">D</span>/<span class="key">←</span><span class="key">→</span> Steer</div>
         <div><span class="key">SHIFT</span> Drift (Charges Nitro + Score) &nbsp; <span class="key">SPACE</span> Nitro Boost</div>
-        <div id="studio-shortcut-hint"><span class="key">B</span> Studio Editor &nbsp; <span class="key">C</span> Camera &nbsp; <span class="key">R</span> Reset</div>
+        <div id="studio-shortcut-hint"><span class="key">C</span> Camera (Chase / Cockpit / Hood) &nbsp; <span class="key">B</span> Studio &nbsp; <span class="key">R</span> Reset</div>
       </div>
 
       <div class="hud-panel speed-cluster">
@@ -1151,6 +1156,15 @@
           <input class="editor-input" id="cfg-reward-title" type="text" maxlength="40" placeholder="e.g. 15% OFF YOUR ORDER" />
         </div>
 
+        <div class="field-group">
+          <label class="field-label">Default Starting Camera</label>
+          <select class="editor-select" id="cfg-default-cam">
+            <option value="0">3rd-Person Chase Cam (Default)</option>
+            <option value="1">1st-Person Cockpit View (FPV)</option>
+            <option value="2">Hood / Bumper Cam</option>
+          </select>
+        </div>
+
         <div class="info-box">
           <strong>Client Lock Protection:</strong> When you click <em>Export Locked Client HTML</em> below, the Studio Editor is automatically <strong>removed &amp; locked</strong> so customers can play and unlock coupons without editing the shop's ads.
         </div>
@@ -1194,6 +1208,7 @@
       ledText: '★ WELCOME TO APEX HORIZON 3D • SCORE 5,000+ PTS FOR 15% OFF (CODE: RACE15) • TILT & DRIFT FOR NITRO ★',
       ledColor: '#38bdf8',
       ledSpeed: 125,
+      defaultCamera: 0,
       lockEditor: false
     };
 
@@ -1326,7 +1341,7 @@
         if (hudBtn) hudBtn.remove();
         if (menuBtn) menuBtn.remove();
         if (drawer) drawer.remove();
-        if (shortcutHint) shortcutHint.innerHTML = '<span class="key">C</span> Camera &nbsp; <span class="key">R</span> Reset &nbsp; <span class="key">G</span> Graphics';
+        if (shortcutHint) shortcutHint.innerHTML = '<span class="key">C</span> Camera (Chase / Cockpit / Hood) &nbsp; <span class="key">R</span> Reset &nbsp; <span class="key">G</span> Graphics';
       }
     }
 
@@ -1357,7 +1372,7 @@
     scene.background = new THREE.Color(0x87ceeb);
     scene.fog = new THREE.Fog(0x9bd5f0, 200, 700);
 
-    const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.8, 760);
+    const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.25, 760);
 
     const _v1 = new THREE.Vector3();
     const _v2 = new THREE.Vector3();
@@ -1991,7 +2006,7 @@
     ledTex.needsUpdate = true;
 
     // ==========================================
-    // 3D. 3 GIANT QUAD-DRONE SKY LED BILLBOARDS IN OPEN AREAS (PRIORITY SKY ADS!)
+    // 3D. 3 GIANT QUAD-DRONE SKY LED BILLBOARDS IN OPEN AREAS
     // ==========================================
     const skyDroneSystems = [];
 
@@ -2103,11 +2118,10 @@
     }
 
     (function createAllSkyDroneRigs() {
-      // Three wide-open sky zones where road bridges are absent so Sky Ads dominate the skyline!
       const skyPlacements = [
-        { idx: 84, heightY: 36.5 },  // #1: Main Straight Open Sky (into Turn 1)
-        { idx: 416, heightY: 37.5 }, // #2: Wide-Open South Panorama Sky (zero bridges!)
-        { idx: 486, heightY: 37.0 }  // #3: Wide-Open Southwest Return Sky (zero bridges!)
+        { idx: 84, heightY: 36.5 },  // #1: Main Straight Open Sky
+        { idx: 416, heightY: 37.5 }, // #2: Wide-Open South Panorama Sky
+        { idx: 486, heightY: 37.0 }  // #3: Wide-Open Southwest Return Sky
       ];
 
       const screenW = 64;
@@ -2273,7 +2287,7 @@
     }
 
     // ==========================================
-    // 3E. OVERHEAD STRAIGHT-ROAD BRIDGES (SPACED TO LEAVE OPEN SKY ZONES!)
+    // 3E. OVERHEAD STRAIGHT-ROAD BRIDGES (9)
     // ==========================================
     const billboardInstances = [];
     let jumbotronCanvas, jumbotronCtx, jumbotronTex;
@@ -2293,7 +2307,6 @@
       const metalMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
       const darkHousingMat = new THREE.MeshLambertMaterial({ color: 0x090d16 });
 
-      // Concentrated on North/East straights so South & Southwest remain wide-open Sky Ad zones!
       const straightRoadIndices = [
         22,  // #1 — Main Straight Bridge
         118, // #2 — Northwest Straight Bridge
@@ -2607,7 +2620,7 @@
     particleInst.instanceMatrix.needsUpdate = true;
 
     // ==========================================
-    // 5. VEHICLE BUILDER
+    // 5. VEHICLE BUILDER + 1ST-PERSON COCKPIT INTERIOR
     // ==========================================
     const sharedCarGeos = {
       chassis: new THREE.BoxGeometry(2.15, 0.62, 4.5),
@@ -2709,7 +2722,74 @@
         wheels.push({ pivot, tire, isFront: idx < 2 });
       });
 
-      return { mesh: car, wheels, tailMat, flames: [flameL, flameR] };
+      return { mesh: car, cabin, roof, wheels, tailMat, flames: [flameL, flameR] };
+    }
+
+    // Build Detailed First-Person Driver Cockpit (Attached to Player Car, visible only in FPV)
+    function createFirstPersonCockpit(playerCarGroup) {
+      const cockpit = new THREE.Group();
+      cockpit.visible = false;
+
+      const dashMat = new THREE.MeshLambertMaterial({ color: 0x0f172a });
+      const trimMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
+      const gripMat = new THREE.MeshLambertMaterial({ color: 0x090d16 });
+      const stripeMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+      const revMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+
+      // Angled Dashboard Cowl
+      const dash = new THREE.Mesh(new THREE.BoxGeometry(1.58, 0.26, 0.62), dashMat);
+      dash.position.set(0, 0.92, 0.62);
+      dash.rotation.x = -0.18;
+      cockpit.add(dash);
+
+      // Digital LED Rev / Speed Bar on Top of Dash
+      const revBezel = new THREE.Mesh(new THREE.BoxGeometry(0.66, 0.045, 0.08), trimMat);
+      revBezel.position.set(0, 1.06, 0.56);
+      revBezel.rotation.x = -0.25;
+      cockpit.add(revBezel);
+
+      const revBar = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.025, 0.09), revMat);
+      revBar.position.set(0, 1.065, 0.56);
+      revBar.rotation.x = -0.25;
+      cockpit.add(revBar);
+
+      // Left & Right Windshield A-Pillars + Top Sun Visor
+      const pillarGeo = new THREE.BoxGeometry(0.065, 0.62, 0.065);
+      const pillarL = new THREE.Mesh(pillarGeo, trimMat);
+      pillarL.position.set(-0.74, 1.24, 0.44);
+      pillarL.rotation.set(-0.52, 0, -0.12);
+
+      const pillarR = new THREE.Mesh(pillarGeo, trimMat);
+      pillarR.position.set(0.74, 1.24, 0.44);
+      pillarR.rotation.set(-0.52, 0, 0.12);
+
+      const topVisor = new THREE.Mesh(new THREE.BoxGeometry(1.52, 0.07, 0.24), dashMat);
+      topVisor.position.set(0, 1.48, 0.22);
+      cockpit.add(pillarL, pillarR, topVisor);
+
+      // Steering Column & Rotating Race Steering Wheel
+      const column = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 0.28, 8).rotateX(Math.PI / 2), trimMat);
+      column.position.set(0, 0.99, 0.48);
+      column.rotation.x = -0.28;
+      cockpit.add(column);
+
+      const wheelPivot = new THREE.Group();
+      wheelPivot.position.set(0, 1.03, 0.34);
+      wheelPivot.rotation.x = -0.32;
+
+      const rim = new THREE.Mesh(new THREE.TorusGeometry(0.185, 0.024, 8, 22), gripMat);
+      const spokeH = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.036, 0.022), trimMat);
+      const spokeV = new THREE.Mesh(new THREE.BoxGeometry(0.038, 0.17, 0.022), trimMat);
+      spokeV.position.y = -0.085;
+      const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.052, 0.03, 12).rotateX(Math.PI / 2), dashMat);
+      const topMarker = new THREE.Mesh(new THREE.BoxGeometry(0.024, 0.052, 0.054), stripeMat);
+      topMarker.position.y = 0.185;
+
+      wheelPivot.add(rim, spokeH, spokeV, hub, topMarker);
+      cockpit.add(wheelPivot);
+
+      playerCarGroup.add(cockpit);
+      return { cockpit, wheelPivot, revBar, revMat };
     }
 
     // ==========================================
@@ -2941,6 +3021,7 @@
       const cfgTargetScore = document.getElementById('cfg-target-score');
       const cfgPromoCode = document.getElementById('cfg-promo-code');
       const cfgRewardTitle = document.getElementById('cfg-reward-title');
+      const cfgDefaultCam = document.getElementById('cfg-default-cam');
 
       syncEditorFields = function () {
         const dCfg = skyDroneData[selectedDroneIdx];
@@ -2973,6 +3054,7 @@
         cfgTargetScore.value = clientConfig.targetScore ?? 5000;
         cfgPromoCode.value = clientConfig.promoCode || '';
         cfgRewardTitle.value = clientConfig.rewardTitle || '';
+        if (cfgDefaultCam) cfgDefaultCam.value = String(clientConfig.defaultCamera || 0);
       };
 
       function applyDroneEdit() {
@@ -3026,6 +3108,10 @@
         clientConfig.targetScore = Math.max(0, Number(cfgTargetScore.value) || 0);
         clientConfig.promoCode = cfgPromoCode.value.trim().toUpperCase();
         clientConfig.rewardTitle = cfgRewardTitle.value;
+        if (cfgDefaultCam) {
+          clientConfig.defaultCamera = Number(cfgDefaultCam.value) || 0;
+          setCameraMode(clientConfig.defaultCamera, false);
+        }
         persistStudioState();
         applyBrandingToMenu();
         updateJumbotron('PLAYER', 0, 0, bestScore);
@@ -3154,6 +3240,9 @@
       [cfgShopTitle, cfgShopSubtitle, cfgTargetScore, cfgPromoCode, cfgRewardTitle].forEach(el => {
         el.addEventListener('input', applyShopEdit);
       });
+      if (cfgDefaultCam) {
+        cfgDefaultCam.addEventListener('change', applyShopEdit);
+      }
 
       document.querySelectorAll('.swatch-btn:not(.led-swatch):not(.drone-swatch)').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -3229,7 +3318,7 @@
 
         const cloneShortcutHint = clone.querySelector('#studio-shortcut-hint');
         if (cloneShortcutHint) {
-          cloneShortcutHint.innerHTML = '<span class="key">C</span> Camera &nbsp; <span class="key">R</span> Reset &nbsp; <span class="key">G</span> Graphics';
+          cloneShortcutHint.innerHTML = '<span class="key">C</span> Camera (Chase / Cockpit / Hood) &nbsp; <span class="key">R</span> Reset &nbsp; <span class="key">G</span> Graphics';
         }
 
         const cloneCanvas = clone.querySelector('#game-canvas');
@@ -3365,6 +3454,8 @@
       };
     });
 
+    const playerCockpit = createFirstPersonCockpit(racers[0].visual.mesh);
+
     function resetRacers() {
       racers.forEach(r => {
         const pt = trackPoints[r.startIdx];
@@ -3397,10 +3488,38 @@
     resetRacers();
 
     // ==========================================
-    // 10. GYROSCOPE TILT STEERING & INPUT HANDLING
+    // 10. CAMERA MODES, GYROSCOPE TILT STEERING & INPUT HANDLING
     // ==========================================
     const keys = {};
-    let cameraMode = 0;
+    // 0 = Chase Cam, 1 = 1st-Person Cockpit View (FPV), 2 = Hood Cam
+    let cameraMode = Number(clientConfig.defaultCamera) || 0;
+    const camBtn = document.getElementById('cam-btn');
+
+    function setCameraMode(mode, announce = true) {
+      cameraMode = ((mode % 3) + 3) % 3;
+      const isFPV = (cameraMode === 1);
+      const pVis = racers[0].visual;
+      pVis.cabin.visible = !isFPV;
+      pVis.roof.visible = !isFPV;
+      playerCockpit.cockpit.visible = isFPV;
+      camera.up.set(0, 1, 0);
+
+      if (camBtn) {
+        const labels = ['CAM: CHASE', 'CAM: FPV', 'CAM: HOOD'];
+        camBtn.textContent = labels[cameraMode];
+      }
+      if (announce) {
+        const names = ['CHASE CAM', '1ST-PERSON COCKPIT VIEW', 'HOOD CAM'];
+        triggerCallout(names[cameraMode], '#fde047');
+      }
+    }
+
+    setCameraMode(cameraMode, false);
+
+    if (camBtn) {
+      camBtn.addEventListener('click', () => setCameraMode(cameraMode + 1, true));
+    }
+
     const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.matchMedia('(pointer: coarse)').matches;
 
     const gyroState = {
@@ -3520,7 +3639,7 @@
         if (editorOpen) closeStudioEditor();
         else openStudioEditor();
       }
-      if (e.code === 'KeyC') cameraMode = (cameraMode + 1) % 2;
+      if (e.code === 'KeyC') setCameraMode(cameraMode + 1, true);
       if (e.code === 'KeyG') applyQuality(currentQuality + 1);
       if (e.code === 'KeyR' && gameState === 'RACING' && !editorOpen) resetPlayerToTrack();
     });
@@ -3751,6 +3870,7 @@
       resetRacers();
       resetCollectibles();
       resetScoreState();
+      setCameraMode(Number(clientConfig.defaultCamera) || cameraMode, false);
       gameState = 'COUNTDOWN';
       countdownTimer = 3.1;
       lastCountdownBeep = 4;
@@ -4235,9 +4355,10 @@
         updateJumbotron(sortedRacers[0].name, speedKmh, scoreState.total + Math.round(scoreState.comboPts * scoreState.comboMult), bestScore);
       }
 
-      // Camera Control
+      // Camera Control (Studio Preview vs. Chase / 1st-Person Cockpit / Hood Cam)
       if (editorOpen && activeEditorTab === 'drone' && skyDroneSystems[selectedDroneIdx]) {
         const slot = skyDroneSystems[selectedDroneIdx];
+        camera.up.set(0, 1, 0);
         smoothCamPos.lerp(slot.previewCamPos, 1 - Math.exp(-8 * dt));
         smoothCamLook.lerp(slot.previewLookAt, 1 - Math.exp(-10 * dt));
         camera.position.copy(smoothCamPos);
@@ -4246,6 +4367,7 @@
         camera.updateProjectionMatrix();
       } else if (editorOpen && activeEditorTab === 'overhead' && overheadGantries[0]) {
         const og = overheadGantries[0];
+        camera.up.set(0, 1, 0);
         smoothCamPos.lerp(og.camPos, 1 - Math.exp(-8 * dt));
         smoothCamLook.lerp(og.lookAt, 1 - Math.exp(-10 * dt));
         camera.position.copy(smoothCamPos);
@@ -4254,6 +4376,7 @@
         camera.updateProjectionMatrix();
       } else if (editorOpen && billboardInstances[selectedBillboardIdx]) {
         const bb = billboardInstances[selectedBillboardIdx];
+        camera.up.set(0, 1, 0);
         smoothCamPos.lerp(bb.camPos, 1 - Math.exp(-8 * dt));
         smoothCamLook.lerp(bb.lookAt, 1 - Math.exp(-10 * dt));
         camera.position.copy(smoothCamPos);
@@ -4261,6 +4384,9 @@
         camera.fov += (56 - camera.fov) * (1 - Math.exp(-8 * dt));
         camera.updateProjectionMatrix();
       } else {
+        const bodyYaw = player.heading + player.driftSlipAngle;
+        const sinB = Math.sin(bodyYaw);
+        const cosB = Math.cos(bodyYaw);
         const sinP = Math.sin(player.heading);
         const cosP = Math.cos(player.heading);
         const speedRatio = Math.min(1, Math.abs(player.speed) / 84);
@@ -4273,6 +4399,8 @@
         }
 
         if (cameraMode === 0) {
+          // 0: Smooth 3rd-Person Chase Cam
+          camera.up.set(0, 1, 0);
           const distBack = 9.5 + speedRatio * 2.2;
           _v1.set(
             player.pos.x - sinP * distBack,
@@ -4289,12 +4417,38 @@
           smoothCamLook.lerp(_v2, 1 - Math.exp(-14 * dt));
           camera.position.set(smoothCamPos.x + shakeX, smoothCamPos.y + shakeY, smoothCamPos.z);
           camera.lookAt(smoothCamLook);
+        } else if (cameraMode === 1) {
+          // 1: 1st-Person Cockpit View (FPV) with Rotating Steering Wheel & Apex Look-Angle
+          playerCockpit.wheelPivot.rotation.z = -player.steerAngle * 2.3;
+          playerCockpit.revBar.scale.x = Math.max(0.12, speedRatio);
+          playerCockpit.revMat.color.setHex(playerBoosting ? 0xf43f5e : speedRatio > 0.78 ? 0xfacc15 : 0x38bdf8);
+
+          // Eye position inside the driver cabin (slightly behind steering wheel)
+          const eyeZOffset = -0.16;
+          const eyeX = player.pos.x + sinB * eyeZOffset + shakeX * 0.45;
+          const eyeY = 1.24 + shakeY * 0.45;
+          const eyeZ = player.pos.z + cosB * eyeZOffset;
+          camera.position.set(eyeX, eyeY, eyeZ);
+
+          // Driver head turns into turn apex + tracks drift slip angle, angled slightly up for Sky Ads
+          const lookYaw = bodyYaw + player.steerAngle * 0.28;
+          const lookSin = Math.sin(lookYaw);
+          const lookCos = Math.cos(lookYaw);
+          _v2.set(eyeX + lookSin * 28, 2.05, eyeZ + lookCos * 28);
+
+          // Subtle head bank angle during corners & drifts
+          const bankAngle = -player.steerAngle * speedRatio * 0.085;
+          camera.up.set(Math.sin(bankAngle) * lookCos, Math.cos(bankAngle), -Math.sin(bankAngle) * lookSin);
+          camera.lookAt(_v2);
         } else {
-          camera.position.set(player.pos.x + sinP * 0.7 + shakeX, 1.55 + shakeY, player.pos.z + cosP * 0.7);
-          camera.lookAt(player.pos.x + sinP * 24, 2.2, player.pos.z + cosP * 24);
+          // 2: Clean Hood / Bumper Cam
+          camera.up.set(0, 1, 0);
+          camera.position.set(player.pos.x + sinB * 0.75 + shakeX, 1.48 + shakeY, player.pos.z + cosB * 0.75);
+          camera.lookAt(player.pos.x + sinB * 24, 2.15, player.pos.z + cosB * 24);
         }
 
-        const targetFov = 62 + speedRatio * 19 + (playerBoosting ? 5 : 0);
+        const baseFov = cameraMode === 1 ? 68 : 62;
+        const targetFov = baseFov + speedRatio * 18 + (playerBoosting ? 5 : 0);
         if (Math.abs(targetFov - camera.fov) > 0.05) {
           camera.fov += (targetFov - camera.fov) * (1 - Math.exp(-6 * dt));
           camera.updateProjectionMatrix();
