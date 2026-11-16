@@ -1020,6 +1020,11 @@
           </div>
         </div>
 
+        <div class="field-group">
+          <label class="field-label">Click Destination URL (Optional)</label>
+          <input class="editor-input" id="cfg-drone-link-url" type="url" placeholder="https://wa.me/... or shop offer link" />
+        </div>
+
         <div class="footer-row">
           <button class="mini-btn" id="drone-apply-all">APPLY TO ALL 3 SKY ADS</button>
         </div>
@@ -1075,6 +1080,11 @@
             </label>
             <button class="mini-btn" id="bl-clear-img">CLEAR MEDIA</button>
           </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Click Destination URL (Optional)</label>
+          <input class="editor-input" id="bl-link-url" type="url" placeholder="https://wa.me/... or shop offer link" />
         </div>
 
         <div class="footer-row">
@@ -1152,6 +1162,11 @@
             </label>
             <button class="mini-btn" id="bb-clear-img">CLEAR MEDIA</button>
           </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Click Destination URL (Optional)</label>
+          <input class="editor-input" id="bb-link-url" type="url" placeholder="https://wa.me/... or product page link" />
         </div>
 
         <div class="footer-row">
@@ -1297,38 +1312,41 @@
         title: 'SKY ARENA LIVE',
         ticker: '★ SCORE 5,000+ PTS TO UNLOCK 15% OFF • USE CODE: RACE15 AT COUNTER ★',
         color: '#facc15',
-        imageUrl: ''
+        imageUrl: '',
+        linkUrl: ''
       },
       {
         title: 'MEGA COMBO DEAL',
         ticker: '★ GRAB GOLD COINS & DRIFT CORNERS FOR 10X MULTIPLIER BONUS ★',
         color: '#38bdf8',
-        imageUrl: ''
+        imageUrl: '',
+        linkUrl: ''
       },
       {
         title: 'FINAL LAP SPRINT',
         ticker: '★ HIT NITRO ⚡ ON THE STRAIGHT TO CLAIM YOUR REWARD VOUCHER ★',
         color: '#f472b6',
-        imageUrl: ''
+        imageUrl: '',
+        linkUrl: ''
       }
     ];
 
     const DEFAULT_BALLOONS = [
-      { title: 'SKY BLIMP CLUB', subtitle: 'VIP DEALS IN THE CLOUDS 🎈', bg1: '#dc2626', bg2: '#f59e0b', accent: '#fef08a', imageUrl: '' },
-      { title: 'WEEKEND FEST', subtitle: 'FLAT 20% OFF ALL ORDERS', bg1: '#2563eb', bg2: '#06b6d4', accent: '#38bdf8', imageUrl: '' },
-      { title: 'APEX EXPRESS', subtitle: 'FAST SERVICE • FRESH TASTE', bg1: '#7c3aed', bg2: '#db2777', accent: '#f472b6', imageUrl: '' }
+      { title: 'SKY BLIMP CLUB', subtitle: 'VIP DEALS IN THE CLOUDS 🎈', bg1: '#dc2626', bg2: '#f59e0b', accent: '#fef08a', imageUrl: '', linkUrl: '' },
+      { title: 'WEEKEND FEST', subtitle: 'FLAT 20% OFF ALL ORDERS', bg1: '#2563eb', bg2: '#06b6d4', accent: '#38bdf8', imageUrl: '', linkUrl: '' },
+      { title: 'APEX EXPRESS', subtitle: 'FAST SERVICE • FRESH TASTE', bg1: '#7c3aed', bg2: '#db2777', accent: '#f472b6', imageUrl: '', linkUrl: '' }
     ];
 
     const DEFAULT_BILLBOARDS = [
-      { title: 'HYPER NITRO', subtitle: 'BOOST BEYOND LIMITS ⚡', bg1: '#0f172a', bg2: '#0369a1', accent: '#38bdf8', imageUrl: '' },
-      { title: 'DRIFT KING', subtitle: 'SLIDE CORNERS • BUILD 10X', bg1: '#1e1b4b', bg2: '#701a75', accent: '#f472b6', imageUrl: '' },
-      { title: 'APEX TIRES', subtitle: 'MAXIMUM GRIP • ZERO SLIP', bg1: '#18181b', bg2: '#991b1b', accent: '#facc15', imageUrl: '' },
-      { title: 'SOLAR VOLT', subtitle: '100% ELECTRIC TORQUE', bg1: '#064e3b', bg2: '#0f172a', accent: '#34d399', imageUrl: '' },
-      { title: 'NEAR MISS!', subtitle: 'PASS CLOSE FOR +250 PTS', bg1: '#31102f', bg2: '#9a3412', accent: '#fb923c', imageUrl: '' },
-      { title: 'APEX HORIZON', subtitle: 'COASTAL GRAND PRIX', bg1: '#0f172a', bg2: '#1d4ed8', accent: '#60a5fa', imageUrl: '' },
-      { title: 'TURBO CHARGE', subtitle: 'COLLECT ORBS FOR MAX SPEED', bg1: '#171717', bg2: '#b91c1c', accent: '#fde047', imageUrl: '' },
-      { title: 'COMBO RUSH', subtitle: 'CHAIN COINS & DRIFTS 10X', bg1: '#2e1065', bg2: '#be185d', accent: '#f9a8d4', imageUrl: '' },
-      { title: 'PODIUM CLUB', subtitle: 'BEAT THE TRACK RECORD', bg1: '#042f2e', bg2: '#115e59', accent: '#2dd4bf', imageUrl: '' }
+      { title: 'HYPER NITRO', subtitle: 'BOOST BEYOND LIMITS ⚡', bg1: '#0f172a', bg2: '#0369a1', accent: '#38bdf8', imageUrl: '', linkUrl: '' },
+      { title: 'DRIFT KING', subtitle: 'SLIDE CORNERS • BUILD 10X', bg1: '#1e1b4b', bg2: '#701a75', accent: '#f472b6', imageUrl: '', linkUrl: '' },
+      { title: 'APEX TIRES', subtitle: 'MAXIMUM GRIP • ZERO SLIP', bg1: '#18181b', bg2: '#991b1b', accent: '#facc15', imageUrl: '', linkUrl: '' },
+      { title: 'SOLAR VOLT', subtitle: '100% ELECTRIC TORQUE', bg1: '#064e3b', bg2: '#0f172a', accent: '#34d399', imageUrl: '', linkUrl: '' },
+      { title: 'NEAR MISS!', subtitle: 'PASS CLOSE FOR +250 PTS', bg1: '#31102f', bg2: '#9a3412', accent: '#fb923c', imageUrl: '', linkUrl: '' },
+      { title: 'APEX HORIZON', subtitle: 'COASTAL GRAND PRIX', bg1: '#0f172a', bg2: '#1d4ed8', accent: '#60a5fa', imageUrl: '', linkUrl: '' },
+      { title: 'TURBO CHARGE', subtitle: 'COLLECT ORBS FOR MAX SPEED', bg1: '#171717', bg2: '#b91c1c', accent: '#fde047', imageUrl: '', linkUrl: '' },
+      { title: 'COMBO RUSH', subtitle: 'CHAIN COINS & DRIFTS 10X', bg1: '#2e1065', bg2: '#be185d', accent: '#f9a8d4', imageUrl: '', linkUrl: '' },
+      { title: 'PODIUM CLUB', subtitle: 'BEAT THE TRACK RECORD', bg1: '#042f2e', bg2: '#115e59', accent: '#2dd4bf', imageUrl: '', linkUrl: '' }
     ];
 
     // === CLIENT_CONFIG_START ===
@@ -2241,6 +2259,7 @@
     // ==========================================
     // 3D. 3 GIANT QUAD-DRONE SKY LED BILLBOARDS (WITH VIDEO LOOP SUPPORT)
     // ==========================================
+    const clickableAdMeshes = [];
     const skyDroneSystems = [];
 
     function bindDroneMediaForSlot(slot, onStatus) {
@@ -2500,6 +2519,9 @@
         backFace.position.z = -0.8;
         backFace.rotation.y = Math.PI;
         screenTiltGroup.add(frontFace, backFace);
+        frontFace.userData.adLinkGetter = () => skyDroneData[i].linkUrl;
+        backFace.userData.adLinkGetter = () => skyDroneData[i].linkUrl;
+        clickableAdMeshes.push(frontFace, backFace);
 
         screenTiltGroup.rotation.x = 0.16;
         rig.add(screenTiltGroup);
@@ -2690,6 +2712,9 @@
         const backBanner = new THREE.Mesh(backBannerGeo, bannerMat);
         backBanner.position.y = 1.5;
         group.add(frontBanner, backBanner);
+        frontBanner.userData.adLinkGetter = () => balloonData[i].linkUrl;
+        backBanner.userData.adLinkGetter = () => balloonData[i].linkUrl;
+        clickableAdMeshes.push(frontBanner, backBanner);
 
         // Glowing Burner Flame inside throat
         const burnerFlame = new THREE.Mesh(burnerGeo, burnerMat);
@@ -2854,6 +2879,9 @@
         rearFace.rotation.y = Math.PI;
 
         group.add(postL, postR, footL, footR, topBeam, botBeam, cabinet, frontFace, rearFace);
+        frontFace.userData.adLinkGetter = () => billboardData[i].linkUrl;
+        rearFace.userData.adLinkGetter = () => billboardData[i].linkUrl;
+        clickableAdMeshes.push(frontFace, rearFace);
         scene.add(group);
 
         const normalX = Math.sin(faceAngle);
@@ -3206,19 +3234,7 @@
       const beamConeR = beamConeL.clone();
       beamConeR.position.x = 0.72;
 
-      const roadBeam = new THREE.Mesh(
-        new THREE.PlaneGeometry(5.8, 18).rotateX(-Math.PI / 2),
-        new THREE.MeshBasicMaterial({
-          color: 0xfef08a,
-          transparent: true,
-          opacity: 0.16,
-          depthWrite: false,
-          blending: THREE.AdditiveBlending
-        })
-      );
-      roadBeam.position.set(0, 0.045, 11.2);
-
-      nightLightsGroup.add(beamConeL, beamConeR, roadBeam);
+      nightLightsGroup.add(beamConeL, beamConeR);
       car.add(nightLightsGroup);
 
 
@@ -3532,6 +3548,7 @@
       const cfgDroneImgUrl = document.getElementById('cfg-drone-img-url');
       const cfgDroneImgFile = document.getElementById('cfg-drone-img-file');
       const droneMediaStatus = document.getElementById('drone-media-status');
+      const cfgDroneLinkUrl = document.getElementById('cfg-drone-link-url');
 
       const balloonSelect = document.getElementById('balloon-select');
       const balloonIndexBadge = document.getElementById('balloon-index-badge');
@@ -3544,6 +3561,7 @@
       const blImgUrlInput = document.getElementById('bl-img-url');
       const blImgFileInput = document.getElementById('bl-img-file');
       const balloonMediaStatus = document.getElementById('balloon-media-status');
+      const blLinkUrlInput = document.getElementById('bl-link-url');
 
       const bbSelect = document.getElementById('bb-select');
       const bbIndexBadge = document.getElementById('bb-index-badge');
@@ -3555,6 +3573,7 @@
       const bbImgUrlInput = document.getElementById('bb-img-url');
       const bbImgFileInput = document.getElementById('bb-img-file');
       const bbMediaStatus = document.getElementById('bb-media-status');
+      const bbLinkUrlInput = document.getElementById('bb-link-url');
       editorPreviewCanvas = document.getElementById('editor-preview-canvas');
 
       ledPreviewCanvas = document.getElementById('led-preview-canvas');
@@ -3580,6 +3599,7 @@
         cfgDroneColor.value = dCfg.color || '#facc15';
         cfgDroneImgUrl.value = (dCfg.imageUrl && dCfg.imageUrl.startsWith('data:')) ? '[Uploaded Local Image]' : (dCfg.imageUrl || '');
         if (droneMediaStatus) droneMediaStatus.textContent = dSlot.mediaStatusText || '';
+        if (cfgDroneLinkUrl) cfgDroneLinkUrl.value = dCfg.linkUrl || '';
         renderSkyDroneSlotCanvas(dronePreviewCanvas, dSlot, 0);
 
         // 2. Balloon
@@ -3594,6 +3614,7 @@
         blAccentInput.value = blCfg.accent || '#fef08a';
         blImgUrlInput.value = (blCfg.imageUrl && blCfg.imageUrl.startsWith('data:')) ? '[Uploaded Local Image]' : (blCfg.imageUrl || '');
         if (balloonMediaStatus) balloonMediaStatus.textContent = blSlot.mediaStatusText || '';
+        if (blLinkUrlInput) blLinkUrlInput.value = blCfg.linkUrl || '';
         const blSrc = (blSlot.hasActiveVideo && blSlot.videoEl && blSlot.videoEl.readyState >= 2) ? blSlot.videoEl : blSlot.cachedImage;
         drawBillboardFrame(balloonPreviewCanvas, blCfg, blSrc);
 
@@ -3609,6 +3630,7 @@
         bbAccentInput.value = cfg.accent || '#38bdf8';
         bbImgUrlInput.value = (cfg.imageUrl && cfg.imageUrl.startsWith('data:')) ? '[Uploaded Local Image]' : (cfg.imageUrl || '');
         if (bbMediaStatus) bbMediaStatus.textContent = bbSlot.mediaStatusText || '';
+        if (bbLinkUrlInput) bbLinkUrlInput.value = cfg.linkUrl || '';
         const bbSrc = (bbSlot.hasActiveVideo && bbSlot.videoEl && bbSlot.videoEl.readyState >= 2) ? bbSlot.videoEl : bbSlot.cachedImage;
         drawBillboardFrame(editorPreviewCanvas, cfg, bbSrc);
 
@@ -3640,6 +3662,7 @@
         if (rawUrl !== '[Uploaded Local Image]') {
           dCfg.imageUrl = rawUrl;
         }
+        if (cfgDroneLinkUrl) dCfg.linkUrl = cfgDroneLinkUrl.value.trim();
         slot.glowFrameMat.color.set(dCfg.color);
         bindDroneMediaForSlot(slot, (st) => {
           if (droneMediaStatus && selectedDroneIdx === slot.index) droneMediaStatus.textContent = st;
@@ -3662,6 +3685,7 @@
         if (rawUrl !== '[Uploaded Local Image]') {
           blCfg.imageUrl = rawUrl;
         }
+        if (blLinkUrlInput) blCfg.linkUrl = blLinkUrlInput.value.trim();
         persistStudioState();
         refreshBalloon3D(selectedBalloonIdx, (st) => {
           if (balloonMediaStatus && selectedBalloonIdx === blSlot.index) balloonMediaStatus.textContent = st;
@@ -3682,6 +3706,7 @@
         if (rawUrl !== '[Uploaded Local Image]') {
           cfg.imageUrl = rawUrl;
         }
+        if (bbLinkUrlInput) cfg.linkUrl = bbLinkUrlInput.value.trim();
         persistStudioState();
         refreshBillboard3D(selectedBillboardIdx, (st) => {
           if (bbMediaStatus && selectedBillboardIdx === bbSlot.index) bbMediaStatus.textContent = st;
@@ -3764,6 +3789,9 @@
       [bbTitleInput, bbSubtitleInput, bbBg1Input, bbBg2Input, bbAccentInput, bbImgUrlInput].forEach(el => {
         el.addEventListener('input', applyBillboardEdit);
       });
+      if (cfgDroneLinkUrl) cfgDroneLinkUrl.addEventListener('input', applyDroneEdit);
+      if (blLinkUrlInput) blLinkUrlInput.addEventListener('input', applyBalloonEdit);
+      if (bbLinkUrlInput) bbLinkUrlInput.addEventListener('input', applyBillboardEdit);
 
       [cfgLedText, cfgLedColor, cfgLedSpeed].forEach(el => {
         el.addEventListener('input', applyLedEdit);
@@ -4114,7 +4142,8 @@
         finishTime: 0,
         aiLaneOffset: cfg.lane,
         aiWeavePhase: Math.random() * Math.PI * 2,
-        nearMissCooldown: 0
+        nearMissCooldown: 0,
+        isParked: false
       };
     });
 
@@ -4326,6 +4355,7 @@
         r.finishTime = 0;
         r.aiLaneOffset = r.lane;
         r.nearMissCooldown = 0;
+        r.isParked = false;
 
         r.visual.mesh.position.copy(r.pos);
         r.visual.mesh.rotation.set(0, r.heading, 0);
@@ -4703,6 +4733,10 @@
 
     const smoothCamPos = new THREE.Vector3(0, 8, 16);
     const smoothCamLook = new THREE.Vector3(0, 2.2, -10);
+    let orbitYaw = 0;
+    let orbitPitch = 0.28;
+    let isOrbitDragging = false;
+    let lastOrbitPointer = { x: 0, y: 0 };
     const sortedRacers = [...racers];
 
     const overlay = document.getElementById('overlay');
@@ -4952,7 +4986,19 @@
           if (r.isPlayer && gameState === 'RACING') {
             const brake = (keys['KeyS'] || keys['ArrowDown']) ? 1 : 0;
             const manualThrottle = (keys['KeyW'] || keys['ArrowUp']) ? 1 : 0;
-            const throttle = brake > 0 ? 0 : (isTouchDevice ? 1 : manualThrottle);
+            const wantsNitro = keys['Space'] && r.nitro > 1;
+
+            // Pressing BRAKE parks the car at 0 KM/H; pressing NITRO or GAS resumes driving
+            if (brake > 0) {
+              if (!r.isParked && cameraMode === 0 && Math.abs(r.speed) < 2) {
+                triggerCallout('PARKED • DRAG SCREEN 360° TO LOOK AROUND 🔄', '#fde047');
+              }
+              r.isParked = true;
+            } else if (wantsNitro || manualThrottle > 0) {
+              r.isParked = false;
+            }
+
+            const throttle = (brake > 0 || r.isParked) ? 0 : (isTouchDevice ? 1 : manualThrottle);
 
             gyroState.smoothSteer += (gyroState.rawSteer - gyroState.smoothSteer) * (1 - Math.exp(-14 * dt));
             const keySteer = ((keys['KeyA'] || keys['ArrowLeft']) ? 1 : 0) - ((keys['KeyD'] || keys['ArrowRight']) ? 1 : 0);
@@ -4962,8 +5008,6 @@
               const pct = 50 - gyroState.smoothSteer * 44;
               gyroDot.style.left = `${pct}%`;
             }
-
-            const wantsNitro = keys['Space'] && r.nitro > 1 && throttle > 0;
             const wantsDrift = (keys['ShiftLeft'] || keys['ShiftRight']) && Math.abs(steerInput) > 0.14 && r.speed > 36;
 
             if (wantsNitro) {
@@ -5006,13 +5050,20 @@
             if (throttle > 0) {
               r.speed += accel * dt;
             } else if (brake > 0) {
-              r.speed -= (r.speed > 0 ? 58 : 24) * dt;
+              if (r.speed > 0.4) {
+                r.speed = Math.max(0, r.speed - 76 * dt);
+              } else {
+                r.speed -= 28 * dt;
+              }
+            } else if (r.isParked) {
+              r.speed *= Math.exp(-7 * dt);
+              if (Math.abs(r.speed) < 0.25) r.speed = 0;
             } else {
               r.speed *= Math.exp(-1.15 * dt);
             }
 
             r.speed = Math.max(-22, Math.min(maxSpeed, r.speed));
-            r.visual.tailMat.color.setHex(brake > 0 ? 0xff2a2a : 0x991b1b);
+            r.visual.tailMat.color.setHex((brake > 0 || r.isParked) ? 0xff2a2a : 0x991b1b);
 
             const targetSteer = steerInput * (wantsDrift ? 0.62 : 0.48);
             r.steerAngle += (targetSteer - r.steerAngle) * (1 - Math.exp(-11 * dt));
@@ -5289,20 +5340,41 @@
 
         if (cameraMode === 0) {
           camera.up.set(0, 1, 0);
-          const distBack = 9.5 + speedRatio * 2.2;
-          _v1.set(
-            player.pos.x - sinP * distBack,
-            4.1 + speedRatio * 0.5,
-            player.pos.z - cosP * distBack
-          );
-          _v2.set(
-            player.pos.x + sinP * 14,
-            2.2,
-            player.pos.z + cosP * 14
-          );
-
-          smoothCamPos.lerp(_v1, 1 - Math.exp(-10 * dt));
-          smoothCamLook.lerp(_v2, 1 - Math.exp(-14 * dt));
+          const isStopped = Math.abs(player.speed) < 0.8 && gameState === 'RACING';
+          if (isStopped) {
+            const radius = 10.5;
+            const totalYaw = player.heading + orbitYaw;
+            const horizDist = radius * Math.cos(orbitPitch);
+            const camY = Math.max(1.2, 1.4 + radius * Math.sin(orbitPitch));
+            _v1.set(
+              player.pos.x - Math.sin(totalYaw) * horizDist,
+              camY,
+              player.pos.z - Math.cos(totalYaw) * horizDist
+            );
+            _v2.set(
+              player.pos.x + Math.sin(totalYaw) * 8,
+              1.6 + Math.sin(orbitPitch) * 6.5,
+              player.pos.z + Math.cos(totalYaw) * 8
+            );
+            smoothCamPos.lerp(_v1, 1 - Math.exp(-12 * dt));
+            smoothCamLook.lerp(_v2, 1 - Math.exp(-12 * dt));
+          } else {
+            orbitYaw *= Math.exp(-8 * dt);
+            orbitPitch += (0.28 - orbitPitch) * (1 - Math.exp(-8 * dt));
+            const distBack = 9.5 + speedRatio * 2.2;
+            _v1.set(
+              player.pos.x - sinP * distBack,
+              4.1 + speedRatio * 0.5,
+              player.pos.z - cosP * distBack
+            );
+            _v2.set(
+              player.pos.x + sinP * 14,
+              2.2,
+              player.pos.z + cosP * 14
+            );
+            smoothCamPos.lerp(_v1, 1 - Math.exp(-10 * dt));
+            smoothCamLook.lerp(_v2, 1 - Math.exp(-14 * dt));
+          }
           camera.position.set(smoothCamPos.x + shakeX, smoothCamPos.y + shakeY, smoothCamPos.z);
           camera.lookAt(smoothCamLook);
         } else if (cameraMode === 1) {
@@ -5354,7 +5426,85 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
+    // ==========================================
+    // CLICKABLE 3D BILLBOARD / SKY DRONE / BALLOON RAYCASTER
+    // ==========================================
+    const adRaycaster = new THREE.Raycaster();
+    const adPointer = new THREE.Vector2();
+    let pointerDownPos = { x: 0, y: 0 };
+
+    function normalizeAdUrl(raw) {
+      const trimmed = (raw || '').trim();
+      if (!trimmed) return '';
+      if (/^https?:\/\//i.test(trimmed)) return trimmed;
+      return 'https://' + trimmed;
+    }
+
+    function getHitAdUrl(clientX, clientY) {
+      const rect = canvas.getBoundingClientRect();
+      adPointer.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      adPointer.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+      adRaycaster.setFromCamera(adPointer, camera);
+
+      const hits = adRaycaster.intersectObjects(clickableAdMeshes, false);
+      for (let i = 0; i < hits.length; i++) {
+        const getter = hits[i].object && hits[i].object.userData.adLinkGetter;
+        if (getter) {
+          const url = normalizeAdUrl(getter());
+          if (url) return url;
+        }
+      }
+      return '';
+    }
+
+    canvas.addEventListener('pointerdown', (e) => {
+      pointerDownPos.x = e.clientX;
+      pointerDownPos.y = e.clientY;
+      lastOrbitPointer.x = e.clientX;
+      lastOrbitPointer.y = e.clientY;
+      if (cameraMode === 0 && Math.abs(racers[0].speed) < 0.8 && gameState === 'RACING' && !editorOpen) {
+        isOrbitDragging = true;
+      }
+    });
+
+    canvas.addEventListener('pointerup', (e) => {
+      isOrbitDragging = false;
+      const moveDist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
+      if (moveDist > 12) return;
+      const url = getHitAdUrl(e.clientX, e.clientY);
+      if (url) {
+        triggerCallout('OPENING OFFER LINK ↗', '#38bdf8');
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+    });
+
+    canvas.addEventListener('pointercancel', () => {
+      isOrbitDragging = false;
+    });
+
+    canvas.addEventListener('pointermove', (e) => {
+      if (isOrbitDragging && cameraMode === 0 && Math.abs(racers[0].speed) < 0.8 && gameState === 'RACING' && !editorOpen) {
+        const dx = e.clientX - lastOrbitPointer.x;
+        const dy = e.clientY - lastOrbitPointer.y;
+        lastOrbitPointer.x = e.clientX;
+        lastOrbitPointer.y = e.clientY;
+        orbitYaw -= dx * 0.0075;
+        orbitPitch = Math.max(-0.08, Math.min(1.12, orbitPitch + dy * 0.0055));
+        canvas.style.cursor = 'grabbing';
+        return;
+      }
+      if (e.pointerType !== 'mouse') return;
+      if (getHitAdUrl(e.clientX, e.clientY)) {
+        canvas.style.cursor = 'pointer';
+      } else if (cameraMode === 0 && Math.abs(racers[0].speed) < 0.8 && gameState === 'RACING') {
+        canvas.style.cursor = 'grab';
+      } else {
+        canvas.style.cursor = 'default';
+      }
+    });
+
     animate();
   </script>
 </body>
 </html>
+
