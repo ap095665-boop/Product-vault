@@ -556,7 +556,7 @@
       top: 0;
       right: 0;
       bottom: 0;
-      width: 405px;
+      width: 410px;
       max-width: 96vw;
       background: rgba(15, 23, 42, 0.97);
       border-left: 1px solid rgba(56, 189, 248, 0.35);
@@ -600,12 +600,12 @@
     }
     .tab-btn {
       flex: 1;
-      padding: 10px 4px;
+      padding: 10px 2px;
       background: none;
       border: none;
       border-bottom: 2px solid transparent;
       color: #94a3b8;
-      font-size: 10.5px;
+      font-size: 10px;
       font-weight: 800;
       cursor: pointer;
       white-space: nowrap;
@@ -650,6 +650,11 @@
       display: flex;
       justify-content: space-between;
     }
+    .media-status {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #38bdf8;
+    }
     .editor-select, .editor-input {
       width: 100%;
       background: #1e293b;
@@ -675,7 +680,7 @@
       border: 1px solid rgba(255, 255, 255, 0.2);
       background: #020617;
     }
-    #editor-preview-canvas, #led-preview-canvas, #drone-preview-canvas {
+    #editor-preview-canvas, #led-preview-canvas, #drone-preview-canvas, #balloon-preview-canvas {
       display: block;
       width: 100%;
       height: auto;
@@ -941,18 +946,19 @@
     </div>
 
     <div class="editor-tabs">
-      <button class="tab-btn active" data-tab="drone">1. SKY ADS (3)</button>
-      <button class="tab-btn" data-tab="billboards">2. BRIDGES (9)</button>
-      <button class="tab-btn" data-tab="overhead">3. ROAD LED</button>
-      <button class="tab-btn" data-tab="shop">4. SHOP</button>
+      <button class="tab-btn active" data-tab="drone">1. SKY LED</button>
+      <button class="tab-btn" data-tab="balloons">2. BALLOONS</button>
+      <button class="tab-btn" data-tab="billboards">3. BRIDGES</button>
+      <button class="tab-btn" data-tab="overhead">4. TICKER</button>
+      <button class="tab-btn" data-tab="shop">5. SHOP</button>
     </div>
 
     <div class="editor-body">
-      <!-- TAB 1 (PRIORITY): SKY DRONE FLEETS LIFTING GIANT LED SCREENS IN OPEN AREAS -->
+      <!-- TAB 1: SKY DRONE FLEETS -->
       <div class="tab-pane active" id="pane-drone">
         <div class="field-group">
           <label class="field-label">
-            <span>Select Open-Sky Drone Fleet</span>
+            <span>Open-Sky Drone Fleet</span>
             <span id="drone-index-badge">1 / 3</span>
           </label>
           <select class="editor-select" id="drone-select">
@@ -998,27 +1004,87 @@
         </div>
 
         <div class="field-group">
-          <label class="field-label">Aerial Backdrop Photo / Logo (Optional)</label>
-          <input class="editor-input" id="cfg-drone-img-url" type="text" placeholder="Paste image URL or upload below" />
+          <label class="field-label">
+            <span>Photo or Video Loop URL (.mp4 / .webm)</span>
+            <span class="media-status" id="drone-media-status"></span>
+          </label>
+          <input class="editor-input" id="cfg-drone-img-url" type="text" placeholder="https://.../loop.mp4 or image URL" />
           <div class="img-actions">
             <label class="mini-btn" style="cursor:pointer;">
               UPLOAD IMAGE
               <input type="file" id="cfg-drone-img-file" accept="image/*" style="display:none;" />
             </label>
-            <button class="mini-btn" id="cfg-drone-clear-img">CLEAR IMAGE</button>
+            <button class="mini-btn" id="cfg-drone-clear-img">CLEAR MEDIA</button>
           </div>
         </div>
 
         <div class="footer-row">
           <button class="mini-btn" id="drone-apply-all">APPLY TO ALL 3 SKY ADS</button>
         </div>
+      </div>
+
+      <!-- TAB 2: ADVERTISING HOT AIR BALLOONS (3) -->
+      <div class="tab-pane" id="pane-balloons">
+        <div class="field-group">
+          <label class="field-label">
+            <span>Select Advertising Air Balloon</span>
+            <span id="balloon-index-badge">1 / 3</span>
+          </label>
+          <select class="editor-select" id="balloon-select">
+            <option value="0">#1 — Northeast Skyline Balloon</option>
+            <option value="1">#2 — East Backstretch Balloon</option>
+            <option value="2">#3 — West Horizon Balloon</option>
+          </select>
+        </div>
+
+        <div class="preview-box">
+          <canvas id="balloon-preview-canvas" width="512" height="256"></canvas>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Balloon Banner Headline</label>
+          <input class="editor-input" id="bl-title" type="text" maxlength="22" placeholder="e.g. GRAND OPENING" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Offer / Tagline</label>
+          <input class="editor-input" id="bl-subtitle" type="text" maxlength="34" placeholder="e.g. FREE COFFEE ON ORDERS 🎈" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Balloon Dome &amp; Banner Colors</label>
+          <div class="color-row">
+            <label class="color-chip">Dome 1 <input type="color" id="bl-bg1" /></label>
+            <label class="color-chip">Dome 2 <input type="color" id="bl-bg2" /></label>
+            <label class="color-chip">Border <input type="color" id="bl-accent" /></label>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">
+            <span>Photo or Video Loop URL (.mp4 / .webm)</span>
+            <span class="media-status" id="balloon-media-status"></span>
+          </label>
+          <input class="editor-input" id="bl-img-url" type="text" placeholder="https://.../ad-loop.mp4 or image URL" />
+          <div class="img-actions">
+            <label class="mini-btn" style="cursor:pointer;">
+              UPLOAD IMAGE
+              <input type="file" id="bl-img-file" accept="image/*" style="display:none;" />
+            </label>
+            <button class="mini-btn" id="bl-clear-img">CLEAR MEDIA</button>
+          </div>
+        </div>
+
+        <div class="footer-row">
+          <button class="mini-btn" id="bl-apply-all">APPLY TO ALL 3 BALLOONS</button>
+        </div>
 
         <div class="info-box">
-          <strong>Priority Open-Sky Fleet (3x):</strong> Three separate Quad-Drone fleets lift colossal <strong>64m × 25m</strong> double-sided LED screens in the wide-open sky zones where road bridges are absent!
+          <strong>Giant Advertising Air Balloons (3x):</strong> Towering 28m hot air balloons with wrap-around double-sided ad banners, glowing burner flames, and live video loop support!
         </div>
       </div>
 
-      <!-- TAB 2: OVERHEAD STRAIGHT-ROAD BILLBOARDS (9) -->
+      <!-- TAB 3: OVERHEAD STRAIGHT-ROAD BILLBOARDS (9) -->
       <div class="tab-pane" id="pane-billboards">
         <div class="field-group">
           <label class="field-label">
@@ -1072,14 +1138,17 @@
         </div>
 
         <div class="field-group">
-          <label class="field-label">Shop Photo / Logo (Optional)</label>
-          <input class="editor-input" id="bb-img-url" type="text" placeholder="Paste image URL or upload below" />
+          <label class="field-label">
+            <span>Photo or Video Loop URL (.mp4 / .webm)</span>
+            <span class="media-status" id="bb-media-status"></span>
+          </label>
+          <input class="editor-input" id="bb-img-url" type="text" placeholder="https://.../promo-loop.mp4 or image URL" />
           <div class="img-actions">
             <label class="mini-btn" style="cursor:pointer;">
               UPLOAD IMAGE
               <input type="file" id="bb-img-file" accept="image/*" style="display:none;" />
             </label>
-            <button class="mini-btn" id="bb-clear-img">CLEAR IMAGE</button>
+            <button class="mini-btn" id="bb-clear-img">CLEAR MEDIA</button>
           </div>
         </div>
 
@@ -1089,7 +1158,7 @@
         </div>
       </div>
 
-      <!-- TAB 3: OVERHEAD DIGITAL LED GANTRY -->
+      <!-- TAB 4: OVERHEAD DIGITAL LED TICKER -->
       <div class="tab-pane" id="pane-overhead">
         <div class="preview-box">
           <canvas id="led-preview-canvas" width="512" height="96"></canvas>
@@ -1128,7 +1197,7 @@
         <button class="mini-btn" id="led-sync-offer-btn">AUTO-FILL FROM SHOP OFFER &amp; CODE ⚡</button>
       </div>
 
-      <!-- TAB 4: SHOP BRANDING & COUPON REWARD -->
+      <!-- TAB 5: SHOP BRANDING & COUPON REWARD -->
       <div class="tab-pane" id="pane-shop">
         <div class="field-group">
           <label class="field-label">Shop / Event Title (Start Screen &amp; Jumbotron)</label>
@@ -1233,6 +1302,12 @@
       }
     ];
 
+    const DEFAULT_BALLOONS = [
+      { title: 'SKY BLIMP CLUB', subtitle: 'VIP DEALS IN THE CLOUDS 🎈', bg1: '#dc2626', bg2: '#f59e0b', accent: '#fef08a', imageUrl: '' },
+      { title: 'WEEKEND FEST', subtitle: 'FLAT 20% OFF ALL ORDERS', bg1: '#2563eb', bg2: '#06b6d4', accent: '#38bdf8', imageUrl: '' },
+      { title: 'APEX EXPRESS', subtitle: 'FAST SERVICE • FRESH TASTE', bg1: '#7c3aed', bg2: '#db2777', accent: '#f472b6', imageUrl: '' }
+    ];
+
     const DEFAULT_BILLBOARDS = [
       { title: 'HYPER NITRO', subtitle: 'BOOST BEYOND LIMITS ⚡', bg1: '#0f172a', bg2: '#0369a1', accent: '#38bdf8', imageUrl: '' },
       { title: 'DRIFT KING', subtitle: 'SLIDE CORNERS • BUILD 10X', bg1: '#1e1b4b', bg2: '#701a75', accent: '#f472b6', imageUrl: '' },
@@ -1248,6 +1323,7 @@
     // === CLIENT_CONFIG_START ===
     const BAKED_CLIENT_CONFIG = null;
     const BAKED_SKY_DRONES = null;
+    const BAKED_BALLOONS = null;
     const BAKED_BILLBOARDS = null;
     // === CLIENT_CONFIG_END ===
 
@@ -1285,6 +1361,19 @@
       return DEFAULT_SKY_DRONES.map(d => ({ ...d }));
     }
 
+    function loadBalloonData() {
+      if (Array.isArray(BAKED_BALLOONS) && BAKED_BALLOONS.length === 3) {
+        return BAKED_BALLOONS.map((b, i) => ({ ...DEFAULT_BALLOONS[i], ...b }));
+      }
+      try {
+        const saved = JSON.parse(localStorage.getItem('apex_horizon_balloons_v1'));
+        if (Array.isArray(saved) && saved.length === 3) {
+          return saved.map((b, i) => ({ ...DEFAULT_BALLOONS[i], ...b }));
+        }
+      } catch (e) {}
+      return DEFAULT_BALLOONS.map(b => ({ ...b }));
+    }
+
     function loadBillboardData() {
       if (Array.isArray(BAKED_BILLBOARDS) && BAKED_BILLBOARDS.length === 9) {
         return BAKED_BILLBOARDS.map(b => ({ ...b }));
@@ -1300,6 +1389,7 @@
 
     let clientConfig = loadClientConfig();
     let skyDroneData = loadSkyDroneData();
+    let balloonData = loadBalloonData();
     let billboardData = loadBillboardData();
     const IS_LOCKED_CLIENT = Boolean(clientConfig.lockEditor);
 
@@ -1308,6 +1398,7 @@
       try {
         localStorage.setItem('apex_horizon_client_cfg_v4', JSON.stringify(clientConfig));
         localStorage.setItem('apex_horizon_sky_drones_v1', JSON.stringify(skyDroneData));
+        localStorage.setItem('apex_horizon_balloons_v1', JSON.stringify(balloonData));
         localStorage.setItem('apex_horizon_billboards_v1', JSON.stringify(billboardData));
       } catch (e) {}
     }
@@ -1370,9 +1461,9 @@
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x87ceeb);
-    scene.fog = new THREE.Fog(0x9bd5f0, 200, 700);
+    scene.fog = new THREE.Fog(0x9bd5f0, 200, 720);
 
-    const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.25, 760);
+    const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.25, 780);
 
     const _v1 = new THREE.Vector3();
     const _v2 = new THREE.Vector3();
@@ -1385,9 +1476,9 @@
     scene.add(dirLight);
 
     const QUALITY_LEVELS = [
-      { name: 'SMOOTH', dprCap: 1.0, far: 700, shadows: false },
-      { name: 'BALANCED', dprCap: 1.35, far: 800, shadows: false },
-      { name: 'HIGH', dprCap: 1.75, far: 920, shadows: true }
+      { name: 'SMOOTH', dprCap: 1.0, far: 720, shadows: false },
+      { name: 'BALANCED', dprCap: 1.35, far: 820, shadows: false },
+      { name: 'HIGH', dprCap: 1.75, far: 940, shadows: true }
     ];
     let currentQuality = 0;
 
@@ -1427,7 +1518,7 @@
     });
 
     // ==========================================
-    // 2. PROCEDURAL TEXTURES & BILLBOARD PAINTER
+    // 2. PROCEDURAL TEXTURES & UNIFIED IMAGE/VIDEO LOOP PAINTER
     // ==========================================
     function createRoadTexture() {
       const c = document.createElement('canvas');
@@ -1503,88 +1594,219 @@
       return new THREE.CanvasTexture(c);
     }
 
-    function paintBillboardCanvas(targetCanvas, cfg, onReady) {
+    function isVideoMediaUrl(url) {
+      const clean = (url || '').trim();
+      if (!clean) return false;
+      if (clean.startsWith('data:video/')) return true;
+      return /\.(mp4|webm|ogg|mov|m4v)(\?.*|#.*)?$/i.test(clean);
+    }
+
+    // Tracks all active looping <video> elements so user clicks unlock autoplay cleanly
+    const activeVideoElements = [];
+
+    function unlockAllLoopVideos() {
+      for (let i = 0; i < activeVideoElements.length; i++) {
+        const v = activeVideoElements[i];
+        if (v && v.paused && v.src) {
+          v.play().catch(() => {});
+        }
+      }
+    }
+
+    function registerVideoElement(v) {
+      if (activeVideoElements.indexOf(v) === -1) {
+        activeVideoElements.push(v);
+      }
+    }
+
+    function unregisterVideoElement(v) {
+      const idx = activeVideoElements.indexOf(v);
+      if (idx !== -1) activeVideoElements.splice(idx, 1);
+    }
+
+    // Draws standard 512x256 billboard/balloon frame from either Image or active Video frame
+    function drawBillboardFrame(targetCanvas, cfg, mediaSource) {
       if (!targetCanvas) return;
       const ctx = targetCanvas.getContext('2d');
 
-      const renderOverlay = (bgImage) => {
-        const grad = ctx.createLinearGradient(0, 0, 512, 256);
-        grad.addColorStop(0, cfg.bg1 || '#0f172a');
-        grad.addColorStop(1, cfg.bg2 || '#0369a1');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, 512, 256);
+      const grad = ctx.createLinearGradient(0, 0, 512, 256);
+      grad.addColorStop(0, cfg.bg1 || '#0f172a');
+      grad.addColorStop(1, cfg.bg2 || '#0369a1');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 512, 256);
 
-        if (bgImage) {
-          const scale = Math.max(512 / bgImage.width, 256 / bgImage.height);
-          const w = bgImage.width * scale;
-          const h = bgImage.height * scale;
-          ctx.drawImage(bgImage, (512 - w) * 0.5, (256 - h) * 0.5, w, h);
+      if (mediaSource) {
+        const srcW = mediaSource.videoWidth || mediaSource.width || 512;
+        const srcH = mediaSource.videoHeight || mediaSource.height || 256;
+        if (srcW > 0 && srcH > 0) {
+          const scale = Math.max(512 / srcW, 256 / srcH);
+          const w = srcW * scale;
+          const h = srcH * scale;
+          try {
+            ctx.drawImage(mediaSource, (512 - w) * 0.5, (256 - h) * 0.5, w, h);
+          } catch (e) {}
 
           if (cfg.title || cfg.subtitle) {
-            ctx.fillStyle = 'rgba(2, 6, 23, 0.48)';
+            ctx.fillStyle = 'rgba(2, 6, 23, 0.44)';
             ctx.fillRect(0, 0, 512, 256);
           }
-        } else {
-          ctx.fillStyle = 'rgba(255,255,255,0.08)';
-          ctx.beginPath();
-          ctx.moveTo(360, 0);
-          ctx.lineTo(430, 0);
-          ctx.lineTo(350, 256);
-          ctx.lineTo(280, 256);
-          ctx.fill();
         }
+      } else {
+        ctx.fillStyle = 'rgba(255,255,255,0.08)';
+        ctx.beginPath();
+        ctx.moveTo(360, 0);
+        ctx.lineTo(430, 0);
+        ctx.lineTo(350, 256);
+        ctx.lineTo(280, 256);
+        ctx.fill();
+      }
 
-        ctx.strokeStyle = cfg.accent || '#38bdf8';
-        ctx.lineWidth = 10;
-        ctx.strokeRect(10, 10, 492, 236);
+      ctx.strokeStyle = cfg.accent || '#38bdf8';
+      ctx.lineWidth = 10;
+      ctx.strokeRect(10, 10, 492, 236);
 
-        if (cfg.title) {
-          ctx.fillStyle = '#ffffff';
-          ctx.font = '900 50px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.shadowColor = 'rgba(0,0,0,0.75)';
-          ctx.shadowBlur = 10;
-          ctx.fillText(cfg.title, 256, cfg.subtitle ? 102 : 128);
-          ctx.shadowBlur = 0;
-        }
+      if (cfg.title) {
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '900 50px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0,0,0,0.75)';
+        ctx.shadowBlur = 10;
+        ctx.fillText(cfg.title, 256, cfg.subtitle ? 102 : 128);
+        ctx.shadowBlur = 0;
+      }
 
-        if (cfg.subtitle) {
-          ctx.fillStyle = cfg.accent || '#38bdf8';
-          ctx.font = '800 23px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.shadowColor = 'rgba(0,0,0,0.85)';
-          ctx.shadowBlur = 8;
-          ctx.fillText(cfg.subtitle, 256, cfg.title ? 172 : 128);
-          ctx.shadowBlur = 0;
-        }
+      if (cfg.subtitle) {
+        ctx.fillStyle = cfg.accent || '#38bdf8';
+        ctx.font = '800 23px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0,0,0,0.85)';
+        ctx.shadowBlur = 8;
+        ctx.fillText(cfg.subtitle, 256, cfg.title ? 172 : 128);
+        ctx.shadowBlur = 0;
+      }
+    }
 
-        if (onReady) onReady();
-      };
-
+    // Binds a 3D banner slot to support Static Gradient, Image URL/Upload, or Looping Video URL
+    function bindMediaSlot(slot, cfg, onStatus) {
       const url = (cfg.imageUrl || '').trim();
+
+      // Clean up any previous video if URL changed or cleared
+      if (slot.videoEl && slot.loadedMediaUrl !== url) {
+        slot.videoEl.pause();
+        unregisterVideoElement(slot.videoEl);
+        slot.videoEl.removeAttribute('src');
+        slot.videoEl.load();
+        slot.videoEl = null;
+        slot.hasActiveVideo = false;
+      }
+
       if (!url) {
-        renderOverlay(null);
+        slot.loadedMediaUrl = '';
+        slot.cachedImage = null;
+        slot.hasActiveVideo = false;
+        slot.mediaStatusText = '';
+        drawBillboardFrame(slot.canvas, cfg, null);
+        slot.texture.needsUpdate = true;
+        if (onStatus) onStatus('');
         return;
       }
 
-      renderOverlay(null);
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => renderOverlay(img);
-      img.onerror = () => {
-        const fallbackImg = new Image();
-        fallbackImg.onload = () => renderOverlay(fallbackImg);
-        fallbackImg.src = url;
-      };
-      img.src = url;
+      // If URL hasn't changed, just redraw with current image/video frame (for live text/color edits)
+      if (slot.loadedMediaUrl === url) {
+        const src = (slot.hasActiveVideo && slot.videoEl && slot.videoEl.readyState >= 2) ? slot.videoEl : slot.cachedImage;
+        drawBillboardFrame(slot.canvas, cfg, src);
+        slot.texture.needsUpdate = true;
+        if (onStatus) onStatus(slot.mediaStatusText || '');
+        return;
+      }
+
+      slot.loadedMediaUrl = url;
+      slot.cachedImage = null;
+      slot.hasActiveVideo = false;
+
+      if (isVideoMediaUrl(url)) {
+        slot.mediaStatusText = 'LOADING VIDEO LOOP...';
+        if (onStatus) onStatus(slot.mediaStatusText);
+
+        drawBillboardFrame(slot.canvas, cfg, null);
+        slot.texture.needsUpdate = true;
+
+        const video = document.createElement('video');
+        video.crossOrigin = 'anonymous';
+        video.muted = true;
+        video.defaultMuted = true;
+        video.loop = true;
+        video.playsInline = true;
+        video.setAttribute('muted', '');
+        video.setAttribute('playsinline', '');
+        video.setAttribute('webkit-playsinline', '');
+        video.preload = 'auto';
+
+        video.onloadeddata = () => {
+          if (slot.loadedMediaUrl !== url) return;
+          slot.hasActiveVideo = true;
+          slot.mediaStatusText = '● VIDEO LOOP ACTIVE';
+          if (onStatus) onStatus(slot.mediaStatusText);
+          video.play().catch(() => {});
+          drawBillboardFrame(slot.canvas, cfg, video);
+          slot.texture.needsUpdate = true;
+        };
+
+        video.onerror = () => {
+          if (slot.loadedMediaUrl !== url) return;
+          slot.hasActiveVideo = false;
+          unregisterVideoElement(video);
+          slot.mediaStatusText = 'CORS BLOCKED / INVALID VIDEO';
+          if (onStatus) onStatus(slot.mediaStatusText);
+        };
+
+        video.src = url;
+        slot.videoEl = video;
+        registerVideoElement(video);
+        video.play().catch(() => {});
+      } else {
+        slot.mediaStatusText = 'LOADING IMAGE...';
+        if (onStatus) onStatus(slot.mediaStatusText);
+        drawBillboardFrame(slot.canvas, cfg, null);
+        slot.texture.needsUpdate = true;
+
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          if (slot.loadedMediaUrl !== url) return;
+          slot.cachedImage = img;
+          slot.mediaStatusText = 'IMAGE LOADED';
+          if (onStatus) onStatus(slot.mediaStatusText);
+          drawBillboardFrame(slot.canvas, cfg, img);
+          slot.texture.needsUpdate = true;
+        };
+        img.onerror = () => {
+          const fallbackImg = new Image();
+          fallbackImg.onload = () => {
+            if (slot.loadedMediaUrl !== url) return;
+            slot.cachedImage = fallbackImg;
+            slot.mediaStatusText = 'IMAGE LOADED';
+            if (onStatus) onStatus(slot.mediaStatusText);
+            drawBillboardFrame(slot.canvas, cfg, fallbackImg);
+            slot.texture.needsUpdate = true;
+          };
+          fallbackImg.onerror = () => {
+            if (slot.loadedMediaUrl !== url) return;
+            slot.mediaStatusText = 'IMAGE LOAD FAILED';
+            if (onStatus) onStatus(slot.mediaStatusText);
+          };
+          fallbackImg.src = url;
+        };
+        img.src = url;
+      }
     }
 
     const carShadowTex = createShadowBlobTexture();
 
     // ==========================================
-    // 3. CIRCUIT TRACK, COLLECTIBLES, SKY DRONES & BRIDGES
+    // 3. CIRCUIT TRACK, COLLECTIBLES, SKY DRONES, AIR BALLOONS & BRIDGES
     // ==========================================
     const controlPoints = [
       new THREE.Vector3(0, 0, 0),
@@ -1868,7 +2090,7 @@
     }
 
     // ==========================================
-    // 3C. OVERHEAD DIGITAL LED ROAD BILLBOARDS (MOVING TICKER)
+    // 3C. OVERHEAD DIGITAL LED ROAD TICKERS (2)
     // ==========================================
     const ledCanvas = document.createElement('canvas');
     ledCanvas.width = 512;
@@ -2006,30 +2228,105 @@
     ledTex.needsUpdate = true;
 
     // ==========================================
-    // 3D. 3 GIANT QUAD-DRONE SKY LED BILLBOARDS IN OPEN AREAS
+    // 3D. 3 GIANT QUAD-DRONE SKY LED BILLBOARDS (WITH VIDEO LOOP SUPPORT)
     // ==========================================
     const skyDroneSystems = [];
 
-    function loadDroneImageForSlot(slot) {
-      const url = (skyDroneData[slot.index].imageUrl || '').trim();
-      if (url === slot.cachedBgUrl) return;
-      slot.cachedBgUrl = url;
-      slot.cachedBgImg = null;
-      if (!url) return;
+    function bindDroneMediaForSlot(slot, onStatus) {
+      const cfg = skyDroneData[slot.index];
+      const url = (cfg.imageUrl || '').trim();
 
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => {
-        if (slot.cachedBgUrl === url) slot.cachedBgImg = img;
-      };
-      img.onerror = () => {
-        const fallbackImg = new Image();
-        fallbackImg.onload = () => {
-          if (slot.cachedBgUrl === url) slot.cachedBgImg = fallbackImg;
+      if (slot.videoEl && slot.loadedMediaUrl !== url) {
+        slot.videoEl.pause();
+        unregisterVideoElement(slot.videoEl);
+        slot.videoEl.removeAttribute('src');
+        slot.videoEl.load();
+        slot.videoEl = null;
+        slot.hasActiveVideo = false;
+      }
+
+      if (!url) {
+        slot.loadedMediaUrl = '';
+        slot.cachedBgImg = null;
+        slot.hasActiveVideo = false;
+        slot.mediaStatusText = '';
+        if (onStatus) onStatus('');
+        return;
+      }
+
+      if (slot.loadedMediaUrl === url) {
+        if (onStatus) onStatus(slot.mediaStatusText || '');
+        return;
+      }
+
+      slot.loadedMediaUrl = url;
+      slot.cachedBgImg = null;
+      slot.hasActiveVideo = false;
+
+      if (isVideoMediaUrl(url)) {
+        slot.mediaStatusText = 'LOADING VIDEO LOOP...';
+        if (onStatus) onStatus(slot.mediaStatusText);
+
+        const video = document.createElement('video');
+        video.crossOrigin = 'anonymous';
+        video.muted = true;
+        video.defaultMuted = true;
+        video.loop = true;
+        video.playsInline = true;
+        video.setAttribute('muted', '');
+        video.setAttribute('playsinline', '');
+        video.setAttribute('webkit-playsinline', '');
+        video.preload = 'auto';
+
+        video.onloadeddata = () => {
+          if (slot.loadedMediaUrl !== url) return;
+          slot.hasActiveVideo = true;
+          slot.mediaStatusText = '● VIDEO LOOP ACTIVE';
+          if (onStatus) onStatus(slot.mediaStatusText);
+          video.play().catch(() => {});
         };
-        fallbackImg.src = url;
-      };
-      img.src = url;
+
+        video.onerror = () => {
+          if (slot.loadedMediaUrl !== url) return;
+          slot.hasActiveVideo = false;
+          unregisterVideoElement(video);
+          slot.mediaStatusText = 'CORS BLOCKED / INVALID VIDEO';
+          if (onStatus) onStatus(slot.mediaStatusText);
+        };
+
+        video.src = url;
+        slot.videoEl = video;
+        registerVideoElement(video);
+        video.play().catch(() => {});
+      } else {
+        slot.mediaStatusText = 'LOADING IMAGE...';
+        if (onStatus) onStatus(slot.mediaStatusText);
+
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          if (slot.loadedMediaUrl !== url) return;
+          slot.cachedBgImg = img;
+          slot.mediaStatusText = 'IMAGE LOADED';
+          if (onStatus) onStatus(slot.mediaStatusText);
+        };
+        img.onerror = () => {
+          const fallbackImg = new Image();
+          fallbackImg.onload = () => {
+            if (slot.loadedMediaUrl !== url) return;
+            slot.cachedBgImg = fallbackImg;
+            slot.mediaStatusText = 'IMAGE LOADED';
+            if (onStatus) onStatus(slot.mediaStatusText);
+          };
+          fallbackImg.onerror = () => {
+            if (slot.loadedMediaUrl !== url) return;
+            slot.mediaStatusText = 'IMAGE LOAD FAILED';
+            if (onStatus) onStatus(slot.mediaStatusText);
+          };
+          fallbackImg.src = url;
+        };
+        img.src = url;
+      }
     }
 
     function renderSkyDroneSlotCanvas(targetCanvas, slot, dt) {
@@ -2050,13 +2347,20 @@
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, w, h);
 
-      if (slot.cachedBgImg) {
-        const scale = Math.max(w / slot.cachedBgImg.width, h / slot.cachedBgImg.height);
-        const iw = slot.cachedBgImg.width * scale;
-        const ih = slot.cachedBgImg.height * scale;
-        ctx.drawImage(slot.cachedBgImg, (w - iw) * 0.5, (h - ih) * 0.5, iw, ih);
-        ctx.fillStyle = 'rgba(2, 6, 23, 0.48)';
-        ctx.fillRect(0, 0, w, h);
+      const mediaSrc = (slot.hasActiveVideo && slot.videoEl && slot.videoEl.readyState >= 2) ? slot.videoEl : slot.cachedBgImg;
+      if (mediaSrc) {
+        const srcW = mediaSrc.videoWidth || mediaSrc.width || w;
+        const srcH = mediaSrc.videoHeight || mediaSrc.height || h;
+        if (srcW > 0 && srcH > 0) {
+          const scale = Math.max(w / srcW, h / srcH);
+          const iw = srcW * scale;
+          const ih = srcH * scale;
+          try {
+            ctx.drawImage(mediaSrc, (w - iw) * 0.5, (h - ih) * 0.5, iw, ih);
+          } catch (e) {}
+          ctx.fillStyle = 'rgba(2, 6, 23, 0.44)';
+          ctx.fillRect(0, 0, w, h);
+        }
       }
 
       ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
@@ -2119,9 +2423,9 @@
 
     (function createAllSkyDroneRigs() {
       const skyPlacements = [
-        { idx: 84, heightY: 36.5 },  // #1: Main Straight Open Sky
-        { idx: 416, heightY: 37.5 }, // #2: Wide-Open South Panorama Sky
-        { idx: 486, heightY: 37.0 }  // #3: Wide-Open Southwest Return Sky
+        { idx: 84, heightY: 36.5 },
+        { idx: 416, heightY: 37.5 },
+        { idx: 486, heightY: 37.0 }
       ];
 
       const screenW = 64;
@@ -2252,10 +2556,13 @@
           tickerWidth: 950,
           cachedMeasureStr: '',
           cachedBgImg: null,
-          cachedBgUrl: ''
+          loadedMediaUrl: '',
+          videoEl: null,
+          hasActiveVideo: false,
+          mediaStatusText: ''
         };
 
-        loadDroneImageForSlot(slot);
+        bindDroneMediaForSlot(slot);
         renderSkyDroneSlotCanvas(dCanvas, slot, 0);
         dTex.needsUpdate = true;
         skyDroneSystems.push(slot);
@@ -2287,7 +2594,179 @@
     }
 
     // ==========================================
-    // 3E. OVERHEAD STRAIGHT-ROAD BRIDGES (9)
+    // 3E. ADVERTISING HOT AIR BALLOONS (3 GIANT SKY BALLOONS WITH VIDEO/IMAGE BANNERS)
+    // ==========================================
+    const balloonInstances = [];
+
+    function createBalloonEnvelopeTexture(c1, c2) {
+      const c = document.createElement('canvas');
+      c.width = 256;
+      c.height = 128;
+      const ctx = c.getContext('2d');
+      const stripes = 12;
+      const w = 256 / stripes;
+      for (let i = 0; i < stripes; i++) {
+        ctx.fillStyle = i % 2 === 0 ? (c1 || '#dc2626') : (c2 || '#f59e0b');
+        ctx.fillRect(i * w, 0, w + 1, 128);
+      }
+      // Subtle horizontal seam bands
+      ctx.fillStyle = 'rgba(255,255,255,0.16)';
+      ctx.fillRect(0, 38, 256, 4);
+      ctx.fillRect(0, 86, 256, 4);
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = THREE.RepeatWrapping;
+      return tex;
+    }
+
+    (function createAdvertisingAirBalloons() {
+      // Three towering advertising hot air balloons stationed in open sky vistas around the circuit
+      const balloonPlacements = [
+        { x: 165, y: 48, z: -215, yaw: -0.55 }, // #1: Northeast Skyline Balloon (Turn 2-4 vista)
+        { x: 375, y: 52, z: 125, yaw: -2.45 },  // #2: East Backstretch Balloon (Long backstretch vista)
+        { x: -135, y: 50, z: 115, yaw: 1.05 }   // #3: West Horizon Balloon (Return straight vista)
+      ];
+
+      // Balloon Dome + Lower Throat Cone
+      const domeGeo = new THREE.SphereGeometry(16, 18, 12, 0, Math.PI * 2, 0, Math.PI * 0.66);
+      domeGeo.scale(1, 1.24, 1);
+      const throatGeo = new THREE.CylinderGeometry(14.0, 4.4, 11.5, 18, 1, true);
+
+      // Curved Double-Sided Wrap-Around Banner around Balloon Equator (facing front & back)
+      const bannerArc = Math.PI * 0.84;
+      const frontBannerGeo = new THREE.CylinderGeometry(16.7, 16.7, 11.2, 20, 1, true, -bannerArc * 0.5, bannerArc);
+      const backBannerGeo = new THREE.CylinderGeometry(16.7, 16.7, 11.2, 20, 1, true, Math.PI - bannerArc * 0.5, bannerArc);
+
+      // Gondola Basket, Ropes & Glowing Burner Flame
+      const basketGeo = new THREE.BoxGeometry(5.0, 3.2, 5.0);
+      const basketMat = new THREE.MeshLambertMaterial({ color: 0x92400e, fog: false });
+      const ropeGeo = new THREE.CylinderGeometry(0.08, 0.08, 7.2, 4);
+      const ropeMat = new THREE.MeshBasicMaterial({ color: 0xe2e8f0, fog: false });
+      const burnerGeo = new THREE.ConeGeometry(1.45, 3.2, 8);
+      const burnerMat = new THREE.MeshBasicMaterial({ color: 0xfb923c, fog: false });
+
+      const ropeCoords = [
+        [-2.0, -18.2, -2.0],
+        [2.0, -18.2, -2.0],
+        [-2.0, -18.2, 2.0],
+        [2.0, -18.2, 2.0]
+      ];
+
+      balloonPlacements.forEach((pos, i) => {
+        const cfg = balloonData[i];
+        const group = new THREE.Group();
+        group.position.set(pos.x, pos.y, pos.z);
+        group.rotation.y = pos.yaw;
+
+        const envTex = createBalloonEnvelopeTexture(cfg.bg1, cfg.bg2);
+        const envMat = new THREE.MeshLambertMaterial({ map: envTex, side: THREE.DoubleSide, fog: false });
+
+        const dome = new THREE.Mesh(domeGeo, envMat);
+        dome.position.y = 4.0;
+        const throat = new THREE.Mesh(throatGeo, envMat);
+        throat.position.y = -9.6;
+        group.add(dome, throat);
+
+        // Banner Texture & Canvas
+        const bCanvas = document.createElement('canvas');
+        bCanvas.width = 512;
+        bCanvas.height = 256;
+        const bTex = new THREE.CanvasTexture(bCanvas);
+        bTex.anisotropy = 4;
+
+        const bannerMat = new THREE.MeshBasicMaterial({ map: bTex, side: THREE.DoubleSide, fog: false });
+        const frontBanner = new THREE.Mesh(frontBannerGeo, bannerMat);
+        frontBanner.position.y = 1.5;
+        const backBanner = new THREE.Mesh(backBannerGeo, bannerMat);
+        backBanner.position.y = 1.5;
+        group.add(frontBanner, backBanner);
+
+        // Glowing Burner Flame inside throat
+        const burnerFlame = new THREE.Mesh(burnerGeo, burnerMat);
+        burnerFlame.position.y = -15.6;
+        group.add(burnerFlame);
+
+        // 4 Suspension Cables + Wicker Basket
+        ropeCoords.forEach(([rx, ry, rz]) => {
+          const rope = new THREE.Mesh(ropeGeo, ropeMat);
+          rope.position.set(rx, ry, rz);
+          rope.rotation.z = -rx * 0.08;
+          rope.rotation.x = rz * 0.08;
+          group.add(rope);
+        });
+
+        const basket = new THREE.Mesh(basketGeo, basketMat);
+        basket.position.y = -22.6;
+        group.add(basket);
+
+        scene.add(group);
+
+        // Camera preview vantage point in the sky in front of this balloon
+        const normalX = Math.sin(pos.yaw);
+        const normalZ = Math.cos(pos.yaw);
+        const camPos = new THREE.Vector3(pos.x + normalX * 56, pos.y - 2, pos.z + normalZ * 56);
+        const lookAt = new THREE.Vector3(pos.x, pos.y - 1, pos.z);
+
+        const slot = {
+          index: i,
+          group,
+          envTex,
+          envMat,
+          burnerFlame,
+          canvas: bCanvas,
+          texture: bTex,
+          basePos: new THREE.Vector3(pos.x, pos.y, pos.z),
+          baseYaw: pos.yaw,
+          camPos,
+          lookAt,
+          floatPhase: i * 2.1,
+          cachedImage: null,
+          loadedMediaUrl: '',
+          videoEl: null,
+          hasActiveVideo: false,
+          mediaStatusText: ''
+        };
+
+        bindMediaSlot(slot, cfg);
+        balloonInstances.push(slot);
+      });
+    })();
+
+    function refreshBalloon3D(index, onStatus) {
+      const slot = balloonInstances[index];
+      if (!slot) return;
+      const cfg = balloonData[index];
+      // Update envelope stripes
+      if (slot.envTex) slot.envTex.dispose();
+      slot.envTex = createBalloonEnvelopeTexture(cfg.bg1, cfg.bg2);
+      slot.envMat.map = slot.envTex;
+      slot.envMat.needsUpdate = true;
+
+      bindMediaSlot(slot, cfg, onStatus);
+    }
+
+    function updateAdvertisingBalloons(dt) {
+      for (let i = 0; i < balloonInstances.length; i++) {
+        const b = balloonInstances[i];
+        b.floatPhase += dt;
+        const t = b.floatPhase;
+
+        b.group.position.set(
+          b.basePos.x + Math.sin(t * 0.42) * 3.5,
+          b.basePos.y + Math.sin(t * 0.78) * 2.4,
+          b.basePos.z + Math.cos(t * 0.36) * 3.5
+        );
+        // Gently pan left/right so track drivers get a wide viewing angle
+        b.group.rotation.y = b.baseYaw + Math.sin(t * 0.45) * 0.24;
+        b.group.rotation.z = Math.cos(t * 0.65) * 0.025;
+
+        // Pulsing burner flame
+        const flamePulse = 0.85 + Math.sin(t * 9.0) * 0.25;
+        b.burnerFlame.scale.set(1, flamePulse, 1);
+      }
+    }
+
+    // ==========================================
+    // 3F. OVERHEAD STRAIGHT-ROAD BRIDGES (9 — WITH VIDEO LOOP SUPPORT)
     // ==========================================
     const billboardInstances = [];
     let jumbotronCanvas, jumbotronCtx, jumbotronTex;
@@ -2355,10 +2834,6 @@
         const bTex = new THREE.CanvasTexture(bCanvas);
         bTex.anisotropy = 4;
 
-        paintBillboardCanvas(bCanvas, billboardData[i], () => {
-          bTex.needsUpdate = true;
-        });
-
         const faceMat = new THREE.MeshBasicMaterial({ map: bTex, fog: false });
 
         const frontFace = new THREE.Mesh(boardGeo, faceMat);
@@ -2375,7 +2850,21 @@
         const camPos = new THREE.Vector3(pt.x + normalX * 34, 6.4, pt.z + normalZ * 34);
         const lookAt = new THREE.Vector3(pt.x, boardCenterY - 0.8, pt.z);
 
-        billboardInstances.push({ canvas: bCanvas, texture: bTex, camPos, lookAt });
+        const slot = {
+          index: i,
+          canvas: bCanvas,
+          texture: bTex,
+          camPos,
+          lookAt,
+          cachedImage: null,
+          loadedMediaUrl: '',
+          videoEl: null,
+          hasActiveVideo: false,
+          mediaStatusText: ''
+        };
+
+        bindMediaSlot(slot, billboardData[i]);
+        billboardInstances.push(slot);
       });
 
       // Live Telemetry Jumbotron on side of Start Straight
@@ -2416,12 +2905,10 @@
       scene.add(jumboGroup);
     })();
 
-    function refreshBillboard3D(index) {
-      const inst = billboardInstances[index];
-      if (!inst) return;
-      paintBillboardCanvas(inst.canvas, billboardData[index], () => {
-        inst.texture.needsUpdate = true;
-      });
+    function refreshBillboard3D(index, onStatus) {
+      const slot = billboardInstances[index];
+      if (!slot) return;
+      bindMediaSlot(slot, billboardData[index], onStatus);
     }
 
     function updateJumbotron(leaderName, speedKmh, score, bestScore) {
@@ -2725,7 +3212,6 @@
       return { mesh: car, cabin, roof, wheels, tailMat, flames: [flameL, flameR] };
     }
 
-    // Build Detailed First-Person Driver Cockpit (Attached to Player Car, visible only in FPV)
     function createFirstPersonCockpit(playerCarGroup) {
       const cockpit = new THREE.Group();
       cockpit.visible = false;
@@ -2736,13 +3222,11 @@
       const stripeMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
       const revMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
 
-      // Angled Dashboard Cowl
       const dash = new THREE.Mesh(new THREE.BoxGeometry(1.58, 0.26, 0.62), dashMat);
       dash.position.set(0, 0.92, 0.62);
       dash.rotation.x = -0.18;
       cockpit.add(dash);
 
-      // Digital LED Rev / Speed Bar on Top of Dash
       const revBezel = new THREE.Mesh(new THREE.BoxGeometry(0.66, 0.045, 0.08), trimMat);
       revBezel.position.set(0, 1.06, 0.56);
       revBezel.rotation.x = -0.25;
@@ -2753,7 +3237,6 @@
       revBar.rotation.x = -0.25;
       cockpit.add(revBar);
 
-      // Left & Right Windshield A-Pillars + Top Sun Visor
       const pillarGeo = new THREE.BoxGeometry(0.065, 0.62, 0.065);
       const pillarL = new THREE.Mesh(pillarGeo, trimMat);
       pillarL.position.set(-0.74, 1.24, 0.44);
@@ -2767,7 +3250,6 @@
       topVisor.position.set(0, 1.48, 0.22);
       cockpit.add(pillarL, pillarR, topVisor);
 
-      // Steering Column & Rotating Race Steering Wheel
       const column = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 0.28, 8).rotateX(Math.PI / 2), trimMat);
       column.position.set(0, 0.99, 0.48);
       column.rotation.x = -0.28;
@@ -2957,6 +3439,7 @@
     // ==========================================
     const editorDrawer = document.getElementById('editor-drawer');
     let selectedDroneIdx = 0;
+    let selectedBalloonIdx = 0;
     let selectedBillboardIdx = 0;
     let editorOpen = false;
     let activeEditorTab = 'drone';
@@ -2970,6 +3453,7 @@
 
     function openStudioEditor() {
       if (IS_LOCKED_CLIENT || !editorDrawer) return;
+      unlockAllLoopVideos();
       editorOpen = true;
       editorDrawer.classList.add('open');
       overlay.style.display = 'none';
@@ -2989,6 +3473,8 @@
     let syncEditorFields = () => {};
     let ledPreviewCanvas = null;
     let dronePreviewCanvas = null;
+    let balloonPreviewCanvas = null;
+    let editorPreviewCanvas = null;
 
     if (!IS_LOCKED_CLIENT && editorDrawer) {
       const droneSelect = document.getElementById('drone-select');
@@ -2999,6 +3485,19 @@
       const cfgDroneColor = document.getElementById('cfg-drone-color');
       const cfgDroneImgUrl = document.getElementById('cfg-drone-img-url');
       const cfgDroneImgFile = document.getElementById('cfg-drone-img-file');
+      const droneMediaStatus = document.getElementById('drone-media-status');
+
+      const balloonSelect = document.getElementById('balloon-select');
+      const balloonIndexBadge = document.getElementById('balloon-index-badge');
+      balloonPreviewCanvas = document.getElementById('balloon-preview-canvas');
+      const blTitleInput = document.getElementById('bl-title');
+      const blSubtitleInput = document.getElementById('bl-subtitle');
+      const blBg1Input = document.getElementById('bl-bg1');
+      const blBg2Input = document.getElementById('bl-bg2');
+      const blAccentInput = document.getElementById('bl-accent');
+      const blImgUrlInput = document.getElementById('bl-img-url');
+      const blImgFileInput = document.getElementById('bl-img-file');
+      const balloonMediaStatus = document.getElementById('balloon-media-status');
 
       const bbSelect = document.getElementById('bb-select');
       const bbIndexBadge = document.getElementById('bb-index-badge');
@@ -3009,7 +3508,8 @@
       const bbAccentInput = document.getElementById('bb-accent');
       const bbImgUrlInput = document.getElementById('bb-img-url');
       const bbImgFileInput = document.getElementById('bb-img-file');
-      const editorPreviewCanvas = document.getElementById('editor-preview-canvas');
+      const bbMediaStatus = document.getElementById('bb-media-status');
+      editorPreviewCanvas = document.getElementById('editor-preview-canvas');
 
       ledPreviewCanvas = document.getElementById('led-preview-canvas');
       const cfgLedText = document.getElementById('cfg-led-text');
@@ -3024,16 +3524,36 @@
       const cfgDefaultCam = document.getElementById('cfg-default-cam');
 
       syncEditorFields = function () {
+        // 1. Sky Drone
         const dCfg = skyDroneData[selectedDroneIdx];
+        const dSlot = skyDroneSystems[selectedDroneIdx];
         droneSelect.value = String(selectedDroneIdx);
         droneIndexBadge.textContent = `${selectedDroneIdx + 1} / 3`;
         cfgDroneTitle.value = dCfg.title || '';
         cfgDroneTicker.value = dCfg.ticker || '';
         cfgDroneColor.value = dCfg.color || '#facc15';
         cfgDroneImgUrl.value = (dCfg.imageUrl && dCfg.imageUrl.startsWith('data:')) ? '[Uploaded Local Image]' : (dCfg.imageUrl || '');
-        renderSkyDroneSlotCanvas(dronePreviewCanvas, skyDroneSystems[selectedDroneIdx], 0);
+        if (droneMediaStatus) droneMediaStatus.textContent = dSlot.mediaStatusText || '';
+        renderSkyDroneSlotCanvas(dronePreviewCanvas, dSlot, 0);
 
+        // 2. Balloon
+        const blCfg = balloonData[selectedBalloonIdx];
+        const blSlot = balloonInstances[selectedBalloonIdx];
+        balloonSelect.value = String(selectedBalloonIdx);
+        balloonIndexBadge.textContent = `${selectedBalloonIdx + 1} / 3`;
+        blTitleInput.value = blCfg.title || '';
+        blSubtitleInput.value = blCfg.subtitle || '';
+        blBg1Input.value = blCfg.bg1 || '#dc2626';
+        blBg2Input.value = blCfg.bg2 || '#f59e0b';
+        blAccentInput.value = blCfg.accent || '#fef08a';
+        blImgUrlInput.value = (blCfg.imageUrl && blCfg.imageUrl.startsWith('data:')) ? '[Uploaded Local Image]' : (blCfg.imageUrl || '');
+        if (balloonMediaStatus) balloonMediaStatus.textContent = blSlot.mediaStatusText || '';
+        const blSrc = (blSlot.hasActiveVideo && blSlot.videoEl && blSlot.videoEl.readyState >= 2) ? blSlot.videoEl : blSlot.cachedImage;
+        drawBillboardFrame(balloonPreviewCanvas, blCfg, blSrc);
+
+        // 3. Road Bridge Billboard
         const cfg = billboardData[selectedBillboardIdx];
+        const bbSlot = billboardInstances[selectedBillboardIdx];
         bbSelect.value = String(selectedBillboardIdx);
         bbIndexBadge.textContent = `${selectedBillboardIdx + 1} / 9`;
         bbTitleInput.value = cfg.title || '';
@@ -3042,13 +3562,17 @@
         bbBg2Input.value = cfg.bg2 || '#0369a1';
         bbAccentInput.value = cfg.accent || '#38bdf8';
         bbImgUrlInput.value = (cfg.imageUrl && cfg.imageUrl.startsWith('data:')) ? '[Uploaded Local Image]' : (cfg.imageUrl || '');
-        paintBillboardCanvas(editorPreviewCanvas, cfg);
+        if (bbMediaStatus) bbMediaStatus.textContent = bbSlot.mediaStatusText || '';
+        const bbSrc = (bbSlot.hasActiveVideo && bbSlot.videoEl && bbSlot.videoEl.readyState >= 2) ? bbSlot.videoEl : bbSlot.cachedImage;
+        drawBillboardFrame(editorPreviewCanvas, cfg, bbSrc);
 
+        // 4. Overhead LED
         cfgLedText.value = clientConfig.ledText || '';
         cfgLedColor.value = clientConfig.ledColor || '#38bdf8';
         cfgLedSpeed.value = String(clientConfig.ledSpeed || 125);
         renderOverheadLedCanvas(ledPreviewCanvas, 0);
 
+        // 5. Shop
         cfgShopTitle.value = clientConfig.shopTitle || '';
         cfgShopSubtitle.value = clientConfig.shopSubtitle || '';
         cfgTargetScore.value = clientConfig.targetScore ?? 5000;
@@ -3066,17 +3590,40 @@
         const rawUrl = cfgDroneImgUrl.value.trim();
         if (rawUrl !== '[Uploaded Local Image]') {
           dCfg.imageUrl = rawUrl;
-          loadDroneImageForSlot(slot);
         }
         slot.glowFrameMat.color.set(dCfg.color);
+        bindDroneMediaForSlot(slot, (st) => {
+          if (droneMediaStatus && selectedDroneIdx === slot.index) droneMediaStatus.textContent = st;
+        });
         persistStudioState();
         renderSkyDroneSlotCanvas(slot.canvas, slot, 0);
         slot.texture.needsUpdate = true;
         renderSkyDroneSlotCanvas(dronePreviewCanvas, slot, 0);
       }
 
+      function applyBalloonEdit() {
+        const blCfg = balloonData[selectedBalloonIdx];
+        const blSlot = balloonInstances[selectedBalloonIdx];
+        blCfg.title = blTitleInput.value;
+        blCfg.subtitle = blSubtitleInput.value;
+        blCfg.bg1 = blBg1Input.value;
+        blCfg.bg2 = blBg2Input.value;
+        blCfg.accent = blAccentInput.value;
+        const rawUrl = blImgUrlInput.value.trim();
+        if (rawUrl !== '[Uploaded Local Image]') {
+          blCfg.imageUrl = rawUrl;
+        }
+        persistStudioState();
+        refreshBalloon3D(selectedBalloonIdx, (st) => {
+          if (balloonMediaStatus && selectedBalloonIdx === blSlot.index) balloonMediaStatus.textContent = st;
+        });
+        const blSrc = (blSlot.hasActiveVideo && blSlot.videoEl && blSlot.videoEl.readyState >= 2) ? blSlot.videoEl : blSlot.cachedImage;
+        drawBillboardFrame(balloonPreviewCanvas, blCfg, blSrc);
+      }
+
       function applyBillboardEdit() {
         const cfg = billboardData[selectedBillboardIdx];
+        const bbSlot = billboardInstances[selectedBillboardIdx];
         cfg.title = bbTitleInput.value;
         cfg.subtitle = bbSubtitleInput.value;
         cfg.bg1 = bbBg1Input.value;
@@ -3087,8 +3634,11 @@
           cfg.imageUrl = rawUrl;
         }
         persistStudioState();
-        paintBillboardCanvas(editorPreviewCanvas, cfg);
-        refreshBillboard3D(selectedBillboardIdx);
+        refreshBillboard3D(selectedBillboardIdx, (st) => {
+          if (bbMediaStatus && selectedBillboardIdx === bbSlot.index) bbMediaStatus.textContent = st;
+        });
+        const bbSrc = (bbSlot.hasActiveVideo && bbSlot.videoEl && bbSlot.videoEl.readyState >= 2) ? bbSlot.videoEl : bbSlot.cachedImage;
+        drawBillboardFrame(editorPreviewCanvas, cfg, bbSrc);
       }
 
       function applyLedEdit() {
@@ -3124,6 +3674,7 @@
           btn.classList.add('active');
           activeEditorTab = btn.dataset.tab;
           document.getElementById(`pane-${activeEditorTab}`).classList.add('active');
+          syncEditorFields();
         });
       });
 
@@ -3136,6 +3687,11 @@
         syncEditorFields();
       });
 
+      balloonSelect.addEventListener('change', () => {
+        selectedBalloonIdx = Number(balloonSelect.value);
+        syncEditorFields();
+      });
+
       bbSelect.addEventListener('change', () => {
         selectedBillboardIdx = Number(bbSelect.value);
         syncEditorFields();
@@ -3143,6 +3699,10 @@
 
       [cfgDroneTitle, cfgDroneTicker, cfgDroneColor, cfgDroneImgUrl].forEach(el => {
         el.addEventListener('input', applyDroneEdit);
+      });
+
+      [blTitleInput, blSubtitleInput, blBg1Input, blBg2Input, blAccentInput, blImgUrlInput].forEach(el => {
+        el.addEventListener('input', applyBalloonEdit);
       });
 
       [bbTitleInput, bbSubtitleInput, bbBg1Input, bbBg2Input, bbAccentInput, bbImgUrlInput].forEach(el => {
@@ -3195,12 +3755,22 @@
           skyDroneData[i] = { ...src };
           const slot = skyDroneSystems[i];
           slot.glowFrameMat.color.set(src.color);
-          loadDroneImageForSlot(slot);
+          bindDroneMediaForSlot(slot);
           renderSkyDroneSlotCanvas(slot.canvas, slot, 0);
           slot.texture.needsUpdate = true;
         }
         persistStudioState();
         triggerCallout('APPLIED TO ALL 3 SKY ADS!', '#4ade80');
+      });
+
+      document.getElementById('bl-apply-all').addEventListener('click', () => {
+        const src = balloonData[selectedBalloonIdx];
+        for (let i = 0; i < 3; i++) {
+          balloonData[i] = { ...src };
+          refreshBalloon3D(i);
+        }
+        persistStudioState();
+        triggerCallout('APPLIED TO ALL 3 BALLOONS!', '#4ade80');
       });
 
       cfgDroneImgFile.addEventListener('change', (e) => {
@@ -3219,7 +3789,7 @@
             const h = img.height * scale;
             tCtx.drawImage(img, (768 - w) * 0.5, (336 - h) * 0.5, w, h);
             skyDroneData[selectedDroneIdx].imageUrl = tempCanvas.toDataURL('image/jpeg', 0.82);
-            loadDroneImageForSlot(skyDroneSystems[selectedDroneIdx]);
+            bindDroneMediaForSlot(skyDroneSystems[selectedDroneIdx]);
             persistStudioState();
             syncEditorFields();
           };
@@ -3232,8 +3802,42 @@
       document.getElementById('cfg-drone-clear-img').addEventListener('click', () => {
         skyDroneData[selectedDroneIdx].imageUrl = '';
         cfgDroneImgUrl.value = '';
-        loadDroneImageForSlot(skyDroneSystems[selectedDroneIdx]);
+        bindDroneMediaForSlot(skyDroneSystems[selectedDroneIdx]);
         persistStudioState();
+        syncEditorFields();
+      });
+
+      blImgFileInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = new Image();
+          img.onload = () => {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 512;
+            tempCanvas.height = 256;
+            const tCtx = tempCanvas.getContext('2d');
+            const scale = Math.max(512 / img.width, 256 / img.height);
+            const w = img.width * scale;
+            const h = img.height * scale;
+            tCtx.drawImage(img, (512 - w) * 0.5, (256 - h) * 0.5, w, h);
+            balloonData[selectedBalloonIdx].imageUrl = tempCanvas.toDataURL('image/jpeg', 0.82);
+            persistStudioState();
+            refreshBalloon3D(selectedBalloonIdx);
+            syncEditorFields();
+          };
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+        blImgFileInput.value = '';
+      });
+
+      document.getElementById('bl-clear-img').addEventListener('click', () => {
+        balloonData[selectedBalloonIdx].imageUrl = '';
+        blImgUrlInput.value = '';
+        persistStudioState();
+        refreshBalloon3D(selectedBalloonIdx);
         syncEditorFields();
       });
 
@@ -3271,8 +3875,8 @@
             tCtx.drawImage(img, (512 - w) * 0.5, (256 - h) * 0.5, w, h);
             billboardData[selectedBillboardIdx].imageUrl = tempCanvas.toDataURL('image/jpeg', 0.82);
             persistStudioState();
-            syncEditorFields();
             refreshBillboard3D(selectedBillboardIdx);
+            syncEditorFields();
           };
           img.src = reader.result;
         };
@@ -3284,8 +3888,8 @@
         billboardData[selectedBillboardIdx].imageUrl = '';
         bbImgUrlInput.value = '';
         persistStudioState();
-        syncEditorFields();
         refreshBillboard3D(selectedBillboardIdx);
+        syncEditorFields();
       });
 
       document.getElementById('bb-apply-all').addEventListener('click', () => {
@@ -3392,7 +3996,7 @@
         const mainScript = scripts[scripts.length - 1];
         if (mainScript) {
           const markerRegex = /\/\/ === CLIENT_CONFIG_START ===[\s\S]*?\/\/ === CLIENT_CONFIG_END ===/;
-          const bakedBlock = `// === CLIENT_CONFIG_START ===\n    const BAKED_CLIENT_CONFIG = ${safeJson(exportedClientCfg)};\n    const BAKED_SKY_DRONES = ${safeJson(skyDroneData)};\n    const BAKED_BILLBOARDS = ${safeJson(billboardData)};\n    // === CLIENT_CONFIG_END ===`;
+          const bakedBlock = `// === CLIENT_CONFIG_START ===\n    const BAKED_CLIENT_CONFIG = ${safeJson(exportedClientCfg)};\n    const BAKED_SKY_DRONES = ${safeJson(skyDroneData)};\n    const BAKED_BALLOONS = ${safeJson(balloonData)};\n    const BAKED_BILLBOARDS = ${safeJson(billboardData)};\n    // === CLIENT_CONFIG_END ===`;
           mainScript.textContent = mainScript.textContent.replace(markerRegex, () => bakedBlock);
         }
 
@@ -3491,7 +4095,6 @@
     // 10. CAMERA MODES, GYROSCOPE TILT STEERING & INPUT HANDLING
     // ==========================================
     const keys = {};
-    // 0 = Chase Cam, 1 = 1st-Person Cockpit View (FPV), 2 = Hood Cam
     let cameraMode = Number(clientConfig.defaultCamera) || 0;
     const camBtn = document.getElementById('cam-btn');
 
@@ -3848,6 +4451,7 @@
     let cameraShake = 0;
     let jumboTimer = 0;
     let ledTimer = 0;
+    let videoLoopTimer = 0;
     let slipstreamTimer = 0;
 
     const smoothCamPos = new THREE.Vector3(0, 8, 16);
@@ -3860,6 +4464,8 @@
 
     async function startRaceSequence() {
       sound.init();
+      unlockAllLoopVideos();
+
       if (isTouchDevice && !gyroState.enabled) {
         await enableGyroscope(true);
       } else if (gyroState.enabled) {
@@ -3997,6 +4603,33 @@
       }
 
       updateAllSkyDroneRigs(dt);
+      updateAdvertisingBalloons(dt);
+
+      // Update looping video frames across Billboards & Balloons (~24 Hz for silky low-end FPS)
+      videoLoopTimer += dt;
+      if (videoLoopTimer >= 0.042) {
+        videoLoopTimer = 0;
+        for (let i = 0; i < billboardInstances.length; i++) {
+          const bb = billboardInstances[i];
+          if (bb.hasActiveVideo && bb.videoEl && bb.videoEl.readyState >= 2 && !bb.videoEl.paused) {
+            drawBillboardFrame(bb.canvas, billboardData[i], bb.videoEl);
+            bb.texture.needsUpdate = true;
+            if (editorOpen && activeEditorTab === 'billboards' && selectedBillboardIdx === i && editorPreviewCanvas) {
+              drawBillboardFrame(editorPreviewCanvas, billboardData[i], bb.videoEl);
+            }
+          }
+        }
+        for (let i = 0; i < balloonInstances.length; i++) {
+          const bl = balloonInstances[i];
+          if (bl.hasActiveVideo && bl.videoEl && bl.videoEl.readyState >= 2 && !bl.videoEl.paused) {
+            drawBillboardFrame(bl.canvas, balloonData[i], bl.videoEl);
+            bl.texture.needsUpdate = true;
+            if (editorOpen && activeEditorTab === 'balloons' && selectedBalloonIdx === i && balloonPreviewCanvas) {
+              drawBillboardFrame(balloonPreviewCanvas, balloonData[i], bl.videoEl);
+            }
+          }
+        }
+      }
 
       ledTimer += dt;
       if (ledTimer >= 0.036) {
@@ -4355,12 +4988,21 @@
         updateJumbotron(sortedRacers[0].name, speedKmh, scoreState.total + Math.round(scoreState.comboPts * scoreState.comboMult), bestScore);
       }
 
-      // Camera Control (Studio Preview vs. Chase / 1st-Person Cockpit / Hood Cam)
+      // Camera Control (Studio Previews vs. Chase / 1st-Person Cockpit / Hood Cam)
       if (editorOpen && activeEditorTab === 'drone' && skyDroneSystems[selectedDroneIdx]) {
         const slot = skyDroneSystems[selectedDroneIdx];
         camera.up.set(0, 1, 0);
         smoothCamPos.lerp(slot.previewCamPos, 1 - Math.exp(-8 * dt));
         smoothCamLook.lerp(slot.previewLookAt, 1 - Math.exp(-10 * dt));
+        camera.position.copy(smoothCamPos);
+        camera.lookAt(smoothCamLook);
+        camera.fov += (58 - camera.fov) * (1 - Math.exp(-8 * dt));
+        camera.updateProjectionMatrix();
+      } else if (editorOpen && activeEditorTab === 'balloons' && balloonInstances[selectedBalloonIdx]) {
+        const bl = balloonInstances[selectedBalloonIdx];
+        camera.up.set(0, 1, 0);
+        smoothCamPos.lerp(bl.camPos, 1 - Math.exp(-8 * dt));
+        smoothCamLook.lerp(bl.lookAt, 1 - Math.exp(-10 * dt));
         camera.position.copy(smoothCamPos);
         camera.lookAt(smoothCamLook);
         camera.fov += (58 - camera.fov) * (1 - Math.exp(-8 * dt));
@@ -4399,7 +5041,6 @@
         }
 
         if (cameraMode === 0) {
-          // 0: Smooth 3rd-Person Chase Cam
           camera.up.set(0, 1, 0);
           const distBack = 9.5 + speedRatio * 2.2;
           _v1.set(
@@ -4418,30 +5059,25 @@
           camera.position.set(smoothCamPos.x + shakeX, smoothCamPos.y + shakeY, smoothCamPos.z);
           camera.lookAt(smoothCamLook);
         } else if (cameraMode === 1) {
-          // 1: 1st-Person Cockpit View (FPV) with Rotating Steering Wheel & Apex Look-Angle
           playerCockpit.wheelPivot.rotation.z = -player.steerAngle * 2.3;
           playerCockpit.revBar.scale.x = Math.max(0.12, speedRatio);
           playerCockpit.revMat.color.setHex(playerBoosting ? 0xf43f5e : speedRatio > 0.78 ? 0xfacc15 : 0x38bdf8);
 
-          // Eye position inside the driver cabin (slightly behind steering wheel)
           const eyeZOffset = -0.16;
           const eyeX = player.pos.x + sinB * eyeZOffset + shakeX * 0.45;
           const eyeY = 1.24 + shakeY * 0.45;
           const eyeZ = player.pos.z + cosB * eyeZOffset;
           camera.position.set(eyeX, eyeY, eyeZ);
 
-          // Driver head turns into turn apex + tracks drift slip angle, angled slightly up for Sky Ads
           const lookYaw = bodyYaw + player.steerAngle * 0.28;
           const lookSin = Math.sin(lookYaw);
           const lookCos = Math.cos(lookYaw);
           _v2.set(eyeX + lookSin * 28, 2.05, eyeZ + lookCos * 28);
 
-          // Subtle head bank angle during corners & drifts
           const bankAngle = -player.steerAngle * speedRatio * 0.085;
           camera.up.set(Math.sin(bankAngle) * lookCos, Math.cos(bankAngle), -Math.sin(bankAngle) * lookSin);
           camera.lookAt(_v2);
         } else {
-          // 2: Clean Hood / Bumper Cam
           camera.up.set(0, 1, 0);
           camera.position.set(player.pos.x + sinB * 0.75 + shakeX, 1.48 + shakeY, player.pos.z + cosB * 0.75);
           camera.lookAt(player.pos.x + sinB * 24, 2.15, player.pos.z + cosB * 24);
