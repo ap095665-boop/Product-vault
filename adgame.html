@@ -3903,6 +3903,10 @@
       if (cfgDefaultCam) {
         cfgDefaultCam.addEventListener('change', applyShopEdit);
       }
+      const cfgDefaultTimeEl = document.getElementById('cfg-default-time');
+      if (cfgDefaultTimeEl) {
+        cfgDefaultTimeEl.addEventListener('change', applyShopEdit);
+    }
 
       document.querySelectorAll('.swatch-btn:not(.led-swatch):not(.drone-swatch)').forEach(btn => {
         btn.addEventListener('click', () => {
