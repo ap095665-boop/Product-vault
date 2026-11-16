@@ -3186,6 +3186,41 @@
       const hr = hl.clone();
       hr.position.x = 0.72;
       car.add(hl, hr);
+            // Night-mode volumetric headlight cones & road beam projection
+      const nightLightsGroup = new THREE.Group();
+      nightLightsGroup.visible = false;
+
+      const coneGeo = new THREE.ConeGeometry(2.3, 14, 12, 1, true);
+      coneGeo.rotateX(-Math.PI / 2);
+      const coneMat = new THREE.MeshBasicMaterial({
+        color: 0xfef9c3,
+        transparent: true,
+        opacity: 0.13,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        side: THREE.DoubleSide
+      });
+
+      const beamConeL = new THREE.Mesh(coneGeo, coneMat);
+      beamConeL.position.set(-0.72, 0.55, 9.2);
+      const beamConeR = beamConeL.clone();
+      beamConeR.position.x = 0.72;
+
+      const roadBeam = new THREE.Mesh(
+        new THREE.PlaneGeometry(5.8, 18).rotateX(-Math.PI / 2),
+        new THREE.MeshBasicMaterial({
+          color: 0xfef08a,
+          transparent: true,
+          opacity: 0.16,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending
+        })
+      );
+      roadBeam.position.set(0, 0.045, 11.2);
+
+      nightLightsGroup.add(beamConeL, beamConeR, roadBeam);
+      car.add(nightLightsGroup);
+
 
       const tailMat = new THREE.MeshBasicMaterial({ color: 0xdc2626 });
       const tl = new THREE.Mesh(sharedCarGeos.tail, tailMat);
