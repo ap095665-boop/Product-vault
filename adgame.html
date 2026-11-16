@@ -3625,6 +3625,9 @@
         cfgPromoCode.value = clientConfig.promoCode || '';
         cfgRewardTitle.value = clientConfig.rewardTitle || '';
         if (cfgDefaultCam) cfgDefaultCam.value = String(clientConfig.defaultCamera || 0);
+                const cfgDefaultTime = document.getElementById('cfg-default-time');
+        if (cfgDefaultTime) cfgDefaultTime.value = clientConfig.defaultTime || 'day';
+
       };
 
       function applyDroneEdit() {
