@@ -3711,6 +3711,13 @@
           clientConfig.defaultCamera = Number(cfgDefaultCam.value) || 0;
           setCameraMode(clientConfig.defaultCamera, false);
         }
+        const cfgDefaultTime = document.getElementById('cfg-default-time');
+        if (cfgDefaultTime) {
+          clientConfig.defaultTime = cfgDefaultTime.value;
+          setDayNightMode(clientConfig.defaultTime === 'night', false);
+        }
+
+        
         persistStudioState();
         applyBrandingToMenu();
         updateJumbotron('PLAYER', 0, 0, bestScore);
