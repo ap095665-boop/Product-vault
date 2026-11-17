@@ -765,48 +765,104 @@
       gap: 8px;
     }
 
-    /* Mobile Ergonomic Two-Thumb Controls */
+    /* Dedicated Floating Exit/Enter Vehicle Button (Separated from Driving Controls) */
+    #t-exit-car {
+      position: fixed;
+      top: 122px;
+      left: 12px;
+      z-index: 16;
+      pointer-events: auto;
+      background: rgba(15, 23, 42, 0.92);
+      border: 1.5px solid #38bdf8;
+      color: #e0f2fe;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 11.5px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+      display: none;
+      align-items: center;
+      gap: 5px;
+    }
+    #t-exit-car:active {
+      transform: scale(0.95);
+    }
+
+    /* Mobile Ergonomic Controls: Unified Analog Joystick + Right Action Cluster */
     #touch-controls {
       display: none;
       position: fixed;
-      bottom: 14px;
+      bottom: max(14px, env(safe-area-inset-bottom));
       left: 12px;
       right: 12px;
+      width: calc(100vw - 24px);
       max-width: calc(100vw - 24px);
       justify-content: space-between;
       align-items: flex-end;
       z-index: 15;
       pointer-events: none;
+      box-sizing: border-box;
     }
     .touch-group {
       display: flex;
-      gap: 8px;
+      gap: clamp(6px, 1.8vw, 10px);
       align-items: center;
       pointer-events: auto;
+      flex-shrink: 1;
     }
-    .touch-btn {
-      width: 60px;
-      height: 60px;
+
+    /* Unified Virtual Joystick (Car Steer + Character Walk/Turn) */
+    #joystick-base {
+      width: clamp(92px, 24vw, 112px);
+      height: clamp(92px, 24vw, 112px);
       border-radius: 50%;
-      background: rgba(15, 23, 42, 0.84);
+      background: radial-gradient(circle, rgba(30, 41, 59, 0.72) 0%, rgba(15, 23, 42, 0.9) 100%);
+      border: 2px solid rgba(56, 189, 248, 0.52);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.5);
+      touch-action: none;
+      pointer-events: auto;
+    }
+    #joystick-knob {
+      width: clamp(40px, 10.5vw, 48px);
+      height: clamp(40px, 10.5vw, 48px);
+      border-radius: 50%;
+      background: linear-gradient(135deg, #38bdf8, #0284c7);
+      border: 2px solid #ffffff;
+      box-shadow: 0 4px 14px rgba(56, 189, 248, 0.6);
+      transform: translate3d(0px, 0px, 0px);
+      pointer-events: none;
+    }
+
+    .touch-btn {
+      width: clamp(48px, 13.5vw, 58px);
+      height: clamp(48px, 13.5vw, 58px);
+      border-radius: 50%;
+      background: rgba(15, 23, 42, 0.86);
       border: 2px solid rgba(255, 255, 255, 0.28);
       color: #fff;
-      font-size: 14px;
+      font-size: clamp(11px, 3vw, 13px);
       font-weight: 900;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+      flex-shrink: 0;
     }
     .touch-btn:active {
       transform: scale(0.93);
       border-color: #38bdf8;
     }
     .touch-btn-big {
-      width: 72px;
-      height: 72px;
-      font-size: 13px;
-      letter-spacing: 0.5px;
+      width: clamp(58px, 16vw, 68px);
+      height: clamp(58px, 16vw, 68px);
+      font-size: clamp(11px, 3vw, 13px);
+      letter-spacing: 0.4px;
     }
     #t-drift-gyro {
       background: linear-gradient(135deg, rgba(245, 158, 11, 0.35), rgba(239, 68, 68, 0.35));
@@ -816,14 +872,26 @@
     #t-nitro {
       background: linear-gradient(135deg, rgba(14, 165, 233, 0.4), rgba(79, 70, 229, 0.4));
       border-color: rgba(56, 189, 248, 0.75);
-      font-size: 22px;
+      font-size: 20px;
     }
     #t-brake {
-      width: 48px;
-      height: 48px;
+      width: clamp(46px, 12.5vw, 54px);
+      height: clamp(46px, 12.5vw, 54px);
       font-size: 10px;
       color: #fca5a5;
       border-color: rgba(248, 113, 113, 0.45);
+    }
+    #t-heli-up {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(14, 165, 233, 0.45));
+      border-color: #34d399;
+      font-size: 11px;
+    }
+    #t-heli-down {
+      width: clamp(46px, 12.5vw, 54px);
+      height: clamp(46px, 12.5vw, 54px);
+      font-size: 10px;
+      color: #fde047;
+      border-color: rgba(250, 204, 21, 0.55);
     }
 
     @media (pointer: coarse) {
@@ -831,6 +899,209 @@
       .controls-hint { display: none; }
       .speed-cluster { margin-bottom: 84px; }
     }
+  
+    /* Contextual Zone Action Bar (Store & Disco Station) */
+    #zone-action-bar {
+      position: fixed;
+      bottom: 96px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      gap: 8px;
+      align-items: center;
+      z-index: 18;
+      pointer-events: auto;
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(56, 189, 248, 0.55);
+      padding: 8px 12px;
+      border-radius: 999px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6);
+      max-width: 94vw;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    #zone-action-bar.visible {
+      display: flex;
+    }
+    .zone-btn {
+      background: linear-gradient(135deg, #0284c7, #4f46e5);
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 900;
+      cursor: pointer;
+      white-space: nowrap;
+      letter-spacing: 0.4px;
+    }
+    .zone-btn-disco {
+      background: linear-gradient(135deg, #db2777, #9333ea);
+    }
+    .zone-btn-green {
+      background: linear-gradient(135deg, #059669, #10b981);
+    }
+
+    /* Product Buying Store & Cart Modal */
+    #store-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.88);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 40;
+      padding: 14px;
+    }
+    #store-modal.open {
+      display: flex;
+    }
+    .store-card {
+      width: 100%;
+      max-width: 540px;
+      max-height: 90vh;
+      background: #0f172a;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75);
+    }
+    .store-header {
+      padding: 14px 18px;
+      background: #0b1120;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .store-header h2 {
+      font-size: 16px;
+      font-weight: 900;
+      color: #38bdf8;
+    }
+    .store-body {
+      padding: 14px 18px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      touch-action: pan-y;
+    }
+    .store-body * {
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    .product-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 420px) {
+      .product-grid { grid-template-columns: 1fr; }
+    }
+    .prod-item {
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .prod-thumb {
+      width: 100%;
+      height: 86px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #0f172a, #0369a1);
+      object-fit: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 900;
+      color: #38bdf8;
+    }
+    .prod-name {
+      font-size: 13px;
+      font-weight: 800;
+      color: #f8fafc;
+    }
+    .prod-desc {
+      font-size: 11px;
+      color: #94a3b8;
+      line-height: 1.35;
+    }
+    .prod-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 4px;
+    }
+    .prod-price {
+      font-size: 14px;
+      font-weight: 900;
+      color: #4ade80;
+    }
+    .add-cart-btn {
+      background: #0284c7;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .cart-box {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .cart-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12.5px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .qty-ctrl {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .qty-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: #1e293b;
+      color: #fff;
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .wa-order-btn {
+      background: linear-gradient(135deg, #16a34a, #15803d);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 13px;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
@@ -919,6 +1190,23 @@
     </div>
   </div>
 
+  
+  <!-- CONTEXTUAL ZONE ACTION BAR (STORE & DISCO STATION) -->
+  <div id="zone-action-bar"></div>
+
+  <!-- 3D WALK-IN PRODUCT STORE EXPLORER (10 PRODUCTS WITH DIRECT SOURCE URL) -->
+  <div id="store-modal">
+    <div class="store-card">
+      <div class="store-header">
+        <h2 id="store-modal-title">🛍️ PRODUCT CATALOG (10 ITEMS)</h2>
+        <button class="close-btn" id="close-store-btn">CLOSE ✕</button>
+      </div>
+      <div class="store-body">
+        <div class="product-grid" id="store-product-grid"></div>
+      </div>
+    </div>
+  </div>
+
   <div id="countdown">3</div>
 
   <div id="overlay">
@@ -953,6 +1241,7 @@
       <button class="tab-btn" data-tab="billboards">3. BRIDGES</button>
       <button class="tab-btn" data-tab="overhead">4. TICKER</button>
       <button class="tab-btn" data-tab="shop">5. SHOP</button>
+      <button class="tab-btn" data-tab="store">6. STORE</button>
     </div>
 
     <div class="editor-body">
@@ -960,13 +1249,19 @@
       <div class="tab-pane active" id="pane-drone">
         <div class="field-group">
           <label class="field-label">
-            <span>Open-Sky Drone Fleet</span>
-            <span id="drone-index-badge">1 / 3</span>
+            <span>Open-Sky Drone Fleet (9 Exclusive Spots)</span>
+            <span id="drone-index-badge">1 / 9</span>
           </label>
           <select class="editor-select" id="drone-select">
-            <option value="0">#1 — Main Straight Open Sky</option>
-            <option value="1">#2 — Open South Panorama Sky</option>
-            <option value="2">#3 — Open Southwest Return Sky</option>
+            <option value="0">#1 — Start Straight Open Sky</option>
+            <option value="1">#2 — North Curve Open Sky</option>
+            <option value="2">#3 — Northeast Vista Open Sky</option>
+            <option value="3">#4 — East River Sky</option>
+            <option value="4">#5 — East Straight Open Sky</option>
+            <option value="5">#6 — Southeast Harbor Sky</option>
+            <option value="6">#7 — South Straight Open Sky</option>
+            <option value="7">#8 — Southwest Park Sky</option>
+            <option value="8">#9 — West Return Open Sky</option>
           </select>
         </div>
 
@@ -1026,7 +1321,7 @@
         </div>
 
         <div class="footer-row">
-          <button class="mini-btn" id="drone-apply-all">APPLY TO ALL 3 SKY ADS</button>
+          <button class="mini-btn" id="drone-apply-all">APPLY TO ALL 9 SKY ADS</button>
         </div>
       </div>
 
@@ -1034,13 +1329,19 @@
       <div class="tab-pane" id="pane-balloons">
         <div class="field-group">
           <label class="field-label">
-            <span>Select Advertising Air Balloon</span>
-            <span id="balloon-index-badge">1 / 3</span>
+            <span>Select Advertising Air Balloon (9 Exclusive Spots)</span>
+            <span id="balloon-index-badge">1 / 9</span>
           </label>
           <select class="editor-select" id="balloon-select">
-            <option value="0">#1 — Northeast Skyline Balloon</option>
-            <option value="1">#2 — East Backstretch Balloon</option>
-            <option value="2">#3 — West Horizon Balloon</option>
+            <option value="0">#1 — North Horizon Balloon</option>
+            <option value="1">#2 — Northeast Lake Balloon</option>
+            <option value="2">#3 — East Riverbank Balloon</option>
+            <option value="3">#4 — East Skyline Balloon</option>
+            <option value="4">#5 — Southeast Bay Balloon</option>
+            <option value="5">#6 — South City Balloon</option>
+            <option value="6">#7 — South Park Balloon</option>
+            <option value="7">#8 — Southwest Hill Balloon</option>
+            <option value="8">#9 — Northwest Meadow Balloon</option>
           </select>
         </div>
 
@@ -1088,7 +1389,7 @@
         </div>
 
         <div class="footer-row">
-          <button class="mini-btn" id="bl-apply-all">APPLY TO ALL 3 BALLOONS</button>
+          <button class="mini-btn" id="bl-apply-all">APPLY TO ALL 9 BALLOONS</button>
         </div>
 
         <div class="info-box">
@@ -1151,16 +1452,23 @@
 
         <div class="field-group">
           <label class="field-label">
-            <span>Photo or Video Loop URL (.mp4 / .webm)</span>
+            <span>Multi-Image Ad Slots (Up to 3 Images)</span>
             <span class="media-status" id="bb-media-status"></span>
           </label>
-          <input class="editor-input" id="bb-img-url" type="text" placeholder="https://.../promo-loop.mp4 or image URL" />
-          <div class="img-actions">
-            <label class="mini-btn" style="cursor:pointer;">
-              UPLOAD IMAGE
+          <div class="two-col" style="margin-bottom:6px;">
+            <select class="editor-select" id="bb-img-slot-select">
+              <option value="0">Image Slot #1</option>
+              <option value="1">Image Slot #2</option>
+              <option value="2">Image Slot #3</option>
+            </select>
+            <label class="mini-btn" style="cursor:pointer;text-align:center;padding-top:10px;">
+              UPLOAD SLOT
               <input type="file" id="bb-img-file" accept="image/*" style="display:none;" />
             </label>
-            <button class="mini-btn" id="bb-clear-img">CLEAR MEDIA</button>
+          </div>
+          <input class="editor-input" id="bb-img-url" type="text" placeholder="Image URL for selected slot" />
+          <div class="img-actions" style="margin-top:6px;">
+            <button class="mini-btn" id="bb-clear-img">CLEAR SLOT</button>
           </div>
         </div>
 
@@ -1223,7 +1531,7 @@
 
         <div class="field-group">
           <label class="field-label">Start Screen Welcome Message</label>
-          <input class="editor-input" id="cfg-shop-subtitle" type="text" maxlength="95" placeholder="e.g. Race 3 laps & beat the target score to win a discount!" />
+          <input class="editor-input" id="cfg-shop-subtitle" type="text" maxlength="95" placeholder="e.g. Race 3 laps &amp; beat the target score to win a discount!" />
         </div>
 
         <div class="two-col">
@@ -1250,7 +1558,8 @@
             <option value="2">Hood / Bumper Cam</option>
           </select>
         </div>
-                <div class="field-group">
+
+        <div class="field-group">
           <label class="field-label">Default Time of Day</label>
           <select class="editor-select" id="cfg-default-time">
             <option value="day">Daylight Mode (Default)</option>
@@ -1258,9 +1567,66 @@
           </select>
         </div>
 
-
         <div class="info-box">
           <strong>Client Lock Protection:</strong> When you click <em>Export Locked Client HTML</em> below, the Studio Editor is automatically <strong>removed &amp; locked</strong> so customers can play and unlock coupons without editing the shop's ads.
+        </div>
+      </div>
+
+      <!-- TAB 6: WALK-IN 3D STORE (10 PRODUCTS WITH SOURCE URL) -->
+      <div class="tab-pane" id="pane-store">
+        <div class="two-col">
+          <div class="field-group">
+            <label class="field-label">Select Product (1–10)</label>
+            <select class="editor-select" id="prod-select">
+              <option value="0">#1 — Product 1</option>
+              <option value="1">#2 — Product 2</option>
+              <option value="2">#3 — Product 3</option>
+              <option value="3">#4 — Product 4</option>
+              <option value="4">#5 — Product 5</option>
+              <option value="5">#6 — Product 6</option>
+              <option value="6">#7 — Product 7</option>
+              <option value="7">#8 — Product 8</option>
+              <option value="8">#9 — Product 9</option>
+              <option value="9">#10 — Product 10</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">
+              <span>Currency Symbol</span>
+              <span id="prod-index-badge">1 / 10</span>
+            </label>
+            <input class="editor-input" id="cfg-currency" type="text" maxlength="4" placeholder="₹" />
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="field-group">
+            <label class="field-label">Product Name</label>
+            <input class="editor-input" id="cfg-prod-name" type="text" maxlength="28" placeholder="e.g. Signature Burger" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">Price</label>
+            <input class="editor-input" id="cfg-prod-price" type="number" min="0" step="1" placeholder="199" />
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Short Description</label>
+          <input class="editor-input" id="cfg-prod-desc" type="text" maxlength="64" placeholder="e.g. Double patty with melted cheese &amp; house sauce" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Product Image URL (Optional)</label>
+          <input class="editor-input" id="cfg-prod-img" type="text" placeholder="https://.../product.jpg" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Product Source URL (Buy / Product Page Link)</label>
+          <input class="editor-input" id="cfg-prod-source-url" type="url" placeholder="https://yourshop.com/product-1" />
+        </div>
+
+        <div class="info-box">
+          <strong>3D Store, Helipad &amp; Disco Station:</strong> Players can exit their car (<strong>WALK 🚶</strong>) to browse all <strong>10 products</strong> with direct Source URL links inside the Store, ride the <strong>Helicopter</strong> on the Helipad, or dance at the <strong>Disco Light Station</strong>!
         </div>
       </div>
     </div>
@@ -1272,20 +1638,33 @@
     </div>
   </aside>
 
-  <!-- MOBILE TWO-THUMB / GYRO CONTROLS -->
+  <!-- DEDICATED EXIT / ENTER VEHICLE BUTTON (AWAY FROM DRIVING CONTROLS) -->
+  <button id="t-exit-car" title="Exit / Enter Car (E)">WALK 🚶</button>
+
+  <!-- MOBILE UNIFIED JOYSTICK (CAR STEER + CHARACTER WALK) & CAR ACTION BUTTONS -->
   <div id="touch-controls">
+    <!-- Unified Analog Joystick: Steers Car in Car Mode, Walks & Turns Character in On-Foot Mode -->
     <div class="touch-group" id="touch-left-arrows">
-      <div class="touch-btn" id="t-left">◀</div>
-      <div class="touch-btn" id="t-right">▶</div>
+      <div id="joystick-base" title="Drag to Steer Car or Walk Character">
+        <div id="joystick-knob"></div>
+      </div>
     </div>
+    <!-- Left Side when Optional Tilt Steering is manually enabled -->
     <div class="touch-group" id="touch-left-gyro" style="display:none;">
       <div class="touch-btn touch-btn-big" id="t-drift-gyro">DRIFT</div>
     </div>
 
-    <div class="touch-group">
-      <div class="touch-btn" id="t-drift-fallback" style="font-size:12px;">DRIFT</div>
+    <!-- Right Side (Car Mode Only — Automatically Hidden When Character Walks On Foot) -->
+    <div class="touch-group" id="touch-right-car">
+      <div class="touch-btn" id="t-drift-fallback" style="font-size:11px;">DRIFT</div>
       <div class="touch-btn" id="t-brake">BRAKE</div>
       <div class="touch-btn touch-btn-big" id="t-nitro">⚡</div>
+    </div>
+
+    <!-- Right Side (Helicopter Flight Mode — Ascend / Descend) -->
+    <div class="touch-group" id="touch-right-heli" style="display:none;">
+      <div class="touch-btn" id="t-heli-down">DOWN ⬇</div>
+      <div class="touch-btn touch-btn-big" id="t-heli-up">UP ⬆</div>
     </div>
   </div>
 
@@ -1293,6 +1672,20 @@
     // ==========================================
     // 0. DEFAULT & BAKED CLIENT CONFIGURATION
     // ==========================================
+    
+    const DEFAULT_STORE_PRODUCTS = [
+      { id: 'p1', name: 'TURBO COLD COFFEE', price: 149, desc: 'Chilled espresso blend with caramel cream', emoji: '🥤', imageUrl: '', sourceUrl: '' },
+      { id: 'p2', name: 'APEX CHEESE BURGER', price: 249, desc: 'Flame-grilled double stack with secret sauce', emoji: '🍔', imageUrl: '', sourceUrl: '' },
+      { id: 'p3', name: 'NITRO LOADED FRIES', price: 129, desc: 'Crispy golden fries with jalapeño cheese dip', emoji: '🍟', imageUrl: '', sourceUrl: '' },
+      { id: 'p4', name: 'DRIFT CHOCO WAFFLE', price: 179, desc: 'Warm Belgian waffle with dark chocolate drizzle', emoji: '🧇', imageUrl: '', sourceUrl: '' },
+      { id: 'p5', name: 'VELOCITY PIZZA SLICE', price: 199, desc: 'Wood-fired pepperoni & mozzarella overload', emoji: '🍕', imageUrl: '', sourceUrl: '' },
+      { id: 'p6', name: 'HYPER BERRY SMOOTHIE', price: 159, desc: 'Fresh mixed berries blended with Greek yogurt', emoji: '🫐', imageUrl: '', sourceUrl: '' },
+      { id: 'p7', name: 'PODIUM CRISPY TENDERS', price: 219, desc: 'Golden spiced chicken strips with garlic dip', emoji: '🍗', imageUrl: '', sourceUrl: '' },
+      { id: 'p8', name: 'SOLAR MANGO SHAKE', price: 139, desc: 'Alphonso mango thickshake with ice cream scoop', emoji: '🥭', imageUrl: '', sourceUrl: '' },
+      { id: 'p9', name: 'APEX CLUB SANDWICH', price: 189, desc: 'Triple-decker toasted grilled veggie & cheese', emoji: '🥪', imageUrl: '', sourceUrl: '' },
+      { id: 'p10', name: 'MIDNIGHT BROWNIE SUNDAE', price: 229, desc: 'Fudge brownie topped with vanilla & hot choco', emoji: '🍨', imageUrl: '', sourceUrl: '' }
+    ];
+
     const DEFAULT_CLIENT_CONFIG = {
       shopTitle: 'APEX HORIZON 3D',
       shopSubtitle: 'Tilt your phone to steer, grab gold coins, drift corners for Nitro, and beat the target score!',
@@ -1304,49 +1697,45 @@
       ledSpeed: 125,
       defaultCamera: 0,
       defaultTime: 'day',
+      whatsappPhone: '919876543210',
+      currency: '₹',
       lockEditor: false
     };
 
     const DEFAULT_SKY_DRONES = [
-      {
-        title: 'SKY ARENA LIVE',
-        ticker: '★ SCORE 5,000+ PTS TO UNLOCK 15% OFF • USE CODE: RACE15 AT COUNTER ★',
-        color: '#facc15',
-        imageUrl: '',
-        linkUrl: ''
-      },
-      {
-        title: 'MEGA COMBO DEAL',
-        ticker: '★ GRAB GOLD COINS & DRIFT CORNERS FOR 10X MULTIPLIER BONUS ★',
-        color: '#38bdf8',
-        imageUrl: '',
-        linkUrl: ''
-      },
-      {
-        title: 'FINAL LAP SPRINT',
-        ticker: '★ HIT NITRO ⚡ ON THE STRAIGHT TO CLAIM YOUR REWARD VOUCHER ★',
-        color: '#f472b6',
-        imageUrl: '',
-        linkUrl: ''
-      }
+      { title: 'SKY ARENA #1', ticker: '★ SCORE 5,000+ PTS TO UNLOCK 15% OFF • USE CODE: RACE15 ★', color: '#facc15', imageUrl: '', linkUrl: '' },
+      { title: 'NORTH SKY #2', ticker: '★ GRAB GOLD COINS & DRIFT CORNERS FOR 10X MULTIPLIER ★', color: '#38bdf8', imageUrl: '', linkUrl: '' },
+      { title: 'RIVER VIEW #3', ticker: '★ CROSS THE RIVER BRIDGE AT TOP NITRO SPEED ⚡ ★', color: '#f472b6', imageUrl: '', linkUrl: '' },
+      { title: 'EAST TOWER #4', ticker: '★ EXPLORE THE CITY SKYLINE & BUILDING ADS ★', color: '#4ade80', imageUrl: '', linkUrl: '' },
+      { title: 'HARBOR SKY #5', ticker: '★ WALK TO THE RIVER & RIDE THE SPEEDBOAT 🚤 ★', color: '#38bdf8', imageUrl: '', linkUrl: '' },
+      { title: 'SOUTH VISTA #6', ticker: '★ 3 HELIPADS ACROSS THE MAP — FLY ANY CHOPPER 🚁 ★', color: '#facc15', imageUrl: '', linkUrl: '' },
+      { title: 'CENTRAL PARK #7', ticker: '★ VISIT THE WALK-IN STORE FOR 10 FEATURED DEALS ★', color: '#f472b6', imageUrl: '', linkUrl: '' },
+      { title: 'WEST RIDGE #8', ticker: '★ DRIFT WIDE CORNERS TO RECHARGE NITRO FAST ★', color: '#4ade80', imageUrl: '', linkUrl: '' },
+      { title: 'FINAL SPRINT #9', ticker: '★ HIT NITRO ⚡ ON THE HOME STRAIGHT FOR RECORD PTS ★', color: '#38bdf8', imageUrl: '', linkUrl: '' }
     ];
 
     const DEFAULT_BALLOONS = [
-      { title: 'SKY BLIMP CLUB', subtitle: 'VIP DEALS IN THE CLOUDS 🎈', bg1: '#dc2626', bg2: '#f59e0b', accent: '#fef08a', imageUrl: '', linkUrl: '' },
-      { title: 'WEEKEND FEST', subtitle: 'FLAT 20% OFF ALL ORDERS', bg1: '#2563eb', bg2: '#06b6d4', accent: '#38bdf8', imageUrl: '', linkUrl: '' },
-      { title: 'APEX EXPRESS', subtitle: 'FAST SERVICE • FRESH TASTE', bg1: '#7c3aed', bg2: '#db2777', accent: '#f472b6', imageUrl: '', linkUrl: '' }
+      { title: 'BALLOON #1', subtitle: 'VIP DEALS IN THE CLOUDS 🎈', bg1: '#dc2626', bg2: '#f59e0b', accent: '#fef08a', imageUrl: '', linkUrl: '' },
+      { title: 'BALLOON #2', subtitle: 'FLAT 20% OFF ALL ORDERS', bg1: '#2563eb', bg2: '#06b6d4', accent: '#38bdf8', imageUrl: '', linkUrl: '' },
+      { title: 'BALLOON #3', subtitle: 'FAST SERVICE • FRESH TASTE', bg1: '#7c3aed', bg2: '#db2777', accent: '#f472b6', imageUrl: '', linkUrl: '' },
+      { title: 'BALLOON #4', subtitle: 'RIVERFRONT FESTIVAL SPECIAL', bg1: '#059669', bg2: '#0284c7', accent: '#6ee7b7', imageUrl: '', linkUrl: '' },
+      { title: 'BALLOON #5', subtitle: 'DRIFT & WIN INSTANT REWARDS', bg1: '#b91c1c', bg2: '#1e1b4b', accent: '#facc15', imageUrl: '', linkUrl: '' },
+      { title: 'BALLOON #6', subtitle: 'CITY PARK GRAND OPENING', bg1: '#0f172a', bg2: '#0369a1', accent: '#38bdf8', imageUrl: '', linkUrl: '' },
+      { title: 'BALLOON #7', subtitle: 'HELI TOUR OVER THE ARENA', bg1: '#701a75', bg2: '#be185d', accent: '#f9a8d4', imageUrl: '', linkUrl: '' },
+      { title: 'BALLOON #8', subtitle: 'SUNDAY MEGA COMBO OFFER', bg1: '#064e3b', bg2: '#115e59', accent: '#34d399', imageUrl: '', linkUrl: '' },
+      { title: 'BALLOON #9', subtitle: 'CHAMPIONS PODIUM CLUB', bg1: '#9a3412', bg2: '#18181b', accent: '#fde047', imageUrl: '', linkUrl: '' }
     ];
 
-    const DEFAULT_BILLBOARDS = [
-      { title: 'HYPER NITRO', subtitle: 'BOOST BEYOND LIMITS ⚡', bg1: '#0f172a', bg2: '#0369a1', accent: '#38bdf8', imageUrl: '', linkUrl: '' },
-      { title: 'DRIFT KING', subtitle: 'SLIDE CORNERS • BUILD 10X', bg1: '#1e1b4b', bg2: '#701a75', accent: '#f472b6', imageUrl: '', linkUrl: '' },
-      { title: 'APEX TIRES', subtitle: 'MAXIMUM GRIP • ZERO SLIP', bg1: '#18181b', bg2: '#991b1b', accent: '#facc15', imageUrl: '', linkUrl: '' },
-      { title: 'SOLAR VOLT', subtitle: '100% ELECTRIC TORQUE', bg1: '#064e3b', bg2: '#0f172a', accent: '#34d399', imageUrl: '', linkUrl: '' },
-      { title: 'NEAR MISS!', subtitle: 'PASS CLOSE FOR +250 PTS', bg1: '#31102f', bg2: '#9a3412', accent: '#fb923c', imageUrl: '', linkUrl: '' },
-      { title: 'APEX HORIZON', subtitle: 'COASTAL GRAND PRIX', bg1: '#0f172a', bg2: '#1d4ed8', accent: '#60a5fa', imageUrl: '', linkUrl: '' },
-      { title: 'TURBO CHARGE', subtitle: 'COLLECT ORBS FOR MAX SPEED', bg1: '#171717', bg2: '#b91c1c', accent: '#fde047', imageUrl: '', linkUrl: '' },
-      { title: 'COMBO RUSH', subtitle: 'CHAIN COINS & DRIFTS 10X', bg1: '#2e1065', bg2: '#be185d', accent: '#f9a8d4', imageUrl: '', linkUrl: '' },
-      { title: 'PODIUM CLUB', subtitle: 'BEAT THE TRACK RECORD', bg1: '#042f2e', bg2: '#115e59', accent: '#2dd4bf', imageUrl: '', linkUrl: '' }
+        const DEFAULT_BILLBOARDS = [
+      { title: 'HYPER NITRO', subtitle: 'BOOST BEYOND LIMITS ⚡', bg1: '#0f172a', bg2: '#0369a1', accent: '#38bdf8', images: ['', '', ''], linkUrl: '' },
+      { title: 'DRIFT KING', subtitle: 'SLIDE CORNERS • BUILD 10X', bg1: '#1e1b4b', bg2: '#701a75', accent: '#f472b6', images: ['', '', ''], linkUrl: '' },
+      { title: 'APEX TIRES', subtitle: 'MAXIMUM GRIP • ZERO SLIP', bg1: '#18181b', bg2: '#991b1b', accent: '#facc15', images: ['', '', ''], linkUrl: '' },
+      { title: 'SOLAR VOLT', subtitle: '100% ELECTRIC TORQUE', bg1: '#064e3b', bg2: '#0f172a', accent: '#34d399', images: ['', '', ''], linkUrl: '' },
+      { title: 'NEAR MISS!', subtitle: 'PASS CLOSE FOR +250 PTS', bg1: '#31102f', bg2: '#9a3412', accent: '#fb923c', images: ['', '', ''], linkUrl: '' },
+      { title: 'APEX HORIZON', subtitle: 'COASTAL GRAND PRIX', bg1: '#0f172a', bg2: '#1d4ed8', accent: '#60a5fa', images: ['', '', ''], linkUrl: '' },
+      { title: 'TURBO CHARGE', subtitle: 'COLLECT ORBS FOR MAX SPEED', bg1: '#171717', bg2: '#b91c1c', accent: '#fde047', images: ['', '', ''], linkUrl: '' },
+      { title: 'COMBO RUSH', subtitle: 'CHAIN COINS & DRIFTS 10X', bg1: '#2e1065', bg2: '#be185d', accent: '#f9a8d4', images: ['', '', ''], linkUrl: '' },
+      { title: 'PODIUM CLUB', subtitle: 'BEAT THE TRACK RECORD', bg1: '#042f2e', bg2: '#115e59', accent: '#2dd4bf', images: ['', '', ''], linkUrl: '' }
     ];
 
     // === CLIENT_CONFIG_START ===
@@ -1354,6 +1743,7 @@
     const BAKED_SKY_DRONES = null;
     const BAKED_BALLOONS = null;
     const BAKED_BILLBOARDS = null;
+    const BAKED_STORE_PRODUCTS = null;
     // === CLIENT_CONFIG_END ===
 
     function escapeHtml(str) {
@@ -1378,78 +1768,124 @@
     }
 
     function loadSkyDroneData() {
-      if (Array.isArray(BAKED_SKY_DRONES) && BAKED_SKY_DRONES.length === 3) {
-        return BAKED_SKY_DRONES.map((d, i) => ({ ...DEFAULT_SKY_DRONES[i], ...d }));
+      let src = null;
+      if (Array.isArray(BAKED_SKY_DRONES) && BAKED_SKY_DRONES.length > 0) src = BAKED_SKY_DRONES;
+      else {
+        try {
+          const saved = JSON.parse(localStorage.getItem('apex_horizon_sky_drones_v2'));
+          if (Array.isArray(saved) && saved.length > 0) src = saved;
+        } catch (e) {}
       }
-      try {
-        const saved = JSON.parse(localStorage.getItem('apex_horizon_sky_drones_v1'));
-        if (Array.isArray(saved) && saved.length === 3) {
-          return saved.map((d, i) => ({ ...DEFAULT_SKY_DRONES[i], ...d }));
-        }
-      } catch (e) {}
-      return DEFAULT_SKY_DRONES.map(d => ({ ...d }));
+      return DEFAULT_SKY_DRONES.map((d, i) => ({ ...d, ...(src && src[i] ? src[i] : {}) }));
     }
 
     function loadBalloonData() {
-      if (Array.isArray(BAKED_BALLOONS) && BAKED_BALLOONS.length === 3) {
-        return BAKED_BALLOONS.map((b, i) => ({ ...DEFAULT_BALLOONS[i], ...b }));
+      let src = null;
+      if (Array.isArray(BAKED_BALLOONS) && BAKED_BALLOONS.length > 0) src = BAKED_BALLOONS;
+      else {
+        try {
+          const saved = JSON.parse(localStorage.getItem('apex_horizon_balloons_v2'));
+          if (Array.isArray(saved) && saved.length > 0) src = saved;
+        } catch (e) {}
       }
-      try {
-        const saved = JSON.parse(localStorage.getItem('apex_horizon_balloons_v1'));
-        if (Array.isArray(saved) && saved.length === 3) {
-          return saved.map((b, i) => ({ ...DEFAULT_BALLOONS[i], ...b }));
-        }
-      } catch (e) {}
-      return DEFAULT_BALLOONS.map(b => ({ ...b }));
+      return DEFAULT_BALLOONS.map((b, i) => ({ ...b, ...(src && src[i] ? src[i] : {}) }));
     }
 
     function loadBillboardData() {
+      let src = DEFAULT_BILLBOARDS;
       if (Array.isArray(BAKED_BILLBOARDS) && BAKED_BILLBOARDS.length === 9) {
-        return BAKED_BILLBOARDS.map(b => ({ ...b }));
+        src = BAKED_BILLBOARDS;
+      } else {
+        try {
+          const saved = JSON.parse(localStorage.getItem('apex_horizon_billboards_v3'));
+          if (Array.isArray(saved) && saved.length === 9) {
+            src = saved;
+          } else {
+            const oldSaved = JSON.parse(localStorage.getItem('apex_horizon_billboards_v1'));
+            if (Array.isArray(oldSaved) && oldSaved.length === 9) {
+              src = oldSaved.map((b, i) => ({ ...DEFAULT_BILLBOARDS[i], ...b, images: [b.imageUrl || '', '', ''] }));
+            }
+          }
+        } catch (e) {}
       }
-      try {
-        const saved = JSON.parse(localStorage.getItem('apex_horizon_billboards_v1'));
-        if (Array.isArray(saved) && saved.length === 9) {
-          return saved.map((b, i) => ({ ...DEFAULT_BILLBOARDS[i], ...b }));
-        }
-      } catch (e) {}
-      return DEFAULT_BILLBOARDS.map(b => ({ ...b }));
+      return src.map((b, i) => {
+        const imgs = Array.isArray(b.images)
+          ? [b.images[0] || '', b.images[1] || '', b.images[2] || '']
+          : [b.imageUrl || '', '', ''];
+        const firstValid = imgs.find(u => u && u.trim().length > 0) || '';
+        return {
+          ...DEFAULT_BILLBOARDS[i],
+          ...b,
+          images: imgs,
+          imageUrl: firstValid
+        };
+      });
     }
 
     let clientConfig = loadClientConfig();
     let skyDroneData = loadSkyDroneData();
     let balloonData = loadBalloonData();
     let billboardData = loadBillboardData();
+
+    function loadStoreProducts() {
+      let src = null;
+      if (Array.isArray(BAKED_STORE_PRODUCTS) && BAKED_STORE_PRODUCTS.length > 0) {
+        src = BAKED_STORE_PRODUCTS;
+      } else {
+        try {
+          const saved = JSON.parse(localStorage.getItem('apex_horizon_store_products_v2'));
+          if (Array.isArray(saved) && saved.length > 0) {
+            src = saved;
+          }
+        } catch (e) {}
+      }
+      return DEFAULT_STORE_PRODUCTS.map((defItem, i) => ({
+        ...defItem,
+        ...(src && src[i] ? src[i] : {})
+      }));
+    }
+    let storeProducts = loadStoreProducts();
+
     const IS_LOCKED_CLIENT = Boolean(clientConfig.lockEditor);
 
     function persistStudioState() {
       if (IS_LOCKED_CLIENT) return;
       try {
         localStorage.setItem('apex_horizon_client_cfg_v4', JSON.stringify(clientConfig));
-        localStorage.setItem('apex_horizon_sky_drones_v1', JSON.stringify(skyDroneData));
-        localStorage.setItem('apex_horizon_balloons_v1', JSON.stringify(balloonData));
-        localStorage.setItem('apex_horizon_billboards_v1', JSON.stringify(billboardData));
+        localStorage.setItem('apex_horizon_sky_drones_v2', JSON.stringify(skyDroneData));
+        localStorage.setItem('apex_horizon_balloons_v2', JSON.stringify(balloonData));
+        localStorage.setItem('apex_horizon_billboards_v3', JSON.stringify(billboardData));
+        localStorage.setItem('apex_horizon_store_products_v2', JSON.stringify(storeProducts));
       } catch (e) {}
     }
 
     function applyBrandingToMenu() {
-      document.title = clientConfig.shopTitle || 'Apex Horizon 3D';
+      const shopTitleVal = (clientConfig.shopTitle ?? '').trim();
+      const shopSubVal = (clientConfig.shopSubtitle ?? '').trim();
+      document.title = shopTitleVal || '3D Racing Arena';
       const titleEl = document.getElementById('menu-title');
       const subEl = document.getElementById('menu-subtitle');
       const bannerEl = document.getElementById('menu-challenge-banner');
 
-      if (titleEl) titleEl.textContent = clientConfig.shopTitle || 'APEX HORIZON 3D';
-      if (subEl) subEl.textContent = clientConfig.shopSubtitle || '';
+      if (titleEl) {
+        titleEl.textContent = shopTitleVal;
+        titleEl.style.display = shopTitleVal ? 'block' : 'none';
+      }
+      if (subEl) {
+        subEl.textContent = shopSubVal;
+        subEl.style.display = shopSubVal ? 'block' : 'none';
+      }
 
       if (bannerEl) {
         const target = Number(clientConfig.targetScore) || 0;
-        const reward = (clientConfig.rewardTitle || '').trim();
-        const code = (clientConfig.promoCode || '').trim();
+        const reward = (clientConfig.rewardTitle ?? '').trim();
+        const code = (clientConfig.promoCode ?? '').trim();
         if (target > 0 && reward && code) {
           bannerEl.style.display = 'block';
           bannerEl.innerHTML = `🏆 Score <strong>${target.toLocaleString()}+ pts</strong> to unlock <strong>${escapeHtml(reward)}</strong>`;
         } else {
           bannerEl.style.display = 'none';
+          bannerEl.innerHTML = '';
         }
       }
 
@@ -1515,9 +1951,9 @@
       currentQuality = levelIdx % QUALITY_LEVELS.length;
       const q = QUALITY_LEVELS[currentQuality];
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, q.dprCap));
-      camera.far = q.far;
+      camera.far = q.far + 620;
       scene.fog.near = q.far * 0.28;
-      scene.fog.far = q.far * 0.95;
+      scene.fog.far = (q.far + 620) * 0.94;
       camera.updateProjectionMatrix();
 
       renderer.shadowMap.enabled = q.shadows;
@@ -1755,7 +2191,7 @@
       slot.cachedImage = null;
       slot.hasActiveVideo = false;
 
-      if (isVideoMediaUrl(url)) {
+      if (false && isVideoMediaUrl(url)) {
         slot.mediaStatusText = 'LOADING VIDEO LOOP...';
         if (onStatus) onStatus(slot.mediaStatusText);
 
@@ -1839,19 +2275,28 @@
     // ==========================================
     const controlPoints = [
       new THREE.Vector3(0, 0, 0),
-      new THREE.Vector3(0, 0, -160),
-      new THREE.Vector3(70, 0, -280),
-      new THREE.Vector3(210, 0, -300),
-      new THREE.Vector3(310, 0, -200),
-      new THREE.Vector3(280, 0, -60),
-      new THREE.Vector3(360, 0, 70),
-      new THREE.Vector3(320, 0, 210),
-      new THREE.Vector3(170, 0, 250),
-      new THREE.Vector3(60, 0, 170),
-      new THREE.Vector3(-40, 0, 210),
-      new THREE.Vector3(-120, 0, 130),
-      new THREE.Vector3(-60, 0, 40)
+      new THREE.Vector3(0, 0, -280),
+      new THREE.Vector3(150, 0, -520),
+      new THREE.Vector3(420, 0, -580),
+      new THREE.Vector3(660, 0, -420),
+      new THREE.Vector3(620, 0, -140),
+      new THREE.Vector3(780, 0, 140),
+      new THREE.Vector3(700, 0, 440),
+      new THREE.Vector3(390, 0, 540),
+      new THREE.Vector3(140, 0, 380),
+      new THREE.Vector3(-90, 0, 460),
+      new THREE.Vector3(-260, 0, 290),
+      new THREE.Vector3(-140, 0, 90)
     ];
+
+    const RIVER_X = 435;
+    function getBridgeHeightForX(x) {
+      const distFromRiver = Math.abs(x - RIVER_X);
+      if (distFromRiver >= 115) return 0;
+      // Smooth cosine arch rising to 7.8m over the river channel so boats pass cleanly underneath!
+      const t = 1 - (distFromRiver / 115);
+      return 7.8 * (0.5 - 0.5 * Math.cos(Math.PI * t));
+    }
 
     const trackCurve = new THREE.CatmullRomCurve3(controlPoints, true, 'catmullrom', 0.5);
     const TRACK_SAMPLES = 560;
@@ -1860,6 +2305,9 @@
     const trackPoints = trackCurve.getSpacedPoints(TRACK_SAMPLES);
     trackPoints.pop();
     const N = trackPoints.length;
+    for (let i = 0; i < N; i++) {
+      trackPoints[i].y = getBridgeHeightForX(trackPoints[i].x);
+    }
 
     const trackTangents = [];
     const trackRights = [];
@@ -1874,7 +2322,7 @@
     }
 
     const ground = new THREE.Mesh(
-      new THREE.PlaneGeometry(2200, 2200),
+      new THREE.PlaneGeometry(4200, 4200),
       new THREE.MeshLambertMaterial({ color: 0x4d7c0f })
     );
     ground.rotation.x = -Math.PI / 2;
@@ -1897,8 +2345,8 @@
         if (i > 0) distAccum += p.distanceTo(trackPoints[(i - 1) % N]);
 
         positions.push(
-          p.x + r.x * innerOffset, yHeight, p.z + r.z * innerOffset,
-          p.x + r.x * outerOffset, yHeight, p.z + r.z * outerOffset
+          p.x + r.x * innerOffset, p.y + yHeight, p.z + r.z * innerOffset,
+          p.x + r.x * outerOffset, p.y + yHeight, p.z + r.z * outerOffset
         );
         normals.push(0, 1, 0, 0, 1, 0);
         const v = distAccum / uvRepeatLen;
@@ -1982,7 +2430,7 @@
 
         const item = {
           x: pt.x + rt.x * wave,
-          y: 0.95,
+          y: pt.y + 0.95,
           z: pt.z + rt.z * wave,
           type: isNitroOrb ? 'orb' : 'coin',
           active: true,
@@ -2032,7 +2480,7 @@
           }
         }
 
-        if (gameState === 'RACING') {
+        if (gameState === 'RACING' && !isWalking && !isFlying && !isBoating) {
           const dx = player.pos.x - c.x;
           const dz = player.pos.z - c.z;
           if (dx * dx + dz * dz < 6.8) {
@@ -2080,7 +2528,7 @@
           }
         }
 
-        if (gameState === 'RACING') {
+        if (gameState === 'RACING' && !isWalking && !isFlying && !isBoating) {
           const dx = player.pos.x - o.x;
           const dz = player.pos.z - o.z;
           if (dx * dx + dz * dz < 7.5) {
@@ -2210,7 +2658,15 @@
       const w = targetCanvas.width;
       const h = targetCanvas.height;
       const ledColor = clientConfig.ledColor || '#38bdf8';
-      const rawMsg = (clientConfig.ledText || 'APEX HORIZON 3D').trim() || 'APEX HORIZON 3D';
+      const rawMsg = (clientConfig.ledText ?? '').trim();
+      if (!rawMsg) {
+        ctx.fillStyle = '#050811';
+        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = ledColor;
+        ctx.fillRect(0, 0, w, 5);
+        ctx.fillRect(0, h - 5, w, 5);
+        return;
+      }
       const tickerMsg = `${rawMsg}     •     `;
 
       ctx.fillStyle = '#050811';
@@ -2233,8 +2689,7 @@
       ctx.fillStyle = ledColor;
       ctx.textBaseline = 'middle';
       ctx.textAlign = 'left';
-      ctx.shadowColor = ledColor;
-      ctx.shadowBlur = 12;
+      
 
       let drawX = Math.floor(ledScrollX);
       while (drawX < w) {
@@ -2366,9 +2821,9 @@
       const w = targetCanvas.width;
       const h = targetCanvas.height;
       const glowColor = cfg.color || '#facc15';
-      const titleText = (cfg.title || 'SKY ARENA LIVE').trim();
-      const rawTicker = (cfg.ticker || 'WELCOME TO APEX HORIZON 3D').trim() || 'WELCOME TO APEX HORIZON 3D';
-      const tickerMsg = `${rawTicker}     ★     `;
+      const titleText = (cfg.title ?? '').trim();
+      const rawTicker = (cfg.ticker ?? '').trim();
+      const tickerMsg = rawTicker ? `${rawTicker}     ★     ` : '';
 
       const grad = ctx.createLinearGradient(0, 0, w, h);
       grad.addColorStop(0, '#040711');
@@ -2406,39 +2861,40 @@
         ctx.font = '900 76px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.shadowColor = glowColor;
-        ctx.shadowBlur = 18;
+        
         ctx.fillText(titleText, w * 0.5, 146);
         ctx.shadowBlur = 0;
       }
 
-      const bandY = h - 84;
-      ctx.fillStyle = 'rgba(2, 6, 23, 0.92)';
-      ctx.fillRect(14, bandY, w - 28, 66);
+      if (tickerMsg) {
+        const bandY = h - 84;
+        ctx.fillStyle = 'rgba(2, 6, 23, 0.92)';
+        ctx.fillRect(14, bandY, w - 28, 66);
 
-      ctx.fillStyle = glowColor;
-      ctx.fillRect(14, bandY, w - 28, 4);
+        ctx.fillStyle = glowColor;
+        ctx.fillRect(14, bandY, w - 28, 4);
 
-      ctx.font = '900 36px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
-      if (slot.cachedMeasureStr !== tickerMsg) {
-        slot.cachedMeasureStr = tickerMsg;
-        slot.tickerWidth = Math.max(300, ctx.measureText(tickerMsg).width);
-      }
-
-      if (dt > 0) {
-        slot.scrollX -= 165 * dt;
-        if (slot.scrollX <= -slot.tickerWidth) {
-          slot.scrollX += slot.tickerWidth;
+        ctx.font = '900 36px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        if (slot.cachedMeasureStr !== tickerMsg) {
+          slot.cachedMeasureStr = tickerMsg;
+          slot.tickerWidth = Math.max(300, ctx.measureText(tickerMsg).width);
         }
-      }
 
-      ctx.fillStyle = glowColor;
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'middle';
-      let drawX = Math.floor(slot.scrollX);
-      while (drawX < w) {
-        ctx.fillText(tickerMsg, drawX, bandY + 35);
-        drawX += slot.tickerWidth;
+        if (dt > 0) {
+          slot.scrollX -= 165 * dt;
+          if (slot.scrollX <= -slot.tickerWidth) {
+            slot.scrollX += slot.tickerWidth;
+          }
+        }
+
+        ctx.fillStyle = glowColor;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        let drawX = Math.floor(slot.scrollX);
+        while (drawX < w) {
+          ctx.fillText(tickerMsg, drawX, bandY + 35);
+          drawX += slot.tickerWidth;
+        }
       }
 
       ctx.strokeStyle = glowColor;
@@ -2452,10 +2908,17 @@
     }
 
     (function createAllSkyDroneRigs() {
+      // 9 Exclusive Sky Drone locations — strictly separated from all 9 Road Bridges and 9 Balloons (1 ad per location)
       const skyPlacements = [
-        { idx: 84, heightY: 36.5 },
-        { idx: 416, heightY: 37.5 },
-        { idx: 486, heightY: 37.0 }
+        { idx: 62, heightY: 38.0 },
+        { idx: 94, heightY: 39.0 },
+        { idx: 196, heightY: 38.5 },
+        { idx: 235, heightY: 40.0 },
+        { idx: 274, heightY: 38.5 },
+        { idx: 336, heightY: 39.5 },
+        { idx: 388, heightY: 38.0 },
+        { idx: 446, heightY: 39.0 },
+        { idx: 496, heightY: 38.5 }
       ];
 
       const screenW = 64;
@@ -2653,10 +3116,17 @@
 
     (function createAdvertisingAirBalloons() {
       // Three towering advertising hot air balloons stationed in open sky vistas around the circuit
+      // 9 Exclusive Hot Air Balloon locations — cleanly spaced in open scenic vistas (1 ad per location)
       const balloonPlacements = [
-        { x: 165, y: 48, z: -215, yaw: -0.55 }, // #1: Northeast Skyline Balloon (Turn 2-4 vista)
-        { x: 375, y: 52, z: 125, yaw: -2.45 },  // #2: East Backstretch Balloon (Long backstretch vista)
-        { x: -135, y: 50, z: 115, yaw: 1.05 }   // #3: West Horizon Balloon (Return straight vista)
+        { x: -120, y: 56, z: -430, yaw: 0.45 },
+        { x: 290, y: 60, z: -690, yaw: -0.35 },
+        { x: 780, y: 58, z: -530, yaw: -1.10 },
+        { x: 910, y: 62, z: -120, yaw: -1.65 },
+        { x: 900, y: 58, z: 360, yaw: -2.35 },
+        { x: 520, y: 64, z: 670, yaw: 3.05 },
+        { x: 130, y: 58, z: 640, yaw: 2.55 },
+        { x: -360, y: 60, z: 430, yaw: 1.75 },
+        { x: -370, y: 56, z: -120, yaw: 1.15 }
       ];
 
       // Balloon Dome + Lower Throat Cone
@@ -2824,13 +3294,13 @@
 
       const straightRoadIndices = [
         22,  // #1 — Main Straight Bridge
-        118, // #2 — Northwest Straight Bridge
-        148, // #3 — North Straight Bridge 1
-        178, // #4 — North Straight Bridge 2
-        218, // #5 — East Straight Bridge 1
-        252, // #6 — East Straight Bridge 2
-        318, // #7 — East Straight Bridge 3
-        355, // #8 — Southeast Straight Bridge
+        72,  // #2 — North Straight Bridge
+        175, // #3 — Northeast Straight Bridge
+        212, // #4 — East Straight Bridge 1
+        258, // #5 — East Straight Bridge 2
+        304, // #6 — Southeast Straight Bridge
+        412, // #7 — South Straight Bridge
+        462, // #8 — Southwest Straight Bridge
         534  // #9 — Final Straight Bridge
       ];
 
@@ -2886,8 +3356,8 @@
 
         const normalX = Math.sin(faceAngle);
         const normalZ = Math.cos(faceAngle);
-        const camPos = new THREE.Vector3(pt.x + normalX * 34, 6.4, pt.z + normalZ * 34);
-        const lookAt = new THREE.Vector3(pt.x, boardCenterY - 0.8, pt.z);
+        const camPos = new THREE.Vector3(pt.x + normalX * 34, pt.y + 6.4, pt.z + normalZ * 34);
+        const lookAt = new THREE.Vector3(pt.x, pt.y + boardCenterY - 0.8, pt.z);
 
         const slot = {
           index: i,
@@ -2960,11 +3430,11 @@
       ctx.lineWidth = 8;
       ctx.strokeRect(8, 8, 496, 240);
 
-      const headerBrand = (clientConfig.shopTitle || 'APEX HORIZON').toUpperCase().slice(0, 26);
+      const headerBrand = (clientConfig.shopTitle ?? '').trim().toUpperCase().slice(0, 26);
       ctx.fillStyle = '#38bdf8';
       ctx.font = '800 19px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(`${headerBrand} • LIVE TELEMETRY`, 256, 42);
+      ctx.fillText(headerBrand ? `${headerBrand} • LIVE TELEMETRY` : 'LIVE RACE TELEMETRY', 256, 42);
 
       ctx.fillStyle = '#ffffff';
       ctx.font = '900 40px sans-serif';
@@ -2999,25 +3469,53 @@
       boostPads.push({ pos, radiusSq: 4.5 * 4.5 });
     });
 
-    // GPU-Instanced Scenery
+    // GPU-Instanced Scenery (Cleanly Engineered Mountain Range & Park/Roadside Trees — Zero Road/Structure Overlap)
     (function populateInstancedScenery() {
       const validTrees = [];
-      const minClearSq = (ROAD_HALF_WIDTH + 13) ** 2;
+      const minTrackClearSq = (ROAD_HALF_WIDTH + 17) ** 2;
+      const dummy = new THREE.Object3D();
+      const color = new THREE.Color();
 
-      for (let i = 0; i < 210; i++) {
-        const x = (Math.random() - 0.5) * 1050;
-        const z = (Math.random() - 0.5) * 1050;
-        let tooClose = false;
-        for (let j = 0; j < N; j += 4) {
+      function isClearOfStructures(x, z, extraRadius = 0) {
+        // 1. Keep clear of entire highway loop + curbs + roadside sidewalks/houses
+        for (let j = 0; j < N; j += 3) {
           const dx = x - trackPoints[j].x;
           const dz = z - trackPoints[j].z;
-          if (dx * dx + dz * dz < minClearSq) {
-            tooClose = true;
-            break;
-          }
+          const minR = ROAD_HALF_WIDTH + 16 + extraRadius;
+          if (dx * dx + dz * dz < minR * minR) return false;
         }
-        if (!tooClose) {
-          validTrees.push({ x, z, scale: 0.85 + Math.random() * 0.9, shade: i % 2 === 0 ? 0x15803d : 0x166534 });
+        // 2. Keep clear of North-South River & Sandy Banks (x = 435 ± 40)
+        if (Math.abs(x - 435) < (42 + extraRadius)) return false;
+        // 3. Keep clear of Start Straight Plaza (Product Store at (-31,-28), Disco at (31,-28), Helipad 1 at (-31,-56))
+        if (Math.hypot(x - (-31), z - (-28)) < (22 + extraRadius)) return false;
+        if (Math.hypot(x - 31, z - (-28)) < (20 + extraRadius)) return false;
+        if (Math.hypot(x - (-31), z - (-56)) < (18 + extraRadius)) return false;
+        // 4. Keep clear of North & South Helipads
+        if (Math.hypot(x - 310, z - (-490)) < (18 + extraRadius)) return false;
+        if (Math.hypot(x - 540, z - 390) < (18 + extraRadius)) return false;
+        // 5. Keep clear of Central Park Fountain Pond & Walkway (220, -120, radius 46)
+        if (Math.hypot(x - 220, z - (-120)) < (46 + extraRadius)) return false;
+        if (Math.hypot(x - (-195), z - (-310)) < (36 + extraRadius)) return false;
+        return true;
+      }
+
+      // A. Place landscaped trees inside the outer ring of Central City Park (radius 50..74 around (220, -120))
+      for (let p = 0; p < 28; p++) {
+        const ang = (p / 28) * Math.PI * 2 + 0.11;
+        const rad = 52 + (p % 3) * 8.5;
+        const tx = 220 + Math.cos(ang) * rad;
+        const tz = -120 + Math.sin(ang) * rad;
+        if (isClearOfStructures(tx, tz, 2)) {
+          validTrees.push({ x: tx, z: tz, scale: 0.95 + (p % 4) * 0.16, shade: p % 2 === 0 ? 0x16a34a : 0x15803d });
+        }
+      }
+
+      // B. Place natural groves across the full expanded 1800x1600 valley
+      for (let i = 0; i < 420; i++) {
+        const x = (Math.random() - 0.5) * 1750 + 260;
+        const z = (Math.random() - 0.5) * 1550 - 20;
+        if (isClearOfStructures(x, z, 2)) {
+          validTrees.push({ x, z, scale: 0.85 + Math.random() * 0.95, shade: i % 2 === 0 ? 0x15803d : 0x166534 });
         }
       }
 
@@ -3028,9 +3526,6 @@
 
       const trunkInst = new THREE.InstancedMesh(trunkGeo, trunkMat, validTrees.length);
       const crownInst = new THREE.InstancedMesh(crownGeo, crownMat, validTrees.length);
-
-      const dummy = new THREE.Object3D();
-      const color = new THREE.Color();
 
       validTrees.forEach((t, i) => {
         dummy.position.set(t.x, 1.6 * t.scale, t.z);
@@ -3051,30 +3546,1205 @@
       if (crownInst.instanceColor) crownInst.instanceColor.needsUpdate = true;
       scene.add(trunkInst, crownInst);
 
-      const hillCount = 16;
+      // C. Outer Horizon Mountain Range (Strictly outside the track perimeter around map center (260, -20))
+      const validMountains = [];
+      const mapCenterX = 260;
+      const mapCenterZ = -20;
+      const mountainSlots = 28;
+
+      for (let i = 0; i < mountainSlots; i++) {
+        const angle = (i / mountainSlots) * Math.PI * 2;
+        const radius = 95 + (i % 4) * 24;
+        const height = 88 + (i % 3) * 34;
+        const dist = 940 + (i % 3) * 95 + radius * 0.5;
+        const mx = mapCenterX + Math.cos(angle) * dist;
+        const mz = mapCenterZ + Math.sin(angle) * dist;
+
+        // Double-verify that the entire mountain base radius clears every road segment and river
+        if (isClearOfStructures(mx, mz, radius + 25)) {
+          validMountains.push({ mx, mz, radius, height });
+        }
+      }
+
       const hillInst = new THREE.InstancedMesh(
-        new THREE.ConeGeometry(1, 1, 5),
-        new THREE.MeshLambertMaterial({ color: 0x3b6e4c }),
-        hillCount
+        new THREE.ConeGeometry(1, 1, 8),
+        new THREE.MeshLambertMaterial({ color: 0x2e6f40 }),
+        validMountains.length
       );
-      for (let i = 0; i < hillCount; i++) {
-        const angle = (i / hillCount) * Math.PI * 2;
-        const dist = 520 + (i % 3) * 55;
-        const radius = 85 + (i % 4) * 18;
-        const height = 75 + (i % 3) * 28;
-        dummy.position.set(Math.cos(angle) * dist + 140, height * 0.5 - 2, Math.sin(angle) * dist - 40);
-        dummy.scale.set(radius, height, radius);
+
+      validMountains.forEach((m, i) => {
+        dummy.position.set(m.mx, m.height * 0.5 - 2, m.mz);
+        dummy.rotation.set(0, i * 0.7, 0);
+        dummy.scale.set(m.radius, m.height, m.radius);
         dummy.updateMatrix();
         hillInst.setMatrixAt(i, dummy.matrix);
-      }
+      });
+
       hillInst.instanceMatrix.needsUpdate = true;
       scene.add(hillInst);
     })();
+
+
+    // ==========================================
+    // 3D WALK-IN PRODUCT BUYING STORE & DISPLAY SCREENS
+    // ==========================================
+    const STORE_POS = new THREE.Vector3(-31, 0, -28); // Left side of Start Straight
+    const storeScreenSlots = [];
+
+    function drawProductScreenCanvas(targetCanvas, prod, idx) {
+      const ctx = targetCanvas.getContext('2d');
+      const cur = clientConfig.currency || '₹';
+      const grad = ctx.createLinearGradient(0, 0, 512, 256);
+      grad.addColorStop(0, '#090d16');
+      grad.addColorStop(1, '#0c4a6e');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 512, 256);
+
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 8;
+      ctx.strokeRect(8, 8, 496, 240);
+
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = '800 18px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`DISPLAY #${idx + 1} • TAP VIEW PRODUCTS`, 256, 38);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 36px sans-serif';
+      ctx.fillText((prod.name || 'PRODUCT').toUpperCase().slice(0, 22), 256, 108);
+
+      ctx.fillStyle = '#4ade80';
+      ctx.font = '900 44px sans-serif';
+      ctx.fillText(`${cur}${prod.price || 0}`, 256, 168);
+
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = '600 17px sans-serif';
+      ctx.fillText((prod.desc || '').slice(0, 42), 256, 216);
+    }
+
+    (function createWalkInProductStore() {
+      const storeGroup = new THREE.Group();
+      storeGroup.position.copy(STORE_POS);
+      // Face East (+X) toward the Start Straight road
+      storeGroup.rotation.y = Math.PI / 2;
+
+      const wallMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
+      const trimMat = new THREE.MeshLambertMaterial({ color: 0x0f172a });
+      const floorMat = new THREE.MeshLambertMaterial({ color: 0x334155 });
+      const neonMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, fog: false });
+      const counterMat = new THREE.MeshLambertMaterial({ color: 0x0284c7 });
+
+      // Interior Floor (18m wide x 14m deep)
+      const floor = new THREE.Mesh(new THREE.BoxGeometry(18, 0.2, 14), floorMat);
+      floor.position.set(0, 0.08, 0);
+      storeGroup.add(floor);
+
+      // Back Wall, Left Wall, Right Wall (Front is wide open so player can walk right inside!)
+      const backWall = new THREE.Mesh(new THREE.BoxGeometry(18, 7.5, 0.6), wallMat);
+      backWall.position.set(0, 3.75, -6.7);
+      const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.6, 7.5, 14), wallMat);
+      leftWall.position.set(-8.7, 3.75, 0);
+      const rightWall = leftWall.clone();
+      rightWall.position.x = 8.7;
+
+      // Roof & Glowing Front Fascia Sign
+      const roof = new THREE.Mesh(new THREE.BoxGeometry(19.2, 0.7, 15.2), trimMat);
+      roof.position.set(0, 7.7, 0);
+
+      const neonStrip = new THREE.Mesh(new THREE.BoxGeometry(18.6, 0.35, 0.35), neonMat);
+      neonStrip.position.set(0, 7.2, 7.2);
+
+      // Store Header Signboard
+      const signCanvas = document.createElement('canvas');
+      signCanvas.width = 512;
+      signCanvas.height = 128;
+      const sCtx = signCanvas.getContext('2d');
+      sCtx.fillStyle = '#020617';
+      sCtx.fillRect(0, 0, 512, 128);
+      sCtx.strokeStyle = '#38bdf8';
+      sCtx.lineWidth = 8;
+      sCtx.strokeRect(6, 6, 500, 116);
+      sCtx.fillStyle = '#ffffff';
+      sCtx.font = '900 42px sans-serif';
+      sCtx.textAlign = 'center';
+      sCtx.textBaseline = 'middle';
+      sCtx.fillText('🛍️ PRODUCT STORE', 256, 64);
+      const signTex = new THREE.CanvasTexture(signCanvas);
+      const signMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(13, 3.0),
+        new THREE.MeshBasicMaterial({ map: signTex, fog: false })
+      );
+      signMesh.position.set(0, 9.4, 7.0);
+
+      storeGroup.add(backWall, leftWall, rightWall, roof, neonStrip, signMesh);
+
+      // Checkout Counter inside
+      const counter = new THREE.Mesh(new THREE.BoxGeometry(6.5, 1.3, 1.4), counterMat);
+      counter.position.set(0, 0.75, -3.5);
+      storeGroup.add(counter);
+
+      // 4 Interior Product Display Screens along the back and side walls
+      const screenCoords = [
+        { x: -5.4, y: 3.4, z: -6.2, ry: 0 },
+        { x: -1.8, y: 3.4, z: -6.2, ry: 0 },
+        { x: 1.8, y: 3.4, z: -6.2, ry: 0 },
+        { x: 5.4, y: 3.4, z: -6.2, ry: 0 }
+      ];
+
+      screenCoords.forEach((sc, idx) => {
+        const pCanvas = document.createElement('canvas');
+        pCanvas.width = 512;
+        pCanvas.height = 256;
+        const pTex = new THREE.CanvasTexture(pCanvas);
+        drawProductScreenCanvas(pCanvas, storeProducts[idx], idx);
+        pTex.needsUpdate = true;
+
+        const frame = new THREE.Mesh(
+          new THREE.BoxGeometry(3.2, 1.8, 0.22),
+          trimMat
+        );
+        frame.position.set(sc.x, sc.y, sc.z);
+
+        const screenPlane = new THREE.Mesh(
+          new THREE.PlaneGeometry(3.0, 1.6),
+          new THREE.MeshBasicMaterial({ map: pTex, fog: false })
+        );
+        screenPlane.position.set(sc.x, sc.y, sc.z + 0.13);
+        screenPlane.userData.openStoreModal = true;
+        clickableAdMeshes.push(screenPlane);
+
+        // Display Pedestal under screen
+        const pedestal = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.1, 1.2), trimMat);
+        pedestal.position.set(sc.x, 0.65, sc.z + 1.1);
+
+        storeGroup.add(frame, screenPlane, pedestal);
+        storeScreenSlots.push({ canvas: pCanvas, texture: pTex, index: idx });
+      });
+
+      scene.add(storeGroup);
+    })();
+
+    let storeScreenPageOffset = 0;
+    function refreshAllStoreScreens() {
+      for (let i = 0; i < storeScreenSlots.length; i++) {
+        const sl = storeScreenSlots[i];
+        const prodIdx = (i + storeScreenPageOffset) % storeProducts.length;
+        drawProductScreenCanvas(sl.canvas, storeProducts[prodIdx], prodIdx);
+        sl.texture.needsUpdate = true;
+      }
+    }
+
+
+    // ==========================================
+    // OPEN-AIR CINEMA & AMPHITHEATRE AT FAR SCENIC LOCATION
+    // ==========================================
+    const THEATRE_POS = new THREE.Vector3(-195, 0, -310);
+    (function createOpenAirTheatre() {
+      const tGroup = new THREE.Group();
+      tGroup.position.copy(THEATRE_POS);
+      tGroup.rotation.y = 0.65;
+
+      const stageMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
+      const seatMat = new THREE.MeshLambertMaterial({ color: 0x334155 });
+      const cushionMat = new THREE.MeshLambertMaterial({ color: 0xb91c1c });
+      const trussMat = new THREE.MeshLambertMaterial({ color: 0x0f172a });
+
+      // Stage Platform
+      const stage = new THREE.Mesh(new THREE.BoxGeometry(28, 1.4, 10), stageMat);
+      stage.position.set(0, 0.7, -14);
+      tGroup.add(stage);
+
+      // Giant Open-Air Cinema Screen (reuses Sky Drone #1 live screen texture so it plays live visuals/video!)
+      const screenSlot = skyDroneSystems[0];
+      const screenMat = screenSlot
+        ? new THREE.MeshBasicMaterial({ map: screenSlot.texture, fog: false })
+        : new THREE.MeshBasicMaterial({ color: 0x38bdf8, fog: false });
+      const cinemaScreen = new THREE.Mesh(new THREE.PlaneGeometry(24, 11.5), screenMat);
+      cinemaScreen.position.set(0, 8.2, -16.5);
+      if (screenSlot) {
+        cinemaScreen.userData.adLinkGetter = () => skyDroneData[0].linkUrl;
+        clickableAdMeshes.push(cinemaScreen);
+      }
+
+      const frame = new THREE.Mesh(new THREE.BoxGeometry(25.4, 12.8, 0.9), trussMat);
+      frame.position.set(0, 8.2, -17.0);
+      tGroup.add(frame, cinemaScreen);
+
+      // 5 Tiered Semicircular Amphitheatre Seating Rows
+      for (let row = 0; row < 5; row++) {
+        const yH = 0.5 + row * 0.75;
+        const zPos = -2 + row * 4.2;
+        const width = 26 + row * 3.5;
+        const step = new THREE.Mesh(new THREE.BoxGeometry(width, yH, 3.2), seatMat);
+        step.position.set(0, yH * 0.5, zPos);
+        const bench = new THREE.Mesh(new THREE.BoxGeometry(width - 1.2, 0.35, 1.4), cushionMat);
+        bench.position.set(0, yH + 0.18, zPos);
+        tGroup.add(step, bench);
+      }
+
+      // Open-Air Theatre Entrance Sign
+      const sCan = document.createElement('canvas');
+      sCan.width = 512;
+      sCan.height = 128;
+      const sCtx = sCan.getContext('2d');
+      sCtx.fillStyle = '#090d16';
+      sCtx.fillRect(0, 0, 512, 128);
+      sCtx.strokeStyle = '#facc15';
+      sCtx.lineWidth = 8;
+      sCtx.strokeRect(6, 6, 500, 116);
+      sCtx.fillStyle = '#facc15';
+      sCtx.font = '900 38px sans-serif';
+      sCtx.textAlign = 'center';
+      sCtx.textBaseline = 'middle';
+      sCtx.fillText('🎬 OPEN-AIR THEATRE', 256, 64);
+      const sign = new THREE.Mesh(
+        new THREE.PlaneGeometry(14, 3.2),
+        new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sCan), fog: false })
+      );
+      sign.position.set(0, 16.4, -16.5);
+      tGroup.add(sign);
+
+      scene.add(tGroup);
+    })();
+
+    // ==========================================
+    // 3D DISCO LIGHT STATION & LOCAL STORAGE MUSIC PLAYER
+    // ==========================================
+    const DISCO_POS = new THREE.Vector3(31, 0, -28); // Right side of Start Straight
+    let isDancing = false;
+    let discoAudioEl = new Audio();
+    discoAudioEl.loop = true;
+    let discoTrackName = localStorage.getItem('apex_disco_track_name') || '';
+    let discoPlaying = false;
+    let synthBeatTimer = 0;
+    let synthBeatStep = 0;
+
+    // IndexedDB Helper to save/load MP3/WAV files permanently in Browser Storage
+    function openDiscoMusicDB() {
+      return new Promise((resolve, reject) => {
+        if (!window.indexedDB) return reject(new Error('IndexedDB unavailable'));
+        const req = indexedDB.open('ApexDiscoMusicDB', 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('tracks')) {
+            db.createObjectStore('tracks');
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function saveMusicToBrowserStorage(file) {
+      try {
+        const db = await openDiscoMusicDB();
+        const tx = db.transaction('tracks', 'readwrite');
+        tx.objectStore('tracks').put(file, 'saved_disco_audio');
+        discoTrackName = file.name;
+        localStorage.setItem('apex_disco_track_name', discoTrackName);
+      } catch (e) {
+        // Fallback if IndexedDB restricted: try FileReader DataURL in localStorage if < 3.5MB
+        if (file.size < 3600000) {
+          const reader = new FileReader();
+          reader.onload = () => {
+            try {
+              localStorage.setItem('apex_disco_audio_dataurl', reader.result);
+              discoTrackName = file.name;
+              localStorage.setItem('apex_disco_track_name', discoTrackName);
+            } catch (err) {}
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+    }
+
+    async function loadMusicFromBrowserStorage() {
+      try {
+        const db = await openDiscoMusicDB();
+        const tx = db.transaction('tracks', 'readonly');
+        const req = tx.objectStore('tracks').get('saved_disco_audio');
+        req.onsuccess = () => {
+          if (req.result) {
+            const blobUrl = URL.createObjectURL(req.result);
+            discoAudioEl.src = blobUrl;
+          } else {
+            const fallbackDataUrl = localStorage.getItem('apex_disco_audio_dataurl');
+            if (fallbackDataUrl) discoAudioEl.src = fallbackDataUrl;
+          }
+        };
+      } catch (e) {
+        const fallbackDataUrl = localStorage.getItem('apex_disco_audio_dataurl');
+        if (fallbackDataUrl) discoAudioEl.src = fallbackDataUrl;
+      }
+    }
+
+    loadMusicFromBrowserStorage();
+
+    // Hidden File Input for Loading Music
+    const discoFileInput = document.createElement('input');
+    discoFileInput.type = 'file';
+    discoFileInput.accept = 'audio/*';
+    discoFileInput.style.display = 'none';
+    document.body.appendChild(discoFileInput);
+
+    discoFileInput.addEventListener('change', async (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const objUrl = URL.createObjectURL(file);
+      discoAudioEl.src = objUrl;
+      await saveMusicToBrowserStorage(file);
+      discoAudioEl.play().then(() => {
+        discoPlaying = true;
+        isDancing = true;
+        triggerCallout(`🎵 PLAYING & SAVED: ${file.name.slice(0, 22)}`, '#f472b6');
+        updateZoneActionBar();
+      }).catch(() => {});
+      discoFileInput.value = '';
+    });
+
+    const discoRig = (function createDiscoLightStation() {
+      const group = new THREE.Group();
+      group.position.copy(DISCO_POS);
+
+      const trussMat = new THREE.MeshLambertMaterial({ color: 0x0f172a });
+      const speakerMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
+
+      // 4x4 Grid of Glowing Color-Shifting Dance Floor Tiles
+      const floorTiles = [];
+      const tileGeo = new THREE.BoxGeometry(3.2, 0.22, 3.2);
+      const palette = [0xec4899, 0x38bdf8, 0xa855f7, 0xfacc15, 0x4ade80];
+      for (let gx = 0; gx < 4; gx++) {
+        for (let gz = 0; gz < 4; gz++) {
+          const tMat = new THREE.MeshBasicMaterial({ color: palette[(gx + gz) % palette.length], fog: false });
+          const tile = new THREE.Mesh(tileGeo, tMat);
+          tile.position.set((gx - 1.5) * 3.4, 0.11, (gz - 1.5) * 3.4);
+          group.add(tile);
+          floorTiles.push({ mesh: tile, mat: tMat, phase: gx * 1.3 + gz * 0.9 });
+        }
+      }
+
+      // 4 Corner Truss Pillars + Overhead Light Frame
+      const pillarGeo = new THREE.CylinderGeometry(0.28, 0.34, 7.6, 8);
+      [[-6.8, -6.8], [6.8, -6.8], [-6.8, 6.8], [6.8, 6.8]].forEach(([px, pz]) => {
+        const p = new THREE.Mesh(pillarGeo, trussMat);
+        p.position.set(px, 3.8, pz);
+        group.add(p);
+      });
+
+      const topBeamX = new THREE.Mesh(new THREE.BoxGeometry(14.2, 0.45, 0.45), trussMat);
+      const topBeamF = topBeamX.clone(); topBeamF.position.set(0, 7.5, 6.8);
+      const topBeamB = topBeamX.clone(); topBeamB.position.set(0, 7.5, -6.8);
+      const topBeamZ = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.45, 14.2), trussMat);
+      const topBeamL = topBeamZ.clone(); topBeamL.position.set(-6.8, 7.5, 0);
+      const topBeamR = topBeamZ.clone(); topBeamR.position.set(6.8, 7.5, 0);
+      group.add(topBeamF, topBeamB, topBeamL, topBeamR);
+
+      // Disco Station Neon Sign
+      const dCanvas = document.createElement('canvas');
+      dCanvas.width = 512;
+      dCanvas.height = 128;
+      const dCtx = dCanvas.getContext('2d');
+      dCtx.fillStyle = '#090d16';
+      dCtx.fillRect(0, 0, 512, 128);
+      dCtx.strokeStyle = '#f472b6';
+      dCtx.lineWidth = 8;
+      dCtx.strokeRect(6, 6, 500, 116);
+      dCtx.fillStyle = '#f472b6';
+      dCtx.font = '900 40px sans-serif';
+      dCtx.textAlign = 'center';
+      dCtx.textBaseline = 'middle';
+      dCtx.fillText('🕺 DISCO LIGHT STATION 🎵', 256, 64);
+      const dSign = new THREE.Mesh(
+        new THREE.PlaneGeometry(12.5, 2.8),
+        new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(dCanvas), fog: false })
+      );
+      dSign.position.set(-7.1, 8.8, 0);
+      dSign.rotation.y = -Math.PI / 2;
+      group.add(dSign);
+
+      // Spinning Disco Mirror Ball + Sweeping Volumetric Light Beams
+      const discoBall = new THREE.Mesh(
+        new THREE.SphereGeometry(1.15, 14, 14),
+        new THREE.MeshBasicMaterial({ color: 0xf8fafc, wireframe: true, fog: false })
+      );
+      discoBall.position.set(0, 6.4, 0);
+      group.add(discoBall);
+
+      const beams = [];
+      const beamGeo = new THREE.ConeGeometry(2.6, 8.2, 10, 1, true);
+      const beamColors = [0xf472b6, 0x38bdf8, 0xfacc15, 0xa855f7];
+      beamColors.forEach((col, i) => {
+        const pivot = new THREE.Group();
+        pivot.position.set((i % 2 === 0 ? -4.5 : 4.5), 7.2, (i < 2 ? -4.5 : 4.5));
+        const bMat = new THREE.MeshBasicMaterial({
+          color: col,
+          transparent: true,
+          opacity: 0.24,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending,
+          side: THREE.DoubleSide
+        });
+        const cone = new THREE.Mesh(beamGeo, bMat);
+        cone.position.y = -4.0;
+        pivot.add(cone);
+        group.add(pivot);
+        beams.push({ pivot, mat: bMat, phase: i * 1.57 });
+      });
+
+      // Dual Subwoofer Speaker Stacks
+      [[-5.6, -5.6], [5.6, -5.6]].forEach(([sx, sz]) => {
+        const spk = new THREE.Mesh(new THREE.BoxGeometry(1.8, 3.6, 1.6), speakerMat);
+        spk.position.set(sx, 1.8, sz);
+        group.add(spk);
+      });
+
+      scene.add(group);
+      return { floorTiles, discoBall, beams, palette, time: 0 };
+    })();
+
+    function updateDiscoLightStation(dt) {
+      discoRig.time += dt;
+      const t = discoRig.time;
+      const speedMult = (isDancing || discoPlaying) ? 2.8 : 1.0;
+
+      discoRig.discoBall.rotation.y += dt * 1.8 * speedMult;
+
+      for (let i = 0; i < discoRig.beams.length; i++) {
+        const b = discoRig.beams[i];
+        b.pivot.rotation.z = Math.sin(t * 2.2 * speedMult + b.phase) * 0.55;
+        b.pivot.rotation.x = Math.cos(t * 1.8 * speedMult + b.phase) * 0.55;
+        b.mat.opacity = (isDancing || discoPlaying) ? (0.28 + Math.sin(t * 9 + b.phase) * 0.12) : 0.14;
+      }
+
+      if (Math.floor(t * 4 * speedMult) !== Math.floor((t - dt) * 4 * speedMult)) {
+        for (let i = 0; i < discoRig.floorTiles.length; i++) {
+          const ft = discoRig.floorTiles[i];
+          const cIdx = (i + Math.floor(t * 4 * speedMult)) % discoRig.palette.length;
+          ft.mat.color.setHex(discoRig.palette[cIdx]);
+        }
+      }
+
+      // Built-in upbeat disco synth groove when dancing without an uploaded MP3
+      if (isDancing && (!discoAudioEl.src || discoAudioEl.paused)) {
+        synthBeatTimer += dt;
+        if (synthBeatTimer >= 0.24) {
+          synthBeatTimer = 0;
+          const notes = [130.81, 261.63, 164.81, 329.63, 196.00, 392.00, 220.00, 440.00];
+          sound.init();
+          sound.playTone(notes[synthBeatStep % notes.length], 0.14, 'triangle', 0.09);
+          synthBeatStep++;
+        }
+      }
+    }
+
+
+
+    // ==========================================
+    // RIVER, SCENIC RIVER BRIDGE, CENTRAL PARK, GRASS & RIDEABLE BOAT
+    // ==========================================
+    const BOAT_DOCK_POS = new THREE.Vector3(412, 0, -195);
+    let isBoating = false;
+    const boatState = {
+      pos: new THREE.Vector3(426, 0.12, -195),
+      heading: 0,
+      speed: 0
+    };
+
+    let riverWaterTex = null;
+    const riverBoatMesh = (function createRiverParkGrassAndBoat() {
+      // 1. Animated Flowing Water Texture (ripples & current streaks that scroll continuously)
+      const wCan = document.createElement('canvas');
+      wCan.width = 256;
+      wCan.height = 256;
+      const wCtx = wCan.getContext('2d');
+      wCtx.fillStyle = '#0284c7';
+      wCtx.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 95; i++) {
+        const wx = (i * 53) % 240;
+        const wy = (i * 97) % 240;
+        wCtx.fillStyle = i % 2 === 0 ? 'rgba(125, 211, 252, 0.34)' : 'rgba(3, 105, 161, 0.42)';
+        wCtx.fillRect(wx, wy, 4, 28 + (i % 24));
+      }
+      riverWaterTex = new THREE.CanvasTexture(wCan);
+      riverWaterTex.wrapS = THREE.RepeatWrapping;
+      riverWaterTex.wrapT = THREE.RepeatWrapping;
+      riverWaterTex.repeat.set(4, 140);
+
+      const riverMat = new THREE.MeshLambertMaterial({ map: riverWaterTex, color: 0x38bdf8 });
+      const riverMesh = new THREE.Mesh(new THREE.PlaneGeometry(58, 3600), riverMat);
+      riverMesh.rotation.x = -Math.PI / 2;
+      riverMesh.position.set(RIVER_X, 0.005, 0);
+      scene.add(riverMesh);
+
+      // Sandy Riverbanks on both sides
+      const bankMat = new THREE.MeshLambertMaterial({ color: 0xd6c79c });
+      const bankGeo = new THREE.PlaneGeometry(9, 3600);
+      const bankL = new THREE.Mesh(bankGeo, bankMat);
+      bankL.rotation.x = -Math.PI / 2;
+      bankL.position.set(RIVER_X - 32, 0.003, 0);
+      const bankR = bankL.clone();
+      bankR.position.x = RIVER_X + 32;
+      scene.add(bankL, bankR);
+
+      // 2. Seamless Curve-Following Elevated River Bridge Structure (Under-Deck Soffit, Side Parapets & Riverbank Piers)
+      const bridgeMat = new THREE.MeshLambertMaterial({ color: 0x334155, side: THREE.DoubleSide });
+      const parapetMat = new THREE.MeshLambertMaterial({ color: 0x0ea5e9, side: THREE.DoubleSide });
+
+      // Build continuous underside bridge slab & side guardrails following the exact track curve wherever elevated
+      const deckW = ROAD_HALF_WIDTH + CURB_WIDTH + 0.4;
+      buildTrackRibbon(-deckW, deckW, -0.75, bridgeMat, 20);
+
+      // Left & Right solid concrete bridge side walls along elevated bridge sections
+      for (let i = 0; i < N; i++) {
+        const p = trackPoints[i];
+        if (p.y < 0.25) continue;
+        const nextP = trackPoints[(i + 1) % N];
+        const r = trackRights[i];
+        const segLen = Math.hypot(nextP.x - p.x, nextP.z - p.z) + 0.35;
+        const yaw = Math.atan2(nextP.x - p.x, nextP.z - p.z);
+        const slopePitch = -Math.atan2(nextP.y - p.y, segLen);
+        const midX = (p.x + nextP.x) * 0.5;
+        const midY = (p.y + nextP.y) * 0.5;
+        const midZ = (p.z + nextP.z) * 0.5;
+
+        // Under-girder fascia + Left & Right safety parapets
+        const wallGeo = new THREE.BoxGeometry(0.65, 1.55, segLen);
+        [-deckW, deckW].forEach(lat => {
+          const wall = new THREE.Mesh(wallGeo, parapetMat);
+          wall.position.set(midX + r.x * lat, midY + 0.15, midZ + r.z * lat);
+          wall.rotation.order = 'YXZ';
+          wall.rotation.y = yaw;
+          wall.rotation.x = slopePitch;
+          scene.add(wall);
+        });
+      }
+
+      // Riverbank Support Piers on outer riverbanks (x = RIVER_X ± 33) leaving the entire 58m water channel open for boats!
+      const pierGeo = new THREE.BoxGeometry(2.0, 8.2, 2.0);
+      for (let i = 0; i < N; i++) {
+        const pA = trackPoints[i];
+        const pB = trackPoints[(i + 1) % N];
+        [-33, 33].forEach(bankOffset => {
+          const targetX = RIVER_X + bankOffset;
+          if ((pA.x <= targetX && pB.x > targetX) || (pA.x >= targetX && pB.x < targetX)) {
+            const t = (targetX - pA.x) / (pB.x - pA.x || 1);
+            const crossZ = pA.z + (pB.z - pA.z) * t;
+            const deckY = getBridgeHeightForX(targetX);
+            const r = trackRights[i];
+            [-ROAD_HALF_WIDTH, ROAD_HALF_WIDTH].forEach(lat => {
+              const pier = new THREE.Mesh(pierGeo, bridgeMat);
+              pier.scale.y = Math.max(0.2, (deckY - 0.4) / 8.2);
+              pier.position.set(targetX + r.x * lat, (deckY - 0.4) * 0.5, crossZ + r.z * lat);
+              scene.add(pier);
+            });
+          }
+        });
+      }
+
+      // 3. Central City Park with Pond, Fountain, Walking Paths & Benches (at x = 220, z = -120)
+      const parkGroup = new THREE.Group();
+      parkGroup.position.set(220, 0, -120);
+
+      const parkLawn = new THREE.Mesh(
+        new THREE.CircleGeometry(78, 28).rotateX(-Math.PI / 2),
+        new THREE.MeshLambertMaterial({ color: 0x16a34a })
+      );
+      parkLawn.position.y = 0.01;
+      parkGroup.add(parkLawn);
+
+      const pathRing = new THREE.Mesh(
+        new THREE.RingGeometry(34, 41, 28).rotateX(-Math.PI / 2),
+        new THREE.MeshLambertMaterial({ color: 0xcbd5e1 })
+      );
+      pathRing.position.y = 0.02;
+      parkGroup.add(pathRing);
+
+      const pond = new THREE.Mesh(
+        new THREE.CircleGeometry(18, 24).rotateX(-Math.PI / 2),
+        new THREE.MeshLambertMaterial({ color: 0x0ea5e9 })
+      );
+      pond.position.y = 0.03;
+      const fountainBase = new THREE.Mesh(
+        new THREE.CylinderGeometry(2.6, 3.2, 1.4, 14),
+        new THREE.MeshLambertMaterial({ color: 0xe2e8f0 })
+      );
+      fountainBase.position.y = 0.7;
+      const fountainSpout = new THREE.Mesh(
+        new THREE.ConeGeometry(1.8, 4.5, 10),
+        new THREE.MeshBasicMaterial({ color: 0x7dd3fc })
+      );
+      fountainSpout.position.y = 3.2;
+      parkGroup.add(pond, fountainBase, fountainSpout);
+
+      // Park Benches & Lamp Posts around path
+      const benchMat = new THREE.MeshLambertMaterial({ color: 0x92400e });
+      for (let b = 0; b < 8; b++) {
+        const ang = (b / 8) * Math.PI * 2;
+        const bench = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.7, 1.1), benchMat);
+        bench.position.set(Math.cos(ang) * 43, 0.35, Math.sin(ang) * 43);
+        bench.rotation.y = -ang;
+        parkGroup.add(bench);
+      }
+      scene.add(parkGroup);
+
+      // 4. GPU-Instanced Lush Grass Tufts across the plain green ground (1 draw call!)
+      const grassCount = 2400;
+      const grassGeo = new THREE.ConeGeometry(0.42, 0.95, 3);
+      const grassMat = new THREE.MeshLambertMaterial({ color: 0x65a30d });
+      const grassInst = new THREE.InstancedMesh(grassGeo, grassMat, grassCount);
+      const gDummy = new THREE.Object3D();
+      const gCol = new THREE.Color();
+      const grassShades = [0x4d7c0f, 0x65a30d, 0x16a34a, 0x84cc16];
+      let placedGrass = 0;
+
+      const minRoadGrassDistSq = (ROAD_HALF_WIDTH + CURB_WIDTH + 6.5) ** 2;
+      for (let i = 0; i < grassCount * 3 && placedGrass < grassCount; i++) {
+        const gx = (Math.random() - 0.5) * 1850 + 260;
+        const gz = (Math.random() - 0.5) * 1650 - 20;
+        // Keep clear of river and sandy riverbanks
+        if (Math.abs(gx - RIVER_X) < 39) continue;
+        // Keep clear of Start Plaza (Store, Disco, Helipad 1), North/South Helipads, and Park Pond/Walkway
+        if (Math.hypot(gx - (-31), gz - (-28)) < 20) continue;
+        if (Math.hypot(gx - 31, gz - (-28)) < 18) continue;
+        if (Math.hypot(gx - (-31), gz - (-56)) < 14) continue;
+        if (Math.hypot(gx - 310, gz - (-490)) < 14) continue;
+        if (Math.hypot(gx - 540, gz - 390) < 14) continue;
+        if (Math.hypot(gx - 220, gz - (-120)) < 43) continue;
+        if (Math.hypot(gx - (-195), gz - (-310)) < 34) continue;
+
+        let onRoad = false;
+        for (let j = 0; j < N; j++) {
+          const dx = gx - trackPoints[j].x;
+          const dz = gz - trackPoints[j].z;
+          if (dx * dx + dz * dz < minRoadGrassDistSq) {
+            onRoad = true;
+            break;
+          }
+        }
+        if (onRoad) continue;
+        const sc = 0.7 + Math.random() * 1.1;
+        gDummy.position.set(gx, 0.42 * sc, gz);
+        gDummy.rotation.set(0, Math.random() * Math.PI, 0);
+        gDummy.scale.set(sc, sc, sc);
+        gDummy.updateMatrix();
+        grassInst.setMatrixAt(placedGrass, gDummy.matrix);
+        gCol.setHex(grassShades[placedGrass % grassShades.length]);
+        grassInst.setColorAt(placedGrass, gCol);
+        placedGrass++;
+      }
+      grassInst.count = placedGrass;
+      grassInst.instanceMatrix.needsUpdate = true;
+      if (grassInst.instanceColor) grassInst.instanceColor.needsUpdate = true;
+      grassInst.matrixAutoUpdate = false;
+      scene.add(grassInst);
+
+      // 5. Wooden River Pier & Rideable Speedboat
+      const pier = new THREE.Mesh(new THREE.BoxGeometry(10, 0.4, 3.6), benchMat);
+      pier.position.set(BOAT_DOCK_POS.x - 2, 0.25, BOAT_DOCK_POS.z);
+      scene.add(pier);
+
+      const boatGrp = new THREE.Group();
+      boatGrp.position.copy(boatState.pos);
+      const hull = new THREE.Mesh(
+        new THREE.BoxGeometry(2.6, 0.9, 6.2),
+        new THREE.MeshLambertMaterial({ color: 0xf8fafc })
+      );
+      hull.position.y = 0.45;
+      const stripe = new THREE.Mesh(
+        new THREE.BoxGeometry(2.68, 0.28, 6.25),
+        new THREE.MeshLambertMaterial({ color: 0x0284c7 })
+      );
+      stripe.position.y = 0.65;
+      const bow = new THREE.Mesh(
+        new THREE.ConeGeometry(1.85, 2.2, 4).rotateX(Math.PI / 2).rotateZ(Math.PI / 4),
+        new THREE.MeshLambertMaterial({ color: 0xf8fafc })
+      );
+      bow.scale.set(1, 0.48, 1);
+      bow.position.set(0, 0.45, 4.1);
+      const windshield = new THREE.Mesh(
+        new THREE.BoxGeometry(2.1, 0.55, 0.9),
+        new THREE.MeshLambertMaterial({ color: 0x0f172a })
+      );
+      windshield.position.set(0, 1.05, 1.1);
+      boatGrp.add(hull, stripe, bow, windshield);
+      scene.add(boatGrp);
+
+      return boatGrp;
+    })();
+
+    function enterBoatMode() {
+      if (!isWalking || isFlying || isBoating || isWasted || gameState !== 'RACING') return;
+      isWalking = false;
+      isBoating = true;
+      isDancing = false;
+      pedGroup.visible = false;
+      currentZone = '';
+      if (zoneActionBar) zoneActionBar.classList.remove('visible');
+      orbitYaw = 0;
+      orbitPitch = 0.14;
+      updateWalkingControlsUI();
+      triggerCallout('🚤 RIDING RIVER BOAT • USE JOYSTICK TO CRUISE', '#38bdf8');
+    }
+
+    function exitBoatMode() {
+      if (!isBoating) return;
+      isBoating = false;
+      isWalking = true;
+      // Step onto the nearest riverbank
+      const bankX = boatState.pos.x < RIVER_X ? RIVER_X - 31 : RIVER_X + 31;
+      pedestrianState.pos.set(bankX, 0, boatState.pos.z);
+      pedestrianState.heading = boatState.heading;
+      pedGroup.position.copy(pedestrianState.pos);
+      pedGroup.visible = true;
+      boatState.speed = 0;
+      orbitYaw = 0;
+      orbitPitch = 0.28;
+      updateWalkingControlsUI();
+      triggerCallout('STEPPED ASHORE ON FOOT 🚶', '#4ade80');
+    }
+
+    function updateRiverBoatPhysics(dt) {
+      if (riverWaterTex) {
+        riverWaterTex.offset.y -= dt * 0.42;
+      }
+      if (!isBoating || gameState !== 'RACING') return;
+      const fwdKey = (keys['KeyW'] || keys['ArrowUp']) ? 1 : 0;
+      const backKey = (keys['KeyS'] || keys['ArrowDown']) ? 1 : 0;
+      const turnKey = ((keys['KeyA'] || keys['ArrowLeft']) ? 1 : 0) - ((keys['KeyD'] || keys['ArrowRight']) ? 1 : 0);
+
+      const steer = Math.max(-1, Math.min(1, turnKey - joystickState.x));
+      const throttle = Math.max(-1, Math.min(1, (fwdKey - backKey) - joystickState.y));
+
+      boatState.speed += (throttle * 34.0 - boatState.speed) * (1 - Math.exp(-3.2 * dt));
+      boatState.heading += steer * 1.9 * dt;
+
+      boatState.pos.x += Math.sin(boatState.heading) * boatState.speed * dt;
+      boatState.pos.z += Math.cos(boatState.heading) * boatState.speed * dt;
+      // Keep boat within the river channel width
+      boatState.pos.x = Math.max(RIVER_X - 25, Math.min(RIVER_X + 25, boatState.pos.x));
+      boatState.pos.z = Math.max(-1600, Math.min(1600, boatState.pos.z));
+      boatState.pos.y = 0.12 + Math.sin(performance.now() * 0.005) * 0.06;
+
+      riverBoatMesh.position.copy(boatState.pos);
+      riverBoatMesh.rotation.y = boatState.heading;
+      riverBoatMesh.rotation.z = -steer * 0.14;
+
+      // Spawn white water wake ripples & foam behind the boat as it moves on the river
+      if (Math.abs(boatState.speed) > 1.5 && Math.random() < 0.75) {
+        const sinB = Math.sin(boatState.heading);
+        const cosB = Math.cos(boatState.heading);
+        const sideSpread = (Math.random() - 0.5) * 1.8;
+        spawnParticle(
+          boatState.pos.x - sinB * 3.2 + cosB * sideSpread,
+          0.12,
+          boatState.pos.z - cosB * 3.2 - sinB * sideSpread,
+          -sinB * 2.5 + cosB * sideSpread * 1.6,
+          0.35,
+          -cosB * 2.5 - sinB * sideSpread * 1.6,
+          0.55, 0.75, 1.9, 0xe0f2fe
+        );
+      }
+
+      pedestrianState.pos.copy(boatState.pos);
+      pedestrianState.heading = boatState.heading;
+    }
+
+    // ==========================================
+    // 3 DIFFERENT STYLED HELICOPTERS AT FAR LOCATIONS (CHARACTER CAN RIDE ANY OF THEM)
+    // ==========================================
+    const HELI_STATIONS = [
+      {
+        name: 'APEX SKY-HAWK (START PAD)',
+        style: 'executive',
+        pos: new THREE.Vector3(-31, 0, -56),
+        heading: Math.PI / 2,
+        bodyColor: 0x0284c7,
+        accentColor: 0xfacc15
+      },
+      {
+        name: 'RED VIPER GUNSHIP (NORTH RIDGE)',
+        style: 'viper',
+        pos: new THREE.Vector3(310, 0, -490),
+        heading: -0.4,
+        bodyColor: 0xdc2626,
+        accentColor: 0xf8fafc
+      },
+      {
+        name: 'EMERALD CARGO-LIFT (SOUTH HARBOR)',
+        style: 'heavy',
+        pos: new THREE.Vector3(540, 0, 390),
+        heading: Math.PI,
+        bodyColor: 0x059669,
+        accentColor: 0xfde047
+      }
+    ];
+
+    const HELIPAD_POS = HELI_STATIONS[0].pos;
+    let isFlying = false;
+    let activeHeliIdx = 0;
+
+    function buildStyledHelicopterMesh(cfg) {
+      const heliGroup = new THREE.Group();
+      const bodyMat = new THREE.MeshLambertMaterial({ color: cfg.bodyColor });
+      const accentMat = new THREE.MeshLambertMaterial({ color: cfg.accentColor });
+      const darkMat = new THREE.MeshLambertMaterial({ color: 0x0f172a });
+      const glassMat = new THREE.MeshLambertMaterial({ color: 0x38bdf8 });
+      const rotorMat = new THREE.MeshBasicMaterial({ color: 0xe2e8f0 });
+
+      if (cfg.style === 'viper') {
+        // Sleek Attack / Sport Chopper with stub wings & twin tail fins
+        const fuselage = new THREE.Mesh(new THREE.BoxGeometry(1.75, 1.55, 5.2), bodyMat);
+        fuselage.position.set(0, 1.45, 0.2);
+        const nose = new THREE.Mesh(new THREE.ConeGeometry(1.05, 2.2, 6).rotateX(Math.PI / 2), glassMat);
+        nose.position.set(0, 1.35, 3.4);
+        const stubWing = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.16, 0.95), accentMat);
+        stubWing.position.set(0, 1.4, 0.4);
+        const tailBoom = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.45, 5.2), bodyMat);
+        tailBoom.position.set(0, 1.65, -4.4);
+        const tailFin = new THREE.Mesh(new THREE.BoxGeometry(0.16, 1.85, 1.0), accentMat);
+        tailFin.position.set(0, 2.25, -6.7);
+        heliGroup.add(fuselage, nose, stubWing, tailBoom, tailFin);
+      } else if (cfg.style === 'heavy') {
+        // Twin-Rotor Heavy Transport Helicopter
+        const fuselage = new THREE.Mesh(new THREE.BoxGeometry(2.7, 2.25, 6.4), bodyMat);
+        fuselage.position.set(0, 1.75, 0);
+        const cockpit = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.4, 1.4), glassMat);
+        cockpit.position.set(0, 1.65, 3.4);
+        const stripe = new THREE.Mesh(new THREE.BoxGeometry(2.76, 0.36, 6.45), accentMat);
+        stripe.position.set(0, 1.6, 0);
+        const rearPylon = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.4), darkMat);
+        rearPylon.position.set(0, 3.1, -2.5);
+        heliGroup.add(fuselage, cockpit, stripe, rearPylon);
+      } else {
+        // Executive Skyliner Helicopter
+        const fuselage = new THREE.Mesh(new THREE.BoxGeometry(2.3, 1.85, 4.6), bodyMat);
+        fuselage.position.set(0, 1.55, 0.2);
+        const cockpitGlass = new THREE.Mesh(new THREE.SphereGeometry(1.18, 12, 10), glassMat);
+        cockpitGlass.scale.set(0.95, 0.78, 1.25);
+        cockpitGlass.position.set(0, 1.55, 2.1);
+        const stripe = new THREE.Mesh(new THREE.BoxGeometry(2.38, 0.32, 4.66), accentMat);
+        stripe.position.set(0, 1.45, 0.2);
+        const tailBoom = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.55, 4.8), bodyMat);
+        tailBoom.position.set(0, 1.75, -4.1);
+        const tailFin = new THREE.Mesh(new THREE.BoxGeometry(0.18, 1.65, 0.9), accentMat);
+        tailFin.position.set(0, 2.25, -6.2);
+        heliGroup.add(fuselage, cockpitGlass, stripe, tailBoom, tailFin);
+      }
+
+      // Landing Skids
+      const skidGeo = new THREE.BoxGeometry(0.18, 0.18, 4.8);
+      const strutGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.85, 6);
+      [-1.1, 1.1].forEach(sx => {
+        const skid = new THREE.Mesh(skidGeo, darkMat);
+        skid.position.set(sx, 0.36, 0.2);
+        const s1 = new THREE.Mesh(strutGeo, darkMat);
+        s1.position.set(sx, 0.72, 1.3);
+        const s2 = s1.clone();
+        s2.position.z = -0.9;
+        heliGroup.add(skid, s1, s2);
+      });
+
+      const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.16, 0.85, 8), darkMat);
+      mast.position.set(0, 3.25, cfg.style === 'heavy' ? 1.8 : 0.1);
+      const mainRotor = new THREE.Group();
+      mainRotor.position.set(0, 3.65, cfg.style === 'heavy' ? 1.8 : 0.1);
+      mainRotor.add(
+        new THREE.Mesh(new THREE.BoxGeometry(11.0, 0.08, 0.42), rotorMat),
+        new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.08, 11.0), rotorMat)
+      );
+
+      const tailRotor = new THREE.Group();
+      if (cfg.style === 'heavy') {
+        tailRotor.position.set(0, 3.85, -2.5);
+        tailRotor.add(
+          new THREE.Mesh(new THREE.BoxGeometry(9.6, 0.08, 0.38), accentMat),
+          new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.08, 9.6), accentMat)
+        );
+      } else {
+        tailRotor.position.set(0.24, 2.25, -6.2);
+        tailRotor.add(
+          new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.85, 0.2), accentMat),
+          new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.2, 1.85), accentMat)
+        );
+      }
+
+      heliGroup.add(mast, mainRotor, tailRotor);
+      scene.add(heliGroup);
+      return { heliGroup, mainRotor, tailRotor, isTwinRotor: cfg.style === 'heavy' };
+    }
+
+    const helicopters = HELI_STATIONS.map((st, idx) => {
+      // Illuminated Circular Helipad for each helicopter
+      const padGroup = new THREE.Group();
+      padGroup.position.copy(st.pos);
+      const baseDisc = new THREE.Mesh(
+        new THREE.CylinderGeometry(8.5, 9.2, 0.28, 24),
+        new THREE.MeshLambertMaterial({ color: 0x1e293b })
+      );
+      baseDisc.position.y = 0.14;
+      padGroup.add(baseDisc);
+
+      const hCan = document.createElement('canvas');
+      hCan.width = 256;
+      hCan.height = 256;
+      const hCtx = hCan.getContext('2d');
+      hCtx.fillStyle = '#0f172a';
+      hCtx.fillRect(0, 0, 256, 256);
+      hCtx.strokeStyle = '#facc15';
+      hCtx.lineWidth = 14;
+      hCtx.beginPath();
+      hCtx.arc(128, 128, 110, 0, Math.PI * 2);
+      hCtx.stroke();
+      hCtx.fillStyle = '#facc15';
+      hCtx.font = '900 130px sans-serif';
+      hCtx.textAlign = 'center';
+      hCtx.textBaseline = 'middle';
+      hCtx.fillText('H', 128, 134);
+
+      const padTop = new THREE.Mesh(
+        new THREE.CircleGeometry(8.2, 24).rotateX(-Math.PI / 2),
+        new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(hCan) })
+      );
+      padTop.position.y = 0.29;
+      padGroup.add(padTop);
+      scene.add(padGroup);
+
+      const visual = buildStyledHelicopterMesh(st);
+      const state = {
+        pos: new THREE.Vector3(st.pos.x, 0.28, st.pos.z),
+        heading: st.heading,
+        pitch: 0,
+        roll: 0,
+        velY: 0,
+        rotorSpeed: 2.0
+      };
+      visual.heliGroup.position.copy(state.pos);
+      visual.heliGroup.rotation.y = state.heading;
+
+      return { ...st, index: idx, visual, state };
+    });
+
+    let heliState = helicopters[0].state;
+    let heliVisual = helicopters[0].visual;
+
+    function updateHelicopterPhysics(dt) {
+      for (let i = 0; i < helicopters.length; i++) {
+        const h = helicopters[i];
+        const isCurrent = isFlying && activeHeliIdx === i;
+        const targetRotor = isCurrent ? 28.0 : 1.5;
+        h.state.rotorSpeed += (targetRotor - h.state.rotorSpeed) * (1 - Math.exp(-3.5 * dt));
+        h.visual.mainRotor.rotation.y += h.state.rotorSpeed * dt;
+        if (h.visual.isTwinRotor) {
+          h.visual.tailRotor.rotation.y -= h.state.rotorSpeed * dt;
+        } else {
+          h.visual.tailRotor.rotation.x += h.state.rotorSpeed * 1.4 * dt;
+        }
+      }
+
+      if (!isFlying || gameState !== 'RACING') return;
+      const cur = helicopters[activeHeliIdx];
+      heliState = cur.state;
+      heliVisual = cur.visual;
+
+      const asc = (keys['Space'] || keys['KeyR']) ? 1 : 0;
+      const desc = (keys['KeyQ'] || keys['ShiftLeft'] || keys['ShiftRight']) ? 1 : 0;
+      const fwdKey = (keys['KeyW'] || keys['ArrowUp']) ? 1 : 0;
+      const backKey = (keys['KeyS'] || keys['ArrowDown']) ? 1 : 0;
+      const turnKey = ((keys['KeyA'] || keys['ArrowLeft']) ? 1 : 0) - ((keys['KeyD'] || keys['ArrowRight']) ? 1 : 0);
+
+      const yawInput = Math.max(-1, Math.min(1, turnKey - joystickState.x));
+      const moveInput = Math.max(-1, Math.min(1, (fwdKey - backKey) - joystickState.y));
+      const vertInput = asc - desc;
+
+      heliState.heading += yawInput * 2.1 * dt;
+      heliState.velY += (vertInput * 20.0 - heliState.velY) * (1 - Math.exp(-6 * dt));
+      heliState.pos.y = Math.max(0.28, Math.min(115, heliState.pos.y + heliState.velY * dt));
+
+      if (heliState.pos.y <= 0.3 && vertInput <= 0) {
+        let onAnyPad = false;
+        for (let i = 0; i < HELI_STATIONS.length; i++) {
+          if (Math.hypot(heliState.pos.x - HELI_STATIONS[i].pos.x, heliState.pos.z - HELI_STATIONS[i].pos.z) < 8.5) {
+            onAnyPad = true;
+            break;
+          }
+        }
+        heliState.pos.y = onAnyPad ? 0.28 : 0.0;
+        heliState.velY = 0;
+      }
+
+      const flySpeed = 38.0;
+      if (Math.abs(moveInput) > 0.05) {
+        heliState.pos.x += Math.sin(heliState.heading) * moveInput * flySpeed * dt;
+        heliState.pos.z += Math.cos(heliState.heading) * moveInput * flySpeed * dt;
+      }
+
+      const targetPitch = moveInput * 0.22;
+      const targetRoll = -yawInput * 0.26;
+      heliState.pitch += (targetPitch - heliState.pitch) * (1 - Math.exp(-8 * dt));
+      heliState.roll += (targetRoll - heliState.roll) * (1 - Math.exp(-8 * dt));
+
+      heliVisual.heliGroup.position.copy(heliState.pos);
+      heliVisual.heliGroup.rotation.order = 'YXZ';
+      heliVisual.heliGroup.rotation.y = heliState.heading;
+      heliVisual.heliGroup.rotation.x = heliState.pitch;
+      heliVisual.heliGroup.rotation.z = heliState.roll;
+
+      pedestrianState.pos.copy(heliState.pos);
+      pedestrianState.heading = heliState.heading;
+    }
 
     // ==========================================
     // 4. INSTANCED PARTICLE POOL
     // ==========================================
     const MAX_PARTICLES = 100;
+    
+    // ==========================================
+    // GPU-INSTANCED HOUSES & BUILDINGS ALONG TRACK (4 DRAW CALLS TOTAL)
+    // ==========================================
+    (function createTrackHouses() {
+      const wallColors = [0x334155, 0x475569, 0x1e293b, 0x7c2d12, 0x3f6212, 0x1e3a8a];
+      const roofColors = [0x991b1b, 0x1e3a8a, 0x78350f, 0x0f172a];
+      const houseSpecs = [];
+      const buildingAdSpots = [];
+
+      for (let idx = 8; idx < N - 8; idx += 12) {
+        const pt = trackPoints[idx];
+        const rt = trackRights[idx];
+
+        [-1, 1].forEach((side, sIdx) => {
+          const dist = ROAD_HALF_WIDTH + 22 + ((idx * 7 + sIdx * 5) % 12);
+          const hx = pt.x + rt.x * (dist * side);
+          const hz = pt.z + rt.z * (dist * side);
+          // Keep houses clear of River, Store, Disco, Helipads, Park, and any adjacent track curves
+          if (Math.abs(hx - RIVER_X) < 42) return;
+          if (Math.hypot(hx - (-31), hz - (-28)) < 26) return;
+          if (Math.hypot(hx - 31, hz - (-28)) < 24) return;
+          if (Math.hypot(hx - (-31), hz - (-56)) < 22) return;
+          if (Math.hypot(hx - 310, hz - (-490)) < 22) return;
+          if (Math.hypot(hx - 540, hz - 390) < 22) return;
+          if (Math.hypot(hx - 220, hz - (-120)) < 86) return;
+          if (Math.hypot(hx - (-195), hz - (-310)) < 42) return;
+          let nearOtherRoad = false;
+          for (let k = 0; k < N; k += 4) {
+            const dx = hx - trackPoints[k].x;
+            const dz = hz - trackPoints[k].z;
+            if (dx * dx + dz * dz < (ROAD_HALF_WIDTH + 13) ** 2) {
+              nearOtherRoad = true;
+              break;
+            }
+          }
+          if (nearOtherRoad) return;
+          const yaw = Math.atan2(rt.x * -side, rt.z * -side);
+          const isTallTower = (idx % 36 === 0 && sIdx === 0);
+          const w = isTallTower ? 12.0 : (7.0 + ((idx + sIdx) % 5));
+          const h = isTallTower ? 22.0 : (6.5 + ((idx * 3 + sIdx) % 8));
+          const d = isTallTower ? 12.0 : (7.0 + ((idx + sIdx * 2) % 5));
+          houseSpecs.push({
+            hx, hz, yaw, w, h, d,
+            wallHex: wallColors[(idx + sIdx) % wallColors.length],
+            roofHex: roofColors[(idx + sIdx) % roofColors.length]
+          });
+          if (isTallTower && buildingAdSpots.length < 9) {
+            buildingAdSpots.push({ hx, hz, yaw, w, h, d, adIdx: buildingAdSpots.length });
+          }
+        });
+      }
+
+      // Mount Building Facade Ads onto tall buildings (1 ad per building, reuses existing billboard textures with zero extra GPU upload!)
+      buildingAdSpots.forEach((bSpot) => {
+        const slot = billboardInstances[bSpot.adIdx];
+        if (!slot) return;
+        const adMesh = new THREE.Mesh(
+          new THREE.PlaneGeometry(bSpot.w * 0.92, 5.4),
+          new THREE.MeshBasicMaterial({ map: slot.texture, fog: false })
+        );
+        const sinY = Math.sin(bSpot.yaw);
+        const cosY = Math.cos(bSpot.yaw);
+        const frontOffset = bSpot.d * 0.52;
+        adMesh.position.set(
+          bSpot.hx + frontOffset * sinY,
+          bSpot.h * 0.68,
+          bSpot.hz + frontOffset * cosY
+        );
+        adMesh.rotation.y = bSpot.yaw;
+        adMesh.userData.adLinkGetter = () => billboardData[bSpot.adIdx].linkUrl;
+        clickableAdMeshes.push(adMesh);
+        scene.add(adMesh);
+      });
+
+      const count = houseSpecs.length;
+      const bodyInst = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshLambertMaterial({ color: 0xffffff }), count);
+      const roofInst = new THREE.InstancedMesh(new THREE.ConeGeometry(0.76, 3.6, 4), new THREE.MeshLambertMaterial({ color: 0xffffff }), count);
+      const winInst = new THREE.InstancedMesh(new THREE.BoxGeometry(1.1, 1.1, 0.2), new THREE.MeshBasicMaterial({ color: 0xfde047, fog: false }), count * 2);
+      const doorInst = new THREE.InstancedMesh(new THREE.BoxGeometry(1.2, 2.2, 0.2), new THREE.MeshLambertMaterial({ color: 0x090d16 }), count);
+
+      const dummy = new THREE.Object3D();
+      const col = new THREE.Color();
+
+      houseSpecs.forEach((hs, i) => {
+        const sinY = Math.sin(hs.yaw);
+        const cosY = Math.cos(hs.yaw);
+
+        // House body
+        dummy.position.set(hs.hx, hs.h * 0.5, hs.hz);
+        dummy.rotation.set(0, hs.yaw, 0);
+        dummy.scale.set(hs.w, hs.h, hs.d);
+        dummy.updateMatrix();
+        bodyInst.setMatrixAt(i, dummy.matrix);
+        col.setHex(hs.wallHex);
+        bodyInst.setColorAt(i, col);
+
+        // Pitched roof
+        const maxDim = Math.max(hs.w, hs.d);
+        dummy.position.set(hs.hx, hs.h + 1.8, hs.hz);
+        dummy.rotation.set(0, hs.yaw + Math.PI * 0.25, 0);
+        dummy.scale.set(maxDim, 1, maxDim);
+        dummy.updateMatrix();
+        roofInst.setMatrixAt(i, dummy.matrix);
+        col.setHex(hs.roofHex);
+        roofInst.setColorAt(i, col);
+
+        // Left & Right front windows
+        const frontZ = hs.d * 0.51;
+        [-hs.w * 0.22, hs.w * 0.22].forEach((lx, wi) => {
+          dummy.position.set(
+            hs.hx + lx * cosY + frontZ * sinY,
+            hs.h * 0.55,
+            hs.hz - lx * sinY + frontZ * cosY
+          );
+          dummy.rotation.set(0, hs.yaw, 0);
+          dummy.scale.set(1, 1, 1);
+          dummy.updateMatrix();
+          winInst.setMatrixAt(i * 2 + wi, dummy.matrix);
+        });
+
+        // Front door
+        dummy.position.set(
+          hs.hx + frontZ * sinY,
+          1.1,
+          hs.hz + frontZ * cosY
+        );
+        dummy.rotation.set(0, hs.yaw, 0);
+        dummy.scale.set(1, 1, 1);
+        dummy.updateMatrix();
+        doorInst.setMatrixAt(i, dummy.matrix);
+      });
+
+      bodyInst.instanceMatrix.needsUpdate = true;
+      roofInst.instanceMatrix.needsUpdate = true;
+      winInst.instanceMatrix.needsUpdate = true;
+      doorInst.instanceMatrix.needsUpdate = true;
+      if (bodyInst.instanceColor) bodyInst.instanceColor.needsUpdate = true;
+      if (roofInst.instanceColor) roofInst.instanceColor.needsUpdate = true;
+
+      bodyInst.matrixAutoUpdate = false;
+      roofInst.matrixAutoUpdate = false;
+      winInst.matrixAutoUpdate = false;
+      doorInst.matrixAutoUpdate = false;
+
+      scene.add(bodyInst, roofInst, winInst, doorInst);
+    })();
+
     const particleGeo = new THREE.BoxGeometry(0.45, 0.45, 0.45);
     const particleMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
     const particleInst = new THREE.InstancedMesh(particleGeo, particleMat, MAX_PARTICLES);
@@ -3089,6 +4759,7 @@
       startScale: 1, endScale: 0.1
     }));
     let particleCursor = 0;
+    let particleColorDirty = false;
     const _pDummy = new THREE.Object3D();
     const _pColor = new THREE.Color();
 
@@ -3105,11 +4776,15 @@
       p.endScale = endScale;
       _pColor.setHex(hexColor);
       particleInst.setColorAt(idx, _pColor);
-      if (particleInst.instanceColor) particleInst.instanceColor.needsUpdate = true;
+      particleColorDirty = true;
     }
 
     function updateParticles(dt) {
       let anyUpdated = false;
+      if (particleColorDirty && particleInst.instanceColor) {
+        particleInst.instanceColor.needsUpdate = true;
+        particleColorDirty = false;
+      }
       for (let i = 0; i < MAX_PARTICLES; i++) {
         const p = particles[i];
         if (!p.active) continue;
@@ -3503,6 +5178,7 @@
     let selectedDroneIdx = 0;
     let selectedBalloonIdx = 0;
     let selectedBillboardIdx = 0;
+    let selectedBillboardImgSlot = 0;
     let editorOpen = false;
     let activeEditorTab = 'drone';
 
@@ -3521,6 +5197,7 @@
       overlay.style.display = 'none';
       sound.update(0, false, false, false);
       syncEditorFields();
+      updateWalkingControlsUI();
     }
 
     function closeStudioEditor() {
@@ -3530,6 +5207,7 @@
       if (gameState === 'MENU' || gameState === 'FINISHED') {
         overlay.style.display = 'flex';
       }
+      updateWalkingControlsUI();
     }
 
     let syncEditorFields = () => {};
@@ -3588,25 +5266,76 @@
       const cfgRewardTitle = document.getElementById('cfg-reward-title');
       const cfgDefaultCam = document.getElementById('cfg-default-cam');
 
+
+      let selectedProdIdx = 0;
+      const prodSelect = document.getElementById('prod-select');
+      const prodIndexBadge = document.getElementById('prod-index-badge');
+      const cfgCurrency = document.getElementById('cfg-currency');
+      const cfgProdName = document.getElementById('cfg-prod-name');
+      const cfgProdPrice = document.getElementById('cfg-prod-price');
+      const cfgProdDesc = document.getElementById('cfg-prod-desc');
+      const cfgProdImg = document.getElementById('cfg-prod-img');
+      const cfgProdSourceUrl = document.getElementById('cfg-prod-source-url');
+
+      function syncStoreEditorFields() {
+        if (!prodSelect) return;
+        const p = storeProducts[selectedProdIdx] || storeProducts[0];
+        prodSelect.value = String(selectedProdIdx);
+        if (prodIndexBadge) prodIndexBadge.textContent = `${selectedProdIdx + 1} / ${storeProducts.length}`;
+        if (cfgCurrency) cfgCurrency.value = clientConfig.currency || '₹';
+        if (cfgProdName) cfgProdName.value = p.name || '';
+        if (cfgProdPrice) cfgProdPrice.value = p.price ?? 0;
+        if (cfgProdDesc) cfgProdDesc.value = p.desc || '';
+        if (cfgProdImg) cfgProdImg.value = p.imageUrl || '';
+        if (cfgProdSourceUrl) cfgProdSourceUrl.value = (p.sourceUrl ?? '').trim();
+      }
+
+      function applyStoreEditorChange() {
+        const p = storeProducts[selectedProdIdx];
+        if (!p) return;
+        if (cfgCurrency) clientConfig.currency = cfgCurrency.value.trim() || '₹';
+        if (cfgProdName) p.name = cfgProdName.value;
+        if (cfgProdPrice) p.price = Math.max(0, Number(cfgProdPrice.value) || 0);
+        if (cfgProdDesc) p.desc = cfgProdDesc.value;
+        if (cfgProdImg) p.imageUrl = cfgProdImg.value.trim();
+        if (cfgProdSourceUrl) p.sourceUrl = cfgProdSourceUrl.value.trim();
+        persistStudioState();
+        refreshAllStoreScreens();
+      }
+
+      if (prodSelect) {
+        prodSelect.addEventListener('change', () => {
+          selectedProdIdx = Number(prodSelect.value) || 0;
+          syncStoreEditorFields();
+        });
+      }
+      [cfgCurrency, cfgProdName, cfgProdPrice, cfgProdDesc, cfgProdImg, cfgProdSourceUrl].forEach(el => {
+        if (el) {
+          el.addEventListener('input', applyStoreEditorChange);
+          el.addEventListener('change', applyStoreEditorChange);
+        }
+      });
+
       syncEditorFields = function () {
+        syncStoreEditorFields();
         // 1. Sky Drone
         const dCfg = skyDroneData[selectedDroneIdx];
         const dSlot = skyDroneSystems[selectedDroneIdx];
         droneSelect.value = String(selectedDroneIdx);
-        droneIndexBadge.textContent = `${selectedDroneIdx + 1} / 3`;
+        droneIndexBadge.textContent = `${selectedDroneIdx + 1} / 9`;
         cfgDroneTitle.value = dCfg.title || '';
         cfgDroneTicker.value = dCfg.ticker || '';
         cfgDroneColor.value = dCfg.color || '#facc15';
         cfgDroneImgUrl.value = (dCfg.imageUrl && dCfg.imageUrl.startsWith('data:')) ? '[Uploaded Local Image]' : (dCfg.imageUrl || '');
         if (droneMediaStatus) droneMediaStatus.textContent = dSlot.mediaStatusText || '';
-        if (cfgDroneLinkUrl) cfgDroneLinkUrl.value = dCfg.linkUrl || '';
+        if (cfgDroneLinkUrl) cfgDroneLinkUrl.value = (dCfg.linkUrl ?? '').trim();
         renderSkyDroneSlotCanvas(dronePreviewCanvas, dSlot, 0);
 
         // 2. Balloon
         const blCfg = balloonData[selectedBalloonIdx];
         const blSlot = balloonInstances[selectedBalloonIdx];
         balloonSelect.value = String(selectedBalloonIdx);
-        balloonIndexBadge.textContent = `${selectedBalloonIdx + 1} / 3`;
+        balloonIndexBadge.textContent = `${selectedBalloonIdx + 1} / 9`;
         blTitleInput.value = blCfg.title || '';
         blSubtitleInput.value = blCfg.subtitle || '';
         blBg1Input.value = blCfg.bg1 || '#dc2626';
@@ -3614,24 +5343,31 @@
         blAccentInput.value = blCfg.accent || '#fef08a';
         blImgUrlInput.value = (blCfg.imageUrl && blCfg.imageUrl.startsWith('data:')) ? '[Uploaded Local Image]' : (blCfg.imageUrl || '');
         if (balloonMediaStatus) balloonMediaStatus.textContent = blSlot.mediaStatusText || '';
-        if (blLinkUrlInput) blLinkUrlInput.value = blCfg.linkUrl || '';
+        if (blLinkUrlInput) blLinkUrlInput.value = (blCfg.linkUrl ?? '').trim();
         const blSrc = (blSlot.hasActiveVideo && blSlot.videoEl && blSlot.videoEl.readyState >= 2) ? blSlot.videoEl : blSlot.cachedImage;
         drawBillboardFrame(balloonPreviewCanvas, blCfg, blSrc);
 
         // 3. Road Bridge Billboard
         const cfg = billboardData[selectedBillboardIdx];
         const bbSlot = billboardInstances[selectedBillboardIdx];
+        if (!Array.isArray(cfg.images)) cfg.images = [cfg.imageUrl || '', '', ''];
         bbSelect.value = String(selectedBillboardIdx);
         bbIndexBadge.textContent = `${selectedBillboardIdx + 1} / 9`;
-        bbTitleInput.value = cfg.title || '';
-        bbSubtitleInput.value = cfg.subtitle || '';
+        bbTitleInput.value = cfg.title ?? '';
+        bbSubtitleInput.value = cfg.subtitle ?? '';
         bbBg1Input.value = cfg.bg1 || '#0f172a';
         bbBg2Input.value = cfg.bg2 || '#0369a1';
         bbAccentInput.value = cfg.accent || '#38bdf8';
-        bbImgUrlInput.value = (cfg.imageUrl && cfg.imageUrl.startsWith('data:')) ? '[Uploaded Local Image]' : (cfg.imageUrl || '');
+        const activeSlotUrl = cfg.images[selectedBillboardImgSlot] || '';
+        const displayUrl = activeSlotUrl || cfg.images.find(u => u && u.trim()) || '';
+        cfg.imageUrl = displayUrl;
+        bbImgUrlInput.value = (activeSlotUrl && activeSlotUrl.startsWith('data:')) ? '[Uploaded Local Image]' : activeSlotUrl;
+        refreshBillboard3D(selectedBillboardIdx, (st) => {
+          if (bbMediaStatus && selectedBillboardIdx === bbSlot.index) bbMediaStatus.textContent = st;
+        });
         if (bbMediaStatus) bbMediaStatus.textContent = bbSlot.mediaStatusText || '';
-        if (bbLinkUrlInput) bbLinkUrlInput.value = cfg.linkUrl || '';
-        const bbSrc = (bbSlot.hasActiveVideo && bbSlot.videoEl && bbSlot.videoEl.readyState >= 2) ? bbSlot.videoEl : bbSlot.cachedImage;
+        if (bbLinkUrlInput) bbLinkUrlInput.value = (cfg.linkUrl ?? '').trim();
+        const bbSrc = bbSlot.cachedImage || null;
         drawBillboardFrame(editorPreviewCanvas, cfg, bbSrc);
 
         // 4. Overhead LED
@@ -3703,16 +5439,21 @@
         cfg.bg2 = bbBg2Input.value;
         cfg.accent = bbAccentInput.value;
         const rawUrl = bbImgUrlInput.value.trim();
+        if (!Array.isArray(cfg.images)) cfg.images = ['', '', ''];
         if (rawUrl !== '[Uploaded Local Image]') {
-          cfg.imageUrl = rawUrl;
+          cfg.images[selectedBillboardImgSlot] = rawUrl;
         }
+        const activeUrl = cfg.images[selectedBillboardImgSlot] || cfg.images.find(u => u && u.trim()) || '';
+        cfg.imageUrl = activeUrl;
         if (bbLinkUrlInput) cfg.linkUrl = bbLinkUrlInput.value.trim();
         persistStudioState();
         refreshBillboard3D(selectedBillboardIdx, (st) => {
           if (bbMediaStatus && selectedBillboardIdx === bbSlot.index) bbMediaStatus.textContent = st;
+          if (selectedBillboardIdx === bbSlot.index) {
+            drawBillboardFrame(editorPreviewCanvas, cfg, bbSlot.cachedImage || null);
+          }
         });
-        const bbSrc = (bbSlot.hasActiveVideo && bbSlot.videoEl && bbSlot.videoEl.readyState >= 2) ? bbSlot.videoEl : bbSlot.cachedImage;
-        drawBillboardFrame(editorPreviewCanvas, cfg, bbSrc);
+        drawBillboardFrame(editorPreviewCanvas, cfg, bbSlot.cachedImage || null);
       }
 
       function applyLedEdit() {
@@ -3773,6 +5514,14 @@
         syncEditorFields();
       });
 
+            const bbImgSlotSelect = document.getElementById('bb-img-slot-select');
+      if (bbImgSlotSelect) {
+        bbImgSlotSelect.addEventListener('change', () => {
+          selectedBillboardImgSlot = Number(bbImgSlotSelect.value) || 0;
+          syncEditorFields();
+          refreshBillboard3D(selectedBillboardIdx);
+        });
+      }
       bbSelect.addEventListener('change', () => {
         selectedBillboardIdx = Number(bbSelect.value);
         syncEditorFields();
@@ -3788,10 +5537,13 @@
 
       [bbTitleInput, bbSubtitleInput, bbBg1Input, bbBg2Input, bbAccentInput, bbImgUrlInput].forEach(el => {
         el.addEventListener('input', applyBillboardEdit);
+        el.addEventListener('change', applyBillboardEdit);
       });
-      if (cfgDroneLinkUrl) cfgDroneLinkUrl.addEventListener('input', applyDroneEdit);
-      if (blLinkUrlInput) blLinkUrlInput.addEventListener('input', applyBalloonEdit);
-      if (bbLinkUrlInput) bbLinkUrlInput.addEventListener('input', applyBillboardEdit);
+      ['input', 'change', 'blur'].forEach(evt => {
+        if (cfgDroneLinkUrl) cfgDroneLinkUrl.addEventListener(evt, applyDroneEdit);
+        if (blLinkUrlInput) blLinkUrlInput.addEventListener(evt, applyBalloonEdit);
+        if (bbLinkUrlInput) bbLinkUrlInput.addEventListener(evt, applyBillboardEdit);
+      });
 
       [cfgLedText, cfgLedColor, cfgLedSpeed].forEach(el => {
         el.addEventListener('input', applyLedEdit);
@@ -3835,7 +5587,7 @@
 
       document.getElementById('drone-apply-all').addEventListener('click', () => {
         const src = skyDroneData[selectedDroneIdx];
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 9; i++) {
           skyDroneData[i] = { ...src };
           const slot = skyDroneSystems[i];
           slot.glowFrameMat.color.set(src.color);
@@ -3844,17 +5596,17 @@
           slot.texture.needsUpdate = true;
         }
         persistStudioState();
-        triggerCallout('APPLIED TO ALL 3 SKY ADS!', '#4ade80');
+        triggerCallout('APPLIED TO ALL 9 SKY ADS!', '#4ade80');
       });
 
       document.getElementById('bl-apply-all').addEventListener('click', () => {
         const src = balloonData[selectedBalloonIdx];
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 9; i++) {
           balloonData[i] = { ...src };
           refreshBalloon3D(i);
         }
         persistStudioState();
-        triggerCallout('APPLIED TO ALL 3 BALLOONS!', '#4ade80');
+        triggerCallout('APPLIED TO ALL 9 BALLOONS!', '#4ade80');
       });
 
       cfgDroneImgFile.addEventListener('change', (e) => {
@@ -3961,7 +5713,10 @@
             const w = img.width * scale;
             const h = img.height * scale;
             tCtx.drawImage(img, (512 - w) * 0.5, (256 - h) * 0.5, w, h);
-            billboardData[selectedBillboardIdx].imageUrl = tempCanvas.toDataURL('image/jpeg', 0.82);
+            const dataUrl = tempCanvas.toDataURL('image/jpeg', 0.82);
+            if (!Array.isArray(billboardData[selectedBillboardIdx].images)) billboardData[selectedBillboardIdx].images = ['', '', ''];
+            billboardData[selectedBillboardIdx].images[selectedBillboardImgSlot] = dataUrl;
+            billboardData[selectedBillboardIdx].imageUrl = dataUrl;
             persistStudioState();
             refreshBillboard3D(selectedBillboardIdx);
             syncEditorFields();
@@ -3973,6 +5728,7 @@
       });
 
       document.getElementById('bb-clear-img').addEventListener('click', () => {
+        if (Array.isArray(billboardData[selectedBillboardIdx].images)) billboardData[selectedBillboardIdx].images[selectedBillboardImgSlot] = '';
         billboardData[selectedBillboardIdx].imageUrl = '';
         bbImgUrlInput.value = '';
         persistStudioState();
@@ -3982,8 +5738,9 @@
 
       document.getElementById('bb-apply-all').addEventListener('click', () => {
         const src = billboardData[selectedBillboardIdx];
+        const clonedImages = Array.isArray(src.images) ? [...src.images] : [src.imageUrl || '', '', ''];
         for (let i = 0; i < 9; i++) {
-          billboardData[i] = { ...src };
+          billboardData[i] = { ...src, images: [...clonedImages] };
           refreshBillboard3D(i);
         }
         persistStudioState();
@@ -4000,6 +5757,15 @@
 
       // Export Locked Client HTML File
       document.getElementById('export-html-btn').addEventListener('click', () => {
+        // Flush any pending edits across all tabs before serializing
+        applyDroneEdit();
+        applyBalloonEdit();
+        applyBillboardEdit();
+        applyLedEdit();
+        applyShopEdit();
+        applyStoreEditorChange();
+        persistStudioState();
+
         const clone = document.documentElement.cloneNode(true);
 
         const cloneEditorDrawer = clone.querySelector('#editor-drawer');
@@ -4030,11 +5796,16 @@
         const cloneOverlay = clone.querySelector('#overlay');
         if (cloneOverlay) cloneOverlay.style.display = 'flex';
 
+        const expTitle = (clientConfig.shopTitle ?? '').trim();
+        const expSub = (clientConfig.shopSubtitle ?? '').trim();
+        const cloneTitleTag = clone.querySelector('title');
+        if (cloneTitleTag) cloneTitleTag.textContent = expTitle || '3D Racing Arena';
+
         const cloneModal = clone.querySelector('#modal-content');
         if (cloneModal) {
           cloneModal.innerHTML = `
-            <h1 id="menu-title">${escapeHtml(clientConfig.shopTitle || 'APEX HORIZON 3D')}</h1>
-            <p id="menu-subtitle">${escapeHtml(clientConfig.shopSubtitle || '')}</p>
+            <h1 id="menu-title" style="${expTitle ? '' : 'display:none;'}">${escapeHtml(expTitle)}</h1>
+            <p id="menu-subtitle" style="${expSub ? '' : 'display:none;'}">${escapeHtml(expSub)}</p>
             ${challengeBannerHtml}
             <div class="quality-picker" id="quality-picker">
               <button class="q-btn active" data-q="0">ULTRA SMOOTH</button>
@@ -4084,7 +5855,8 @@
         const mainScript = scripts[scripts.length - 1];
         if (mainScript) {
           const markerRegex = /\/\/ === CLIENT_CONFIG_START ===[\s\S]*?\/\/ === CLIENT_CONFIG_END ===/;
-          const bakedBlock = `// === CLIENT_CONFIG_START ===\n    const BAKED_CLIENT_CONFIG = ${safeJson(exportedClientCfg)};\n    const BAKED_SKY_DRONES = ${safeJson(skyDroneData)};\n    const BAKED_BALLOONS = ${safeJson(balloonData)};\n    const BAKED_BILLBOARDS = ${safeJson(billboardData)};\n    // === CLIENT_CONFIG_END ===`;
+          const bakedBlock = `// === CLIENT_CONFIG_START ===\n    const BAKED_CLIENT_CONFIG = ${safeJson(exportedClientCfg)};\n    const BAKED_SKY_DRONES = ${safeJson(skyDroneData)};\n    const BAKED_BALLOONS = ${safeJson(balloonData)};\n    const BAKED_BILLBOARDS = ${safeJson(billboardData)};
+    const BAKED_STORE_PRODUCTS = ${safeJson(storeProducts)};\n    // === CLIENT_CONFIG_END ===`;
           mainScript.textContent = mainScript.textContent.replace(markerRegex, () => bakedBlock);
         }
 
@@ -4114,6 +5886,404 @@
     // 9. RACERS STATE & RESET
     // ==========================================
     const TOTAL_LAPS = 3;
+    
+    // ==========================================
+    // ON-FOOT CHARACTER & WASTED MECHANIC
+    // ==========================================
+    let isWalking = false;
+    let isWasted = false;
+    const pedestrianState = {
+      pos: new THREE.Vector3(),
+      heading: 0,
+      speed: 13.5,
+      walkCycle: 0
+    };
+
+    const pedGroup = new THREE.Group();
+    pedGroup.visible = false;
+    scene.add(pedGroup);
+
+    const pedTorso = new THREE.Mesh(
+      new THREE.BoxGeometry(0.68, 0.95, 0.36),
+      new THREE.MeshLambertMaterial({ color: 0x0ea5e9 })
+    );
+    pedTorso.position.y = 1.15;
+    const pedHead = new THREE.Mesh(
+      new THREE.SphereGeometry(0.28, 10, 10),
+      new THREE.MeshLambertMaterial({ color: 0xfde047 })
+    );
+    pedHead.position.y = 1.88;
+    const pedLegL = new THREE.Mesh(
+      new THREE.BoxGeometry(0.24, 0.72, 0.26),
+      new THREE.MeshLambertMaterial({ color: 0x1e293b })
+    );
+    pedLegL.position.set(-0.18, 0.36, 0);
+    const pedLegR = pedLegL.clone();
+    pedLegR.position.x = 0.18;
+
+    // Articulated Left & Right Arms + Hands pivoted at shoulders
+    function createPedArm(sideX) {
+      const shoulderPivot = new THREE.Group();
+      shoulderPivot.position.set(sideX, 1.54, 0);
+
+      const sleeve = new THREE.Mesh(
+        new THREE.BoxGeometry(0.2, 0.56, 0.22),
+        new THREE.MeshLambertMaterial({ color: 0x0284c7 })
+      );
+      sleeve.position.y = -0.26;
+
+      const hand = new THREE.Mesh(
+        new THREE.SphereGeometry(0.125, 8, 8),
+        new THREE.MeshLambertMaterial({ color: 0xfde047 })
+      );
+      hand.position.y = -0.60;
+
+      shoulderPivot.add(sleeve, hand);
+      return shoulderPivot;
+    }
+
+    const pedArmL = createPedArm(-0.47);
+    const pedArmR = createPedArm(0.47);
+
+    pedGroup.add(pedTorso, pedHead, pedLegL, pedLegR, pedArmL, pedArmR);
+
+    function triggerWastedScreen() {
+      sound.playTone(95, 0.75, 'sawtooth', 0.28);
+      overlay.style.display = 'flex';
+      modalContent.innerHTML = `
+        <h1 style="color: #ef4444; font-size: 54px; letter-spacing: 4px; text-shadow: 0 4px 20px rgba(239,68,68,0.65);">WASTED</h1>
+        <p style="color: #f8fafc; font-size: 16px; margin-top: 8px;">You were hit by a vehicle while walking on foot!</p>
+        <div class="score-summary" style="margin-top: 15px;">
+          <div>
+            <div class="stat-label">Final Score</div>
+            <div class="stat-value" style="color:#38bdf8;">${scoreState.total.toLocaleString()}</div>
+          </div>
+          <div>
+            <div class="stat-label">Best Score</div>
+            <div class="stat-value" style="color:#facc15;">${bestScore.toLocaleString()}</div>
+          </div>
+        </div>
+        <div class="modal-actions" style="margin-top: 16px;">
+          <button class="btn" id="restart-wasted-btn">TRY AGAIN</button>
+        </div>
+      `;
+      document.getElementById('restart-wasted-btn').addEventListener('click', () => {
+        isWasted = false;
+        isWalking = false;
+        pedGroup.visible = false;
+        const walkBtn = document.getElementById('t-exit-car');
+        if (walkBtn) walkBtn.textContent = 'WALK 🚶';
+        startRaceSequence();
+      });
+    }
+
+    function updateWalkingControlsUI() {
+      const walkBtn = document.getElementById('t-exit-car');
+      const rightCarGrp = document.getElementById('touch-right-car');
+      const rightHeliGrp = document.getElementById('touch-right-heli');
+      const speedClusterEl = document.querySelector('.speed-cluster');
+
+      if (walkBtn) {
+        const showExitBtn = (gameState === 'RACING' || gameState === 'COUNTDOWN') && !isWasted && !editorOpen;
+        walkBtn.style.display = showExitBtn ? 'flex' : 'none';
+        walkBtn.textContent = isFlying ? 'EXIT HELI 🚶' : (isBoating ? 'EXIT BOAT 🚶' : (isWalking ? 'CAR 🚗' : 'WALK 🚶'));
+      }
+
+      if (isFlying) {
+        if (rightCarGrp) rightCarGrp.style.display = 'none';
+        if (rightHeliGrp) rightHeliGrp.style.display = 'flex';
+        if (touchLeftArrows) touchLeftArrows.style.display = 'flex';
+        if (touchLeftGyro) touchLeftGyro.style.display = 'none';
+        if (speedClusterEl) speedClusterEl.style.display = 'none';
+        comboBox.classList.remove('active');
+        elVignette.style.opacity = '0';
+      } else if (isBoating) {
+        if (rightCarGrp) rightCarGrp.style.display = 'none';
+        if (rightHeliGrp) rightHeliGrp.style.display = 'none';
+        if (touchLeftArrows) touchLeftArrows.style.display = 'flex';
+        if (touchLeftGyro) touchLeftGyro.style.display = 'none';
+        if (speedClusterEl) speedClusterEl.style.display = 'none';
+        comboBox.classList.remove('active');
+        elVignette.style.opacity = '0';
+      } else if (isWalking) {
+        if (rightCarGrp) rightCarGrp.style.display = 'none';
+        if (rightHeliGrp) rightHeliGrp.style.display = 'none';
+        if (touchLeftArrows) touchLeftArrows.style.display = 'flex';
+        if (touchLeftGyro) touchLeftGyro.style.display = 'none';
+        if (speedClusterEl) speedClusterEl.style.display = 'none';
+        comboBox.classList.remove('active');
+        elVignette.style.opacity = '0';
+      } else {
+        if (rightCarGrp) rightCarGrp.style.display = 'flex';
+        if (rightHeliGrp) rightHeliGrp.style.display = 'none';
+        if (speedClusterEl) speedClusterEl.style.display = '';
+        if (typeof updateGyroUI === 'function') updateGyroUI();
+      }
+    }
+
+
+    // ==========================================
+    // 10-PRODUCT SOURCE URL CATALOG, HELICOPTER BOARDING & ZONE UI
+    // ==========================================
+    const storeModal = document.getElementById('store-modal');
+    const zoneActionBar = document.getElementById('zone-action-bar');
+    let currentZone = ''; // 'STORE' | 'DISCO' | 'HELI' | ''
+
+    function renderStoreModal() {
+      const cur = clientConfig.currency || '₹';
+      const titleEl = document.getElementById('store-modal-title');
+      const shopHeader = (clientConfig.shopTitle ?? '').trim();
+      if (titleEl) titleEl.textContent = shopHeader ? `🛍️ ${shopHeader.toUpperCase()} — PRODUCTS` : '🛍️ STORE PRODUCTS (10 ITEMS)';
+
+      const gridEl = document.getElementById('store-product-grid');
+      if (gridEl) {
+        gridEl.innerHTML = storeProducts.map((p, idx) => {
+          const imgHtml = (p.imageUrl && p.imageUrl.trim())
+            ? `<img class="prod-thumb" src="${escapeHtml(p.imageUrl)}" alt="${escapeHtml(p.name)}" />`
+            : `<div class="prod-thumb">${p.emoji || '🛍️'}</div>`;
+          const hasSource = Boolean(p.sourceUrl && p.sourceUrl.trim());
+          return `
+            <div class="prod-item">
+              ${imgHtml}
+              <div class="prod-name">#${idx + 1} ${escapeHtml(p.name || 'PRODUCT')}</div>
+              <div class="prod-desc">${escapeHtml(p.desc || '')}</div>
+              <div class="prod-bottom">
+                <span class="prod-price">${cur}${Number(p.price || 0).toLocaleString()}</span>
+                <button class="add-cart-btn" data-source-idx="${idx}" style="${hasSource ? 'background:linear-gradient(135deg,#0284c7,#059669);' : 'opacity:0.65;'}">
+                  ${hasSource ? 'VIEW SOURCE ↗' : 'NO LINK SET'}
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        gridEl.querySelectorAll('[data-source-idx]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const idx = Number(btn.dataset.sourceIdx);
+            const prod = storeProducts[idx];
+            const rawUrl = prod && (prod.sourceUrl ?? '').trim();
+            if (!rawUrl) {
+              triggerCallout('NO SOURCE URL SET FOR THIS PRODUCT', '#facc15');
+              return;
+            }
+            const targetUrl = normalizeAdUrl(rawUrl);
+            triggerCallout(`OPENING ${prod.name.slice(0, 18)} ↗`, '#38bdf8');
+            window.open(targetUrl, '_blank', 'noopener,noreferrer');
+          });
+        });
+      }
+    }
+
+    function openStoreModal() {
+      if (!storeModal) return;
+      renderStoreModal();
+      storeModal.classList.add('open');
+    }
+
+    function closeStoreModal() {
+      if (storeModal) storeModal.classList.remove('open');
+    }
+
+    const closeStoreBtn = document.getElementById('close-store-btn');
+    if (closeStoreBtn) closeStoreBtn.addEventListener('click', closeStoreModal);
+
+    function enterHelicopterMode() {
+      if (!isWalking || isFlying || isWasted || gameState !== 'RACING') return;
+      isWalking = false;
+      isFlying = true;
+      isDancing = false;
+      pedGroup.visible = false;
+      currentZone = '';
+      if (zoneActionBar) zoneActionBar.classList.remove('visible');
+      orbitYaw = 0;
+      orbitPitch = 0.25;
+      updateWalkingControlsUI();
+      triggerCallout('🚁 FLYING HELICOPTER • USE JOYSTICK + UP/DOWN', '#38bdf8');
+    }
+
+    function exitHelicopterMode() {
+      if (!isFlying) return;
+      isFlying = false;
+      isWalking = true;
+      pedestrianState.pos.set(heliState.pos.x + 2.6, 0, heliState.pos.z);
+      pedestrianState.heading = heliState.heading;
+      pedGroup.position.copy(pedestrianState.pos);
+      pedGroup.visible = true;
+      heliState.pitch = 0;
+      heliState.roll = 0;
+      heliState.velY = 0;
+      heliVisual.heliGroup.rotation.set(0, heliState.heading, 0);
+      keys['KeyQ'] = false;
+      keys['Space'] = false;
+      keys['ShiftLeft'] = false;
+      orbitYaw = 0;
+      orbitPitch = 0.28;
+      updateWalkingControlsUI();
+      triggerCallout('EXITED HELICOPTER ON FOOT 🚶', '#4ade80');
+    }
+
+    function updateZoneActionBar() {
+      if (!zoneActionBar) return;
+      if (!isWalking || isFlying || isBoating || isWasted || gameState !== 'RACING') {
+        zoneActionBar.classList.remove('visible');
+        return;
+      }
+
+      const distStore = pedestrianState.pos.distanceTo(STORE_POS);
+      const distDisco = pedestrianState.pos.distanceTo(DISCO_POS);
+      const distBoat = Math.min(Math.hypot(pedestrianState.pos.x - boatState.pos.x, pedestrianState.pos.z - boatState.pos.z), Math.hypot(pedestrianState.pos.x - BOAT_DOCK_POS.x, pedestrianState.pos.z - BOAT_DOCK_POS.z));
+
+      let nearestHeliIdx = 0;
+      let distHeli = Infinity;
+      for (let hi = 0; hi < helicopters.length; hi++) {
+        const d = Math.hypot(pedestrianState.pos.x - helicopters[hi].state.pos.x, pedestrianState.pos.z - helicopters[hi].state.pos.z);
+        if (d < distHeli) {
+          distHeli = d;
+          nearestHeliIdx = hi;
+        }
+      }
+
+      if (distStore < 12.5) {
+        if (currentZone !== 'STORE') {
+          currentZone = 'STORE';
+          triggerCallout('🛍️ ENTERED PRODUCT STORE', '#38bdf8');
+        }
+        zoneActionBar.innerHTML = `
+          <button class="zone-btn" id="btn-view-products">🛍️ VIEW 10 PRODUCTS</button>
+        `;
+        zoneActionBar.classList.add('visible');
+        document.getElementById('btn-view-products').addEventListener('click', openStoreModal);
+      } else if (distBoat < 12.5) {
+        if (currentZone !== 'BOAT') {
+          currentZone = 'BOAT';
+          triggerCallout('🚤 RIVER DOCK • TAP RIDE BOAT', '#38bdf8');
+        }
+        zoneActionBar.innerHTML = `
+          <button class="zone-btn" id="btn-ride-boat">🚤 RIDE RIVER BOAT</button>
+        `;
+        zoneActionBar.classList.add('visible');
+        document.getElementById('btn-ride-boat').addEventListener('click', enterBoatMode);
+      } else if (distHeli < 10.5) {
+        if (currentZone !== 'HELI') {
+          currentZone = 'HELI';
+          triggerCallout(`🚁 ${helicopters[nearestHeliIdx].name}`, '#38bdf8');
+        }
+        zoneActionBar.innerHTML = `
+          <button class="zone-btn" id="btn-fly-heli">🚁 FLY ${helicopters[nearestHeliIdx].name}</button>
+        `;
+        zoneActionBar.classList.add('visible');
+        document.getElementById('btn-fly-heli').addEventListener('click', () => {
+          activeHeliIdx = nearestHeliIdx;
+          heliState = helicopters[activeHeliIdx].state;
+          heliVisual = helicopters[activeHeliIdx].visual;
+          enterHelicopterMode();
+        });
+      } else if (distDisco < 11.5) {
+        if (currentZone !== 'DISCO') {
+          currentZone = 'DISCO';
+          triggerCallout('🕺 DISCO LIGHT STATION', '#f472b6');
+        }
+        const shortTrack = discoTrackName ? ` (${discoTrackName.slice(0, 12)})` : '';
+        zoneActionBar.innerHTML = `
+          <button class="zone-btn zone-btn-disco" id="btn-toggle-dance">${isDancing ? '⏹ STOP DANCE' : '🕺 DANCE'}</button>
+          <button class="zone-btn zone-btn-green" id="btn-load-music">🎵 LOAD MUSIC${shortTrack}</button>
+        `;
+        zoneActionBar.classList.add('visible');
+        document.getElementById('btn-toggle-dance').addEventListener('click', () => {
+          isDancing = !isDancing;
+          if (isDancing) {
+            if (discoAudioEl.src) {
+              discoAudioEl.play().then(() => { discoPlaying = true; }).catch(() => {});
+            }
+            triggerCallout('🕺 DISCO DANCE MODE ON!', '#f472b6');
+          } else {
+            discoAudioEl.pause();
+            discoPlaying = false;
+            pedGroup.position.y = 0;
+            pedGroup.rotation.z = 0;
+            pedArmL.rotation.set(0, 0, 0);
+            pedArmR.rotation.set(0, 0, 0);
+          }
+          updateZoneActionBar();
+        });
+        document.getElementById('btn-load-music').addEventListener('click', () => {
+          discoFileInput.click();
+        });
+      } else if (pedestrianState.pos.distanceTo(THEATRE_POS) < 26.0) {
+        if (currentZone !== 'THEATRE') {
+          currentZone = 'THEATRE';
+          triggerCallout('🎬 OPEN-AIR THEATRE • ENJOY THE SHOW!', '#facc15');
+        }
+        zoneActionBar.classList.remove('visible');
+      } else {
+        currentZone = '';
+        zoneActionBar.classList.remove('visible');
+      }
+    }
+
+    function toggleWalkingMode() {
+      if (gameState !== 'RACING' || isWasted) return;
+      if (isFlying) {
+        exitHelicopterMode();
+        return;
+      }
+      if (isBoating) {
+        exitBoatMode();
+        return;
+      }
+      isWalking = !isWalking;
+      const playerCar = racers[0];
+
+      if (isWalking) {
+        const rightVec = trackRights[playerCar.closestIdx] || new THREE.Vector3(1, 0, 0);
+        pedestrianState.pos.copy(playerCar.pos).addScaledVector(rightVec, 2.3);
+        pedestrianState.pos.y = 0;
+        pedestrianState.heading = playerCar.heading;
+        pedGroup.position.copy(pedestrianState.pos);
+        pedGroup.visible = true;
+        playerCar.speed = 0;
+        playerCar.steerAngle = 0;
+        playerCar.driftSlipAngle = 0;
+        playerCar.isParked = true;
+        bankComboScore();
+        hudCache.comboActive = false;
+        orbitYaw = 0;
+        orbitPitch = 0.28;
+        updateWalkingControlsUI();
+        triggerCallout('ON FOOT • DRAG SCREEN 360° TO LOOK AROUND 🔄', '#38bdf8');
+      } else {
+        playerCar.pos.copy(pedestrianState.pos);
+        playerCar.pos.y = 0;
+        pedGroup.visible = false;
+        pedGroup.position.y = 0;
+        pedGroup.rotation.z = 0;
+        isDancing = false;
+        discoAudioEl.pause();
+        discoPlaying = false;
+        updateZoneActionBar();
+        playerCar.isParked = false;
+        keys['KeyW'] = false;
+        updateWalkingControlsUI();
+        triggerCallout('BACK IN VEHICLE', '#4ade80');
+      }
+    }
+
+    window.addEventListener('keydown', e => {
+      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT')) return;
+      if (e.code === 'KeyE') toggleWalkingMode();
+    });
+
+    const exitCarBtn = document.getElementById('t-exit-car');
+    if (exitCarBtn) {
+      exitCarBtn.addEventListener('touchstart', e => {
+        e.preventDefault();
+        toggleWalkingMode();
+      }, { passive: false });
+      exitCarBtn.addEventListener('click', () => {
+        toggleWalkingMode();
+      });
+    }
+
     const racerConfigs = [
       { name: 'Player', color: 0x0ea5e9, accent: 0xf8fafc, isPlayer: true, lane: -3.8, startIdx: N - 11 },
       { name: 'Apex Red', color: 0xef4444, accent: 0xfef08a, isPlayer: false, lane: 3.8, startIdx: N - 11, baseSpeed: 64 },
@@ -4452,7 +6622,7 @@
       gyroBtn.classList.toggle('active-tilt', gyroState.enabled);
       if (gyroMeter) gyroMeter.style.display = gyroState.enabled ? 'block' : 'none';
 
-      if (touchLeftArrows && touchLeftGyro && touchDriftFallback) {
+      if (touchLeftArrows && touchLeftGyro && touchDriftFallback && !isWalking && !isFlying) {
         touchLeftArrows.style.display = gyroState.enabled ? 'none' : 'flex';
         touchLeftGyro.style.display = gyroState.enabled ? 'flex' : 'none';
         touchDriftFallback.style.display = gyroState.enabled ? 'none' : 'flex';
@@ -4532,12 +6702,89 @@
       el.addEventListener('touchend', e => { e.preventDefault(); keys[code] = false; }, { passive: false });
       el.addEventListener('touchcancel', e => { e.preventDefault(); keys[code] = false; }, { passive: false });
     }
-    bindTouch('t-left', 'ArrowLeft');
-    bindTouch('t-right', 'ArrowRight');
+    const joystickState = {
+      active: false,
+      touchId: null,
+      x: 0, // -1 (left) to +1 (right)
+      y: 0  // -1 (up/forward) to +1 (down/backward)
+    };
+
+    (function initUnifiedJoystick() {
+      const base = document.getElementById('joystick-base');
+      const knob = document.getElementById('joystick-knob');
+      if (!base || !knob) return;
+
+      function updateKnobFromClient(clientX, clientY) {
+        const rect = base.getBoundingClientRect();
+        const cx = rect.left + rect.width * 0.5;
+        const cy = rect.top + rect.height * 0.5;
+        const maxR = Math.max(24, rect.width * 0.36);
+        let dx = clientX - cx;
+        let dy = clientY - cy;
+        const dist = Math.hypot(dx, dy);
+        if (dist > maxR) {
+          dx = (dx / dist) * maxR;
+          dy = (dy / dist) * maxR;
+        }
+        knob.style.transform = `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0px)`;
+        const normX = dx / maxR;
+        const normY = dy / maxR;
+        joystickState.x = Math.abs(normX) < 0.08 ? 0 : normX;
+        joystickState.y = Math.abs(normY) < 0.08 ? 0 : normY;
+      }
+
+      function resetJoystick() {
+        joystickState.active = false;
+        joystickState.touchId = null;
+        joystickState.x = 0;
+        joystickState.y = 0;
+        knob.style.transform = 'translate3d(0px, 0px, 0px)';
+      }
+
+      base.addEventListener('touchstart', e => {
+        e.preventDefault();
+        if (joystickState.active) return;
+        const t = e.changedTouches[0];
+        if (!t) return;
+        joystickState.active = true;
+        joystickState.touchId = t.identifier;
+        updateKnobFromClient(t.clientX, t.clientY);
+      }, { passive: false });
+
+      base.addEventListener('touchmove', e => {
+        e.preventDefault();
+        if (!joystickState.active) return;
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          const t = e.changedTouches[i];
+          if (t.identifier === joystickState.touchId) {
+            updateKnobFromClient(t.clientX, t.clientY);
+            break;
+          }
+        }
+      }, { passive: false });
+
+      base.addEventListener('touchend', e => {
+        e.preventDefault();
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === joystickState.touchId) {
+            resetJoystick();
+            break;
+          }
+        }
+      }, { passive: false });
+
+      base.addEventListener('touchcancel', e => {
+        e.preventDefault();
+        resetJoystick();
+      }, { passive: false });
+    })();
+
     bindTouch('t-drift-gyro', 'ShiftLeft');
     bindTouch('t-drift-fallback', 'ShiftLeft');
     bindTouch('t-brake', 'ArrowDown');
     bindTouch('t-nitro', 'Space');
+    bindTouch('t-heli-up', 'Space');
+    bindTouch('t-heli-down', 'ShiftLeft');
 
     function resetPlayerToTrack() {
       const player = racers[0];
@@ -4553,14 +6800,20 @@
     // ==========================================
     // 11. TRACK SPATIAL QUERY & BOUNDARIES
     // ==========================================
+    function distSqXZ(a, b) {
+      const dx = a.x - b.x;
+      const dz = a.z - b.z;
+      return dx * dx + dz * dz;
+    }
+
     function findClosestTrackIndex(pos, hintIdx) {
       let bestIdx = hintIdx;
-      let bestDistSq = pos.distanceToSquared(trackPoints[hintIdx]);
+      let bestDistSq = distSqXZ(pos, trackPoints[hintIdx]);
 
       const windowSize = 36;
       for (let offset = -windowSize; offset <= windowSize; offset++) {
         const idx = (hintIdx + offset + N) % N;
-        const dSq = pos.distanceToSquared(trackPoints[idx]);
+        const dSq = distSqXZ(pos, trackPoints[idx]);
         if (dSq < bestDistSq) {
           bestDistSq = dSq;
           bestIdx = idx;
@@ -4569,7 +6822,7 @@
 
       if (bestDistSq > 900) {
         for (let i = 0; i < N; i++) {
-          const dSq = pos.distanceToSquared(trackPoints[i]);
+          const dSq = distSqXZ(pos, trackPoints[i]);
           if (dSq < bestDistSq) {
             bestDistSq = dSq;
             bestIdx = i;
@@ -4586,6 +6839,14 @@
       const center = trackPoints[idx];
       const right = trackRights[idx];
       const tan = trackTangents[idx];
+      racer.pos.y = getBridgeHeightForX(racer.pos.x);
+
+      // Compute smooth road slope pitch along car's forward direction
+      const sinH0 = Math.sin(racer.heading);
+      const cosH0 = Math.cos(racer.heading);
+      const hAhead = getBridgeHeightForX(racer.pos.x + sinH0 * 2.5);
+      const hBehind = getBridgeHeightForX(racer.pos.x - sinH0 * 2.5);
+      racer.pitchAngle = -Math.atan2(hAhead - hBehind, 5.0);
 
       const rawProgress = idx / N;
       let diff = rawProgress - racer.lastRawProgress;
@@ -4605,17 +6866,15 @@
         racer.finishTime = raceElapsed;
       }
 
-      _v1.subVectors(racer.pos, center);
+      _v1.set(racer.pos.x - center.x, 0, racer.pos.z - center.z);
       const lateral = _v1.dot(right);
       const maxLateral = ROAD_HALF_WIDTH + 0.35;
 
       if (Math.abs(lateral) > maxLateral) {
         const sign = Math.sign(lateral);
-        racer.pos.set(
-          center.x + right.x * sign * maxLateral,
-          0,
-          center.z + right.z * sign * maxLateral
-        );
+        const clampedX = center.x + right.x * sign * maxLateral;
+        const clampedZ = center.z + right.z * sign * maxLateral;
+        racer.pos.set(clampedX, getBridgeHeightForX(clampedX), clampedZ);
 
         const sinH = Math.sin(racer.heading);
         const cosH = Math.cos(racer.heading);
@@ -4626,8 +6885,12 @@
           let angleDiff = trackHeading - racer.heading;
           while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
           while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
-          racer.heading += angleDiff * Math.min(1, dt * 8);
-          racer.speed *= 0.95;
+          racer.heading += angleDiff * Math.min(1, racer.isPlayer ? dt * 8 : dt * 14);
+          if (racer.isPlayer) {
+            racer.speed *= 0.95;
+          } else {
+            racer.speed = Math.max(36, racer.speed * 0.985);
+          }
 
           if (racer.isPlayer && Math.abs(racer.speed) > 25 && Math.random() < 0.45) {
             spawnParticle(
@@ -4679,11 +6942,12 @@
 
       for (let i = racers.length - 1; i >= 0; i--) {
         const r = racers[i];
-        const x = (r.pos.x - minX) * mapScale + mapOffsetX;
-        const y = (r.pos.z - minZ) * mapScale + mapOffsetZ;
+        const posSrc = (r.isPlayer && (isWalking || isFlying || isBoating)) ? pedestrianState.pos : r.pos;
+        const x = (posSrc.x - minX) * mapScale + mapOffsetX;
+        const y = (posSrc.z - minZ) * mapScale + mapOffsetZ;
         mCtx.beginPath();
         mCtx.arc(x, y, r.isPlayer ? 4.0 : 2.8, 0, Math.PI * 2);
-        mCtx.fillStyle = r.isPlayer ? '#38bdf8' : '#' + r.color.toString(16).padStart(6, '0');
+        mCtx.fillStyle = r.isPlayer ? (isBoating ? '#34d399' : (isFlying ? '#facc15' : '#38bdf8')) : '#' + r.color.toString(16).padStart(6, '0');
         mCtx.fill();
       }
     }
@@ -4747,18 +7011,37 @@
       sound.init();
       unlockAllLoopVideos();
 
-      if (isTouchDevice && !gyroState.enabled) {
-        await enableGyroscope(true);
-      } else if (gyroState.enabled) {
+      if (gyroState.enabled) {
         gyroState.baselineTilt = null;
       }
 
+      isWalking = false;
+      isFlying = false;
+      isBoating = false;
+      isWasted = false;
+      pedGroup.visible = false;
+      boatState.pos.set(426, 0.12, -195);
+      boatState.heading = 0;
+      boatState.speed = 0;
+      riverBoatMesh.position.copy(boatState.pos);
+      riverBoatMesh.rotation.set(0, 0, 0);
+      for (let hi = 0; hi < helicopters.length; hi++) {
+        const h = helicopters[hi];
+        h.state.pos.set(h.pos.x, 0.28, h.pos.z);
+        h.state.heading = h.heading;
+        h.state.pitch = 0;
+        h.state.roll = 0;
+        h.state.velY = 0;
+        h.visual.heliGroup.position.copy(h.state.pos);
+        h.visual.heliGroup.rotation.set(0, h.state.heading, 0);
+      }
       closeStudioEditor();
       resetRacers();
       resetCollectibles();
       resetScoreState();
       setCameraMode(Number(clientConfig.defaultCamera) || cameraMode, false);
       gameState = 'COUNTDOWN';
+      updateWalkingControlsUI();
       countdownTimer = 3.1;
       lastCountdownBeep = 4;
       raceElapsed = 0;
@@ -4872,6 +7155,100 @@
     function animate() {
       requestAnimationFrame(animate);
       const dt = Math.min(clock.getDelta(), 0.05);
+      
+      // Dedicated 2-second timer so billboard multi-image slots auto-rotate reliably every 2 seconds
+      if (typeof window._bbSlideTimer === 'undefined') window._bbSlideTimer = 0;
+      window._bbSlideTimer += dt;
+      if (window._bbSlideTimer >= 2.0) {
+        window._bbSlideTimer = 0;
+        for (let i = 0; i < billboardInstances.length; i++) {
+          if (editorOpen && activeEditorTab === 'billboards' && selectedBillboardIdx === i) continue;
+          const cfg = billboardData[i];
+          if (Array.isArray(cfg.images)) {
+            const validImgs = cfg.images.filter(u => u && u.trim().length > 0);
+            if (validImgs.length > 1) {
+              cfg._slideIdx = ((cfg._slideIdx || 0) + 1) % validImgs.length;
+              cfg.imageUrl = validImgs[cfg._slideIdx];
+              refreshBillboard3D(i);
+            }
+          }
+        }
+        // Also cycle the 4 store display screens through all 10 store products
+        if (storeProducts.length > 4) {
+          storeScreenPageOffset = (storeScreenPageOffset + 2) % storeProducts.length;
+          refreshAllStoreScreens();
+        }
+      }
+
+      updateHelicopterPhysics(dt);
+      updateRiverBoatPhysics(dt);
+
+      if (isWalking && !isWasted && gameState === 'RACING') {
+        const pedBrake = (keys['KeyS'] || keys['ArrowDown']) ? 1 : 0;
+        const pedForward = (keys['KeyW'] || keys['ArrowUp']) ? 1 : 0;
+        const keyTurn = ((keys['KeyA'] || keys['ArrowLeft']) ? 1 : 0) - ((keys['KeyD'] || keys['ArrowRight']) ? 1 : 0);
+        const steerInput = Math.max(-1, Math.min(1, keyTurn - joystickState.x));
+
+        if (steerInput !== 0) {
+          pedestrianState.heading += steerInput * 3.0 * dt;
+        }
+        const joyMove = -joystickState.y; // Pushing joystick up walks forward, pulling down walks backward
+        const moveInput = pedForward ? 1 : (pedBrake ? -0.75 : (Math.abs(joyMove) > 0.12 ? joyMove : 0));
+        if (moveInput !== 0) {
+          const moveDist = moveInput * pedestrianState.speed * dt;
+          pedestrianState.pos.x += Math.sin(pedestrianState.heading) * moveDist;
+          pedestrianState.pos.z += Math.cos(pedestrianState.heading) * moveDist;
+          pedestrianState.walkCycle += dt * 12;
+          const swing = Math.sin(pedestrianState.walkCycle) * 0.65;
+          pedLegL.rotation.x = swing;
+          pedLegR.rotation.x = -swing;
+          pedArmL.rotation.x = -swing * 0.85;
+          pedArmR.rotation.x = swing * 0.85;
+        } else {
+          pedLegL.rotation.x = 0;
+          pedLegR.rotation.x = 0;
+          pedArmL.rotation.x = 0;
+          pedArmR.rotation.x = 0;
+        }
+
+        updateZoneActionBar();
+
+        if (isDancing) {
+          const dTime = discoRig.time * 7.5;
+          pedGroup.position.set(
+            pedestrianState.pos.x,
+            Math.abs(Math.sin(dTime)) * 0.24,
+            pedestrianState.pos.z
+          );
+          pedGroup.rotation.y = pedestrianState.heading + Math.sin(dTime * 0.5) * 0.65;
+          pedGroup.rotation.z = Math.cos(dTime * 0.5) * 0.12;
+          pedArmL.rotation.z = -2.3 + Math.sin(dTime) * 0.45;
+          pedArmR.rotation.z = 2.3 - Math.cos(dTime) * 0.45;
+          pedArmL.rotation.x = Math.cos(dTime) * 0.35;
+          pedArmR.rotation.x = Math.sin(dTime) * 0.35;
+          pedLegL.rotation.x = Math.sin(dTime) * 0.35;
+          pedLegR.rotation.x = -Math.sin(dTime) * 0.35;
+        } else {
+          pedGroup.position.copy(pedestrianState.pos);
+          pedGroup.rotation.y = pedestrianState.heading;
+          pedGroup.rotation.z = 0;
+          pedArmL.rotation.z = 0;
+          pedArmR.rotation.z = 0;
+        }
+
+        // Instant WASTED collision check ONLY against OTHER moving cars (never own parked car)
+        for (let ri = 0; ri < racers.length; ri++) {
+          const rc = racers[ri];
+          if (rc.isPlayer) continue;
+          if (rc.pos.distanceToSquared(pedestrianState.pos) < 3.4) {
+            isWasted = true;
+            updateWalkingControlsUI();
+            triggerWastedScreen();
+            break;
+          }
+        }
+      }
+
 
       fpsFrames++;
       fpsAccum += dt;
@@ -4885,6 +7262,7 @@
 
       updateAllSkyDroneRigs(dt);
       updateAdvertisingBalloons(dt);
+      updateDiscoLightStation(dt);
 
       // Update looping video frames across Billboards & Balloons (~24 Hz for silky low-end FPS)
       videoLoopTimer += dt;
@@ -4913,13 +7291,15 @@
       }
 
       ledTimer += dt;
-      if (ledTimer >= 0.036) {
+      if (ledTimer >= 0.055) {
         renderOverheadLedCanvas(ledCanvas, ledTimer);
         ledTex.needsUpdate = true;
 
-        for (let s = 0; s < skyDroneSystems.length; s++) {
-          const slot = skyDroneSystems[s];
-          renderSkyDroneSlotCanvas(slot.canvas, slot, ledTimer);
+        // Round-robin upload: update 1 Sky Drone texture per tick so 9 sky ads run at 60 FPS with zero lag
+        if (skyDroneSystems.length > 0) {
+          window._skyUploadIdx = ((window._skyUploadIdx || 0) + 1) % skyDroneSystems.length;
+          const slot = skyDroneSystems[window._skyUploadIdx];
+          renderSkyDroneSlotCanvas(slot.canvas, slot, ledTimer * skyDroneSystems.length);
           slot.texture.needsUpdate = true;
         }
 
@@ -4943,6 +7323,7 @@
         countdownEl.textContent = num > 0 ? num : 'GO!';
         if (countdownTimer <= 0) {
           gameState = 'RACING';
+          updateWalkingControlsUI();
           sound.playTone(880, 0.28, 'triangle', 0.16);
           setTimeout(() => { countdownEl.style.opacity = '0'; }, 600);
         }
@@ -4966,6 +7347,16 @@
 
         for (let i = 0; i < racers.length; i++) {
           const r = racers[i];
+          if (r.isPlayer && (isWalking || isFlying || isBoating)) {
+            r.speed = 0;
+            r.steerAngle = 0;
+            r.driftSlipAngle = 0;
+            r.visual.flames[0].visible = false;
+            r.visual.flames[1].visible = false;
+            r.visual.tailMat.color.setHex(0x991b1b);
+            sound.update(0, false, false, false);
+            continue;
+          }
           if (r.nearMissCooldown > 0) r.nearMissCooldown -= dt;
 
           for (let b = 0; b < boostPads.length; b++) {
@@ -5001,8 +7392,10 @@
             const throttle = (brake > 0 || r.isParked) ? 0 : (isTouchDevice ? 1 : manualThrottle);
 
             gyroState.smoothSteer += (gyroState.rawSteer - gyroState.smoothSteer) * (1 - Math.exp(-14 * dt));
-            const keySteer = ((keys['KeyA'] || keys['ArrowLeft']) ? 1 : 0) - ((keys['KeyD'] || keys['ArrowRight']) ? 1 : 0);
-            const steerInput = gyroState.enabled ? Math.max(-1, Math.min(1, gyroState.smoothSteer + keySteer)) : keySteer;
+            const keySteer = ((keys['KeyA'] || keys['ArrowLeft']) ? 1 : 0) - ((keys['KeyD'] || keys['ArrowRight']) ? 1 : 0) - joystickState.x;
+            const steerInput = gyroState.enabled
+              ? Math.max(-1, Math.min(1, gyroState.smoothSteer + keySteer))
+              : Math.max(-1, Math.min(1, keySteer));
 
             if (gyroState.enabled && gyroDot) {
               const pct = 50 - gyroState.smoothSteer * 44;
@@ -5118,9 +7511,11 @@
 
             sound.update(Math.abs(r.speed) / 86, isBoosting, wantsDrift, true);
           } else {
-            const lookAheadIdx = (r.closestIdx + 14) % N;
+            // Corner-aware short lookahead (6 samples ahead ~36m) so AI cars smoothly hug every bend on the large map
+            const lookAheadIdx = (r.closestIdx + 6) % N;
+            const farLookIdx = (r.closestIdx + 14) % N;
             r.aiWeavePhase += dt * 0.7;
-            const dynamicLane = r.isPlayer ? 0 : r.aiLaneOffset + Math.sin(r.aiWeavePhase) * 2.4;
+            const dynamicLane = r.isPlayer ? 0 : r.aiLaneOffset + Math.sin(r.aiWeavePhase) * 2.1;
             const lp = trackPoints[lookAheadIdx];
             const lr = trackRights[lookAheadIdx];
 
@@ -5132,9 +7527,15 @@
             while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
             while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
 
-            const clampedSteer = Math.max(-0.45, Math.min(0.45, angleDiff * 1.8));
-            r.steerAngle += (clampedSteer - r.steerAngle) * (1 - Math.exp(-10 * dt));
-            r.heading += angleDiff * (1 - Math.exp(-5.2 * dt));
+            const clampedSteer = Math.max(-0.55, Math.min(0.55, angleDiff * 2.2));
+            r.steerAngle += (clampedSteer - r.steerAngle) * (1 - Math.exp(-12 * dt));
+            r.heading += angleDiff * (1 - Math.exp(-8.5 * dt));
+
+            // Detect upcoming sharp corner curvature to modulate cornering speed smoothly without ever stopping
+            const tanNow = trackTangents[r.closestIdx];
+            const tanFar = trackTangents[farLookIdx];
+            const cornerDot = Math.max(0.2, tanNow.x * tanFar.x + tanNow.z * tanFar.z);
+            const cornerFactor = 0.76 + 0.24 * cornerDot;
 
             const aiBoosting = r.boostTimer > 0;
             r.visual.flames[0].visible = aiBoosting;
@@ -5147,8 +7548,10 @@
               else if (gap < -0.05) rubberBandBonus = Math.max(-5.5, gap * 40);
             }
 
-            const targetAiSpeed = (r.isPlayer ? 48 : (r.baseSpeed + rubberBandBonus)) + (aiBoosting ? 16 : 0);
-            r.speed += (targetAiSpeed - r.speed) * (1 - Math.exp(-2.5 * dt));
+            const baseTarget = (r.isPlayer ? 48 : (r.baseSpeed + rubberBandBonus)) * cornerFactor + (aiBoosting ? 16 : 0);
+            const targetAiSpeed = Math.max(36, baseTarget);
+            r.speed += (targetAiSpeed - r.speed) * (1 - Math.exp(-3.2 * dt));
+            if (r.speed < 28) r.speed = 28;
 
             r.pos.x += Math.sin(r.heading) * r.speed * dt;
             r.pos.z += Math.cos(r.heading) * r.speed * dt;
@@ -5157,7 +7560,9 @@
           updateRacerTrackState(r, dt);
 
           r.visual.mesh.position.copy(r.pos);
+          r.visual.mesh.rotation.order = 'YXZ';
           r.visual.mesh.rotation.y = r.heading + r.driftSlipAngle;
+          r.visual.mesh.rotation.x = r.pitchAngle || 0;
           r.visual.mesh.rotation.z = -r.steerAngle * (r.speed / 75) * 0.15;
 
           const wheelSpin = (r.speed / 0.42) * dt;
@@ -5180,28 +7585,39 @@
 
             if (distSq > 0.0001 && distSq < minDist * minDist) {
               const dist = Math.sqrt(distSq);
-              const factor = ((minDist - dist) * 0.52) / dist;
-              const px = dx * factor;
-              const pz = dz * factor;
-              a.pos.x += px;
-              a.pos.z += pz;
-              b.pos.x -= px;
-              b.pos.z -= pz;
+              const overlap = (minDist - dist);
+              const nx = dx / dist;
+              const nz = dz / dist;
+              if (a.isPlayer && (isWalking || isFlying || isBoating)) {
+                b.pos.x -= nx * overlap;
+                b.pos.z -= nz * overlap;
+                b.speed *= 0.85;
+              } else if (b.isPlayer && (isWalking || isFlying || isBoating)) {
+                a.pos.x += nx * overlap;
+                a.pos.z += nz * overlap;
+                a.speed *= 0.85;
+              } else {
+                const factor = overlap * 0.52;
+                a.pos.x += nx * factor;
+                a.pos.z += nz * factor;
+                b.pos.x -= nx * factor;
+                b.pos.z -= nz * factor;
 
-              const avgSpeed = (a.speed + b.speed) * 0.5;
-              a.speed = a.speed * 0.7 + avgSpeed * 0.28;
-              b.speed = b.speed * 0.7 + avgSpeed * 0.28;
+                const avgSpeed = (a.speed + b.speed) * 0.5;
+                a.speed = a.speed * 0.7 + avgSpeed * 0.28;
+                b.speed = b.speed * 0.7 + avgSpeed * 0.28;
 
-              if ((a.isPlayer || b.isPlayer) && gameState === 'RACING') {
-                cameraShake = Math.max(cameraShake, 0.35);
-                sound.playBump();
-                spawnParticle(
-                  (a.pos.x + b.pos.x) * 0.5, 0.65, (a.pos.z + b.pos.z) * 0.5,
-                  (Math.random() - 0.5) * 8, 4, (Math.random() - 0.5) * 8,
-                  0.3, 0.6, 0.05, 0xfacc15
-                );
+                if ((a.isPlayer || b.isPlayer) && gameState === 'RACING' && !isWalking && !isFlying && !isBoating) {
+                  cameraShake = Math.max(cameraShake, 0.35);
+                  sound.playBump();
+                  spawnParticle(
+                    (a.pos.x + b.pos.x) * 0.5, 0.65, (a.pos.z + b.pos.z) * 0.5,
+                    (Math.random() - 0.5) * 8, 4, (Math.random() - 0.5) * 8,
+                    0.3, 0.6, 0.05, 0xfacc15
+                  );
+                }
               }
-            } else if (gameState === 'RACING' && (a.isPlayer || b.isPlayer)) {
+            } else if (gameState === 'RACING' && !isWalking && !isFlying && !isBoating && (a.isPlayer || b.isPlayer)) {
               const playerObj = a.isPlayer ? a : b;
               const rivalObj = a.isPlayer ? b : a;
               if (distSq < 27 && rivalObj.nearMissCooldown <= 0 && playerObj.speed > 45 && Math.abs(playerObj.speed - rivalObj.speed) > 6) {
@@ -5260,7 +7676,7 @@
         elBest.textContent = bestScore.toLocaleString();
       }
 
-      const comboActive = scoreState.comboPts > 0 && scoreState.comboTimer > 0;
+      const comboActive = !isWalking && !isFlying && !isBoating && scoreState.comboPts > 0 && scoreState.comboTimer > 0;
       if (hudCache.comboActive !== comboActive) {
         hudCache.comboActive = comboActive;
         comboBox.classList.toggle('active', comboActive);
@@ -5278,7 +7694,7 @@
         comboTimerFill.style.transform = `scaleX(${Math.max(0, scoreState.comboTimer / scoreState.maxComboTimer)})`;
       }
 
-      elVignette.style.opacity = playerBoosting ? '1' : '0';
+      elVignette.style.opacity = (!isWalking && !isFlying && !isBoating && playerBoosting) ? '1' : '0';
 
       jumboTimer += dt;
       if (jumboTimer >= 0.25) {
@@ -5287,6 +7703,75 @@
       }
 
       // Camera Control (Studio Previews vs. Chase / 1st-Person Cockpit / Hood Cam)
+      
+      if (isFlying) {
+        camera.up.set(0, 1, 0);
+        const hX = heliState.pos.x;
+        const hY = heliState.pos.y;
+        const hZ = heliState.pos.z;
+        const radius = 15.5;
+        const totalYaw = heliState.heading + orbitYaw;
+        const horizDist = radius * Math.cos(orbitPitch);
+        const camY = Math.max(1.2, hY + 3.2 + radius * Math.sin(orbitPitch));
+        _v1.set(
+          hX - Math.sin(totalYaw) * horizDist,
+          camY,
+          hZ - Math.cos(totalYaw) * horizDist
+        );
+        _v2.set(
+          hX + Math.sin(totalYaw) * 6.0,
+          hY + 1.8,
+          hZ + Math.cos(totalYaw) * 6.0
+        );
+        smoothCamPos.lerp(_v1, 1 - Math.exp(-10 * dt));
+        smoothCamLook.lerp(_v2, 1 - Math.exp(-14 * dt));
+        camera.position.copy(smoothCamPos);
+        camera.lookAt(smoothCamLook);
+      } else if (isBoating) {
+        camera.up.set(0, 1, 0);
+        const bX = boatState.pos.x;
+        const bZ = boatState.pos.z;
+        const radius = 11.0;
+        const totalYaw = boatState.heading + orbitYaw;
+        const horizDist = radius * Math.cos(orbitPitch);
+        const camY = Math.max(1.3, Math.min(5.2, 1.9 + radius * Math.sin(orbitPitch)));
+        _v1.set(
+          bX - Math.sin(totalYaw) * horizDist,
+          camY,
+          bZ - Math.cos(totalYaw) * horizDist
+        );
+        _v2.set(
+          bX + Math.sin(totalYaw) * 5.5,
+          1.4,
+          bZ + Math.cos(totalYaw) * 5.5
+        );
+        smoothCamPos.lerp(_v1, 1 - Math.exp(-10 * dt));
+        smoothCamLook.lerp(_v2, 1 - Math.exp(-14 * dt));
+        camera.position.copy(smoothCamPos);
+        camera.lookAt(smoothCamLook);
+      } else if (isWalking) {
+        camera.up.set(0, 1, 0);
+        const pX = pedestrianState.pos.x;
+        const pZ = pedestrianState.pos.z;
+        const radius = 7.4;
+        const totalYaw = pedestrianState.heading + orbitYaw;
+        const horizDist = radius * Math.cos(orbitPitch);
+        const camY = Math.max(0.85, 1.45 + radius * Math.sin(orbitPitch));
+        _v1.set(
+          pX - Math.sin(totalYaw) * horizDist,
+          camY,
+          pZ - Math.cos(totalYaw) * horizDist
+        );
+        _v2.set(
+          pX + Math.sin(totalYaw) * 2.2,
+          1.45 + Math.sin(orbitPitch) * 2.0,
+          pZ + Math.cos(totalYaw) * 2.2
+        );
+        smoothCamPos.lerp(_v1, 1 - Math.exp(-14 * dt));
+        smoothCamLook.lerp(_v2, 1 - Math.exp(-16 * dt));
+        camera.position.copy(smoothCamPos);
+        camera.lookAt(smoothCamLook);
+      } else
       if (editorOpen && activeEditorTab === 'drone' && skyDroneSystems[selectedDroneIdx]) {
         const slot = skyDroneSystems[selectedDroneIdx];
         camera.up.set(0, 1, 0);
@@ -5345,7 +7830,7 @@
             const radius = 10.5;
             const totalYaw = player.heading + orbitYaw;
             const horizDist = radius * Math.cos(orbitPitch);
-            const camY = Math.max(1.2, 1.4 + radius * Math.sin(orbitPitch));
+            const camY = player.pos.y + Math.max(1.2, 1.4 + radius * Math.sin(orbitPitch));
             _v1.set(
               player.pos.x - Math.sin(totalYaw) * horizDist,
               camY,
@@ -5353,7 +7838,7 @@
             );
             _v2.set(
               player.pos.x + Math.sin(totalYaw) * 8,
-              1.6 + Math.sin(orbitPitch) * 6.5,
+              player.pos.y + 1.6 + Math.sin(orbitPitch) * 6.5,
               player.pos.z + Math.cos(totalYaw) * 8
             );
             smoothCamPos.lerp(_v1, 1 - Math.exp(-12 * dt));
@@ -5362,14 +7847,16 @@
             orbitYaw *= Math.exp(-8 * dt);
             orbitPitch += (0.28 - orbitPitch) * (1 - Math.exp(-8 * dt));
             const distBack = 9.5 + speedRatio * 2.2;
+            const lookX = player.pos.x + sinP * 14;
+            const lookAheadY = getBridgeHeightForX(lookX);
             _v1.set(
               player.pos.x - sinP * distBack,
-              4.1 + speedRatio * 0.5,
+              player.pos.y + 4.1 + speedRatio * 0.5,
               player.pos.z - cosP * distBack
             );
             _v2.set(
-              player.pos.x + sinP * 14,
-              2.2,
+              lookX,
+              lookAheadY + 2.2,
               player.pos.z + cosP * 14
             );
             smoothCamPos.lerp(_v1, 1 - Math.exp(-10 * dt));
@@ -5384,22 +7871,24 @@
 
           const eyeZOffset = -0.16;
           const eyeX = player.pos.x + sinB * eyeZOffset + shakeX * 0.45;
-          const eyeY = 1.24 + shakeY * 0.45;
+          const eyeY = player.pos.y + 1.24 + shakeY * 0.45;
           const eyeZ = player.pos.z + cosB * eyeZOffset;
           camera.position.set(eyeX, eyeY, eyeZ);
 
           const lookYaw = bodyYaw + player.steerAngle * 0.28;
           const lookSin = Math.sin(lookYaw);
           const lookCos = Math.cos(lookYaw);
-          _v2.set(eyeX + lookSin * 28, 2.05, eyeZ + lookCos * 28);
+          const lookX = eyeX + lookSin * 28;
+          _v2.set(lookX, getBridgeHeightForX(lookX) + 2.05, eyeZ + lookCos * 28);
 
           const bankAngle = -player.steerAngle * speedRatio * 0.085;
           camera.up.set(Math.sin(bankAngle) * lookCos, Math.cos(bankAngle), -Math.sin(bankAngle) * lookSin);
           camera.lookAt(_v2);
         } else {
           camera.up.set(0, 1, 0);
-          camera.position.set(player.pos.x + sinB * 0.75 + shakeX, 1.48 + shakeY, player.pos.z + cosB * 0.75);
-          camera.lookAt(player.pos.x + sinB * 24, 2.15, player.pos.z + cosB * 24);
+          const lookX = player.pos.x + sinB * 24;
+          camera.position.set(player.pos.x + sinB * 0.75 + shakeX, player.pos.y + 1.48 + shakeY, player.pos.z + cosB * 0.75);
+          camera.lookAt(lookX, getBridgeHeightForX(lookX) + 2.15, player.pos.z + cosB * 24);
         }
 
         const baseFov = cameraMode === 1 ? 68 : 62;
@@ -5416,7 +7905,7 @@
         dirLight.target.updateMatrixWorld();
       }
 
-      drawMinimap();
+      if ((fpsFrames & 1) === 0) drawMinimap();
       renderer.render(scene, camera);
     }
 
@@ -5440,7 +7929,21 @@
       return 'https://' + trimmed;
     }
 
+    function checkStoreScreenHit(clientX, clientY) {
+      const rect = canvas.getBoundingClientRect();
+      adPointer.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      adPointer.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+      adRaycaster.setFromCamera(adPointer, camera);
+      const hits = adRaycaster.intersectObjects(clickableAdMeshes, false);
+      for (let i = 0; i < hits.length; i++) {
+        if (hits[i].object && hits[i].object.userData.openStoreModal) {
+          return true;
+        }
+      }
+      return false;
+    }
     function getHitAdUrl(clientX, clientY) {
+      if (editorOpen) return '';
       const rect = canvas.getBoundingClientRect();
       adPointer.x = ((clientX - rect.left) / rect.width) * 2 - 1;
       adPointer.y = -((clientY - rect.top) / rect.height) * 2 + 1;
@@ -5450,7 +7953,9 @@
       for (let i = 0; i < hits.length; i++) {
         const getter = hits[i].object && hits[i].object.userData.adLinkGetter;
         if (getter) {
-          const url = normalizeAdUrl(getter());
+          const rawVal = getter();
+          if (!rawVal || typeof rawVal !== 'string' || !rawVal.trim()) continue;
+          const url = normalizeAdUrl(rawVal);
           if (url) return url;
         }
       }
@@ -5462,7 +7967,7 @@
       pointerDownPos.y = e.clientY;
       lastOrbitPointer.x = e.clientX;
       lastOrbitPointer.y = e.clientY;
-      if (cameraMode === 0 && Math.abs(racers[0].speed) < 0.8 && gameState === 'RACING' && !editorOpen) {
+      if ((isWalking || isFlying || isBoating || (cameraMode === 0 && Math.abs(racers[0].speed) < 0.8)) && gameState === 'RACING' && !editorOpen) {
         isOrbitDragging = true;
       }
     });
@@ -5471,6 +7976,7 @@
       isOrbitDragging = false;
       const moveDist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
       if (moveDist > 12) return;
+      if (checkStoreScreenHit(e.clientX, e.clientY)) { openStoreModal(); return; }
       const url = getHitAdUrl(e.clientX, e.clientY);
       if (url) {
         triggerCallout('OPENING OFFER LINK ↗', '#38bdf8');
@@ -5483,20 +7989,20 @@
     });
 
     canvas.addEventListener('pointermove', (e) => {
-      if (isOrbitDragging && cameraMode === 0 && Math.abs(racers[0].speed) < 0.8 && gameState === 'RACING' && !editorOpen) {
+      if (isOrbitDragging && (isWalking || isFlying || isBoating || (cameraMode === 0 && Math.abs(racers[0].speed) < 0.8)) && gameState === 'RACING' && !editorOpen) {
         const dx = e.clientX - lastOrbitPointer.x;
         const dy = e.clientY - lastOrbitPointer.y;
         lastOrbitPointer.x = e.clientX;
         lastOrbitPointer.y = e.clientY;
         orbitYaw -= dx * 0.0075;
-        orbitPitch = Math.max(-0.08, Math.min(1.12, orbitPitch + dy * 0.0055));
+        orbitPitch = Math.max(-0.12, Math.min(1.15, orbitPitch + dy * 0.0055));
         canvas.style.cursor = 'grabbing';
         return;
       }
       if (e.pointerType !== 'mouse') return;
       if (getHitAdUrl(e.clientX, e.clientY)) {
         canvas.style.cursor = 'pointer';
-      } else if (cameraMode === 0 && Math.abs(racers[0].speed) < 0.8 && gameState === 'RACING') {
+      } else if ((isWalking || (cameraMode === 0 && Math.abs(racers[0].speed) < 0.8)) && gameState === 'RACING') {
         canvas.style.cursor = 'grab';
       } else {
         canvas.style.cursor = 'default';
@@ -5507,4 +8013,5 @@
   </script>
 </body>
 </html>
+
 
