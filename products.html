@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0A0D14">
-<meta name="description" content="Explore Sindora products. Starter Plan — a polished digital profile for your business, ₹799.">
+<meta name="description" content="Explore Sindora website and restaurant solutions from Sindora, starting at ₹799.">
 <title>Our Products — Sindora</title>
 <style>
 :root{--bg:#0A0D14;--panel:#12161F;--panel2:#171D29;--line:rgba(158,170,204,.17);--text:#ECEFF6;--muted:#9AA3B8;--dim:#68738B;--a:#5B6EF5;--b:#2FD9C8;--grad:linear-gradient(120deg,var(--a),var(--b));--radius:22px}
@@ -32,7 +32,7 @@ footer{border-top:1px solid var(--line);padding:26px 0;color:var(--dim);font-siz
 
 /* Sindora shop-plan catalogue */
 .shop-plans{padding:26px 0 76px}
-.shop-plan-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;align-items:stretch}
+.shop-plan-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:stretch}
 .shop-plan{position:relative;display:flex;flex-direction:column;padding:20px 16px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(155deg,rgba(23,29,41,.98),rgba(12,16,25,.98));min-width:0}
 .shop-plan.popular{border-color:rgba(47,217,200,.55);box-shadow:0 12px 35px rgba(47,217,200,.08)}
 .shop-plan .plan-label{font:11px ui-monospace,monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--b);min-height:18px}
@@ -56,13 +56,13 @@ footer{border-top:1px solid var(--line);padding:26px 0;color:var(--dim);font-siz
 <body>
 <header><div class="wrap nav"><a class="brand" href="index.html"><i></i>SINDORA</a><a class="back" href="index.html">← Back to Sindora</a></div></header>
 <main>
-<section class="hero wrap"><div class="eyebrow">Sindora product collection</div><h1>Useful digital products.<br><span class="gradient">Clearly priced.</span></h1><p class="intro">Explore Sindora shop website plans and digital products. Compare features, prices and delivery timelines, then continue to a dedicated checkout page for eligible plans.</p></section>
+<section class="hero wrap"><div class="eyebrow">Sindora product collection</div><h1>Useful digital products.<br><span class="gradient">Clearly priced.</span></h1><p class="intro">Explore Sindora website plans and restaurant solutions. Compare features, prices and delivery timelines, then contact us to get started.</p></section>
 
 <section class="shop-plans wrap" id="shop-plans">
   <div class="section-title">
     <div class="eyebrow">Sindora shop website plans</div>
     <h2>Choose your <span class="gradient">Shop Plan</span></h2>
-    <p>Five options for businesses, from a quick WhatsApp ordering page to a fully customised website.</p>
+    <p>Choose a plan for your shop or restaurant, from a WhatsApp-ready business page to a complete restaurant engagement solution.</p>
   </div>
   <div class="shop-plan-grid">
     <article class="shop-plan">
@@ -74,8 +74,10 @@ footer{border-top:1px solid var(--line);padding:26px 0;color:var(--dim);font-siz
         <li>WhatsApp ordering</li>
         <li>Free hosting</li>
         <li>₹100 per year maintenance</li>
-        <li>2 free updates per month</li>
-        <li>Later updates: ₹30 each</li>
+        <li>1 free update per month</li>
+        <li>Free digital banner design</li>
+        <li>Free digital design service</li>
+        <li>No custom domain included</li>
         <li>Personalised business profile and description</li>
         <li>Photo and product presentation</li>
         <li>WhatsApp, contact and shareable website links</li>
@@ -85,74 +87,58 @@ footer{border-top:1px solid var(--line);padding:26px 0;color:var(--dim);font-siz
       <a class="btn primary plan-cta" href="checkout.html?plan=starter-shop-plan">Order Starter · ₹799</a>
     </article>
 
-    <article class="shop-plan popular">
-      <div class="plan-label">Most popular</div>
-      <h3>Standard Plan</h3>
-      <div class="plan-price">₹999</div>
-      <div class="plan-time">Ready in 20 minutes</div>
-      <ul>
-        <li>Admin app with full page control</li>
-        <li>Up to 35 products</li>
-        <li>Update status, offers and products anytime</li>
-        <li>Take pickup orders</li>
-        <li>Shared domain</li>
-      </ul>
-      <p class="server-note"><strong>Server cost:</strong> ₹350 every 6 months</p>
-      <a class="btn primary plan-cta" href="checkout.html?plan=standard-shop-plan">Order Standard · ₹999</a>
-    </article>
-
     <article class="shop-plan">
-      <div class="plan-label">Advanced control</div>
+      <div class="plan-label">Shop website</div>
       <h3>Pro Plan</h3>
       <div class="plan-price">₹2,499</div>
       <div class="plan-time">Ready in 5 days</div>
       <ul>
-        <li>Full control with admin app</li>
-        <li>Up to 100 products</li>
-        <li>SEO setup</li>
-        <li>Custom logo and site name</li>
-        <li>Your own subdomain</li>
-        <li>Custom domain integration</li>
+        <li>Up to 35 products</li>
+        <li>Admin app with order notifications</li>
+        <li>Designed for taking customer pickup orders</li>
+        <li>Custom domain</li>
+        <li>Installable PWA website</li>
+        <li>Live updates for your shop</li>
       </ul>
-      <p class="server-note"><strong>Server cost:</strong> ₹350 every 6 months</p>
+      <p class="server-note"><strong>Domain allocation:</strong> ₹1,000 of the package price goes entirely towards purchasing your shop's domain.</p>
       <a class="btn primary plan-cta" href="checkout.html?plan=pro-shop-plan">Order Pro · ₹2,499</a>
     </article>
 
     <article class="shop-plan">
-      <div class="plan-label">Premium</div>
+      <div class="plan-label">Editor support</div>
       <h3>Premium Plan</h3>
       <div class="plan-price">₹3,499</div>
-      <div class="plan-time">Site ready in 24 hours<br>Payment integration: up to 5 days</div>
+      <div class="plan-time">Ready in 5 days</div>
       <ul>
-        <li>Pre-made custom templates</li>
-        <li>Editor app</li>
-        <li>Custom domain integration</li>
-        <li>Up to 200 products</li>
-        <li>Automated payment integration</li>
-        <li>SEO setup and Google listing</li>
+        <li>Everything included in the Pro Plan</li>
+        <li>Editor support to add and change products</li>
+        <li>Manage product details through the editor</li>
+        <li>Payment integration available as an optional add-on</li>
       </ul>
-      <p class="server-note"> </p>
+      <p class="server-note"><strong>Optional add-on:</strong> Payment integration costs an additional ₹500.</p>
       <a class="btn primary plan-cta" href="checkout.html?plan=premium-shop-plan">Order Premium · ₹3,499</a>
     </article>
 
     <article class="shop-plan">
-      <div class="plan-label">Bespoke build</div>
+      <div class="plan-label">Restaurant QR automation &amp; solution</div>
       <h3>Custom Site</h3>
-      <div class="plan-price">₹4,999</div>
-      <div class="plan-time">Ready in 10 days</div>
+      <div class="plan-price">₹5,999</div>
+      <div class="plan-time">Build time: 10 days</div>
       <ul>
-        <li>Same technology with Editor App</li>
-        <li>Up to 200 products</li>
-        <li>Custom domain integration</li>
-        <li>Custom features as per your needs</li>
-        <li>SEO and Google search listing</li>
-        <li>Quick Business Support</li>
+        <li>Complete premium restaurant website</li>
+        <li>Custom domain</li>
+        <li>Digital QR menu</li>
+        <li>Table-specific QR codes</li>
+        <li>Optional payment integration on request</li>
+        <li>Exclusive 3D open-world advergame</li>
+        <li>Engaging customer experience during waiting time</li>
+        <li>In-game advertising display for a modern promotion channel</li>
       </ul>
       <p class="server-note"> </p>
-      <a class="btn primary plan-cta" href="https://wa.me/916384300784?text=Hi%20Sindora%2C%20I%27m%20interested%20in%20the%20Custom%20Site%20Plan%20for%20%E2%82%B94999.">Enquire about Custom Site</a>
+      <a class="btn primary plan-cta" href="https://wa.me/916384300784?text=Hi%20Sindora%2C%20I%27m%20interested%20in%20the%20Custom%20Site%20restaurant%20package%20for%20%E2%82%B95999.">Enquire about Custom Site · ₹5,999</a>
     </article>
   </div>
-  <p class="plan-disclaimer">Delivery timelines are estimates and begin after the required business details and materials are received. Premium website setup is targeted within 24 hours; payment integration may take up to 5 days.</p>
+  <p class="plan-disclaimer">Delivery timelines are estimates and begin after the required business details and materials are received. The Custom Site restaurant package has an estimated build time of 10 days. Payment integration is optional and priced separately where stated.</p>
 </section>
 
 <section class="wrap" id="starter-checkout">
@@ -167,7 +153,7 @@ footer{border-top:1px solid var(--line);padding:26px 0;color:var(--dim);font-siz
       <span class="tag">Starter plan</span>
       <h2>Starter <span class="gradient">Shop Plan</span></h2>
       <div class="price">₹799 <small>one-time</small></div>
-      <p class="desc">The ₹799 Starter plan combines WhatsApp ordering with a personalised, mobile-friendly business website. Your business profile, photos, products and customer contact links come together in one easy-to-share page.</p>
+      <p class="desc">The ₹799 Starter plan combines WhatsApp ordering with a personalised, mobile-friendly business website. It includes one free update per month, plus a free digital banner and digital design service. A custom domain is not included.</p>
       <div class="features">
         <div class="feature"><span class="check">✓</span><span>Custom business name and profile</span></div>
         <div class="feature"><span class="check">✓</span><span>About and business description</span></div>
@@ -175,6 +161,9 @@ footer{border-top:1px solid var(--line);padding:26px 0;color:var(--dim);font-siz
         <div class="feature"><span class="check">✓</span><span>WhatsApp and contact links</span></div>
         <div class="feature"><span class="check">✓</span><span>Mobile-friendly design</span></div>
         <div class="feature"><span class="check">✓</span><span>Shareable website link</span></div>
+        <div class="feature"><span class="check">✓</span><span>One free update per month</span></div>
+        <div class="feature"><span class="check">✓</span><span>Free digital banner and digital design service</span></div>
+        <div class="feature"><span class="check">✓</span><span>No custom domain included</span></div>
       </div>
       <div class="actions">
         <a class="btn primary" href="checkout.html?plan=starter-shop-plan">Continue to secure checkout · ₹799</a>
